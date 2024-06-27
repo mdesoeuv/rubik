@@ -6,25 +6,45 @@ import (
 	"errors"
 )
 
-type Face = int 
+type Side = int 
 
 const (
-	Up 		Face = 0
-	Down 	Face = iota
-	Left 	Face = iota
-	Right 	Face = iota
-	Front 	Face = iota
-	Back 	Face = iota
+	Up 		Side = 0
+	Down 	Side = iota
+	Left 	Side = iota
+	Right 	Side = iota
+	Front 	Side = iota
+	Back 	Side = iota
 )
 
 type Move struct {
-	Face 			Face
+	Side 			Side
 	Clockwise 		bool
 	NumRotations 	int
 }
 
+func ParseSide(c rune) (face Side, err error) {
+	switch c {
+	case 'U':
+		face = Up
+	case 'D':
+		face = Down
+	case 'L':
+		face = Left
+	case 'R':
+		face = Right
+	case 'F':
+		face = Front
+	case 'B':
+		face = Back
+	default:
+		err = errors.New("invalid face")
+	}
+	return
+}
+
 func (m Move) String() string {
-    return fmt.Sprintf("face: %d, clockwise: %t, rotations: %d", m.Face, m.Clockwise, m.NumRotations)
+    return fmt.Sprintf("face: %d, clockwise: %t, rotations: %d", m.Side, m.Clockwise, m.NumRotations)
 }
 
 func ParseMove(str string) (move Move, err error) {
@@ -32,27 +52,17 @@ func ParseMove(str string) (move Move, err error) {
 		err = fmt.Errorf("invalid move: %v, of length: %v", str, len(str))
 		return 
 	}
+	var face Side
 	move.NumRotations = 1
 	move.Clockwise = true
 	for i, c := range str {
 		switch i {
 		case 0:
-			switch c {
-			case 'U':
-				move.Face = Up
-			case 'D':
-				move.Face = Down
-			case 'L':
-				move.Face = Left
-			case 'R':
-				move.Face = Right
-			case 'F':
-				move.Face = Front
-			case 'B':
-				move.Face = Back
-			default:
-				err = errors.New("invalid face")
+			face, err = ParseSide(c)
+			if err != nil {
+				return
 			}
+			move.Side = face
 		case 1:
 			switch c {
 			case '\'':

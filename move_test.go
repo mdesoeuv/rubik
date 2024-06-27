@@ -3,8 +3,9 @@ package main
 import "testing"
 
 func TestParseMove(t *testing.T) {
+		
 	move, err := ParseMove("D2")
-	expectedMove := Move{
+	expectedMove := Move {
 		Face:         Down,
 		Clockwise:    true,
 		NumRotations: 2,
