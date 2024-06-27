@@ -3,84 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 )
-
-type Face = int 
-
-const (
-	up 		Face = 0
-	down 	Face = iota
-	left 	Face = iota
-	right 	Face = iota
-	front 	Face = iota
-	back 	Face = iota
-)
-
-type Move struct {
-	face 			Face
-	clockwise 		bool
-	numRotations 	int
-}
-
-func (m Move) String() string {
-    return fmt.Sprintf("face: %d, clockwise: %t, rotations: %d", m.face, m.clockwise, m.numRotations)
-}
-
-
-
-func parseMove(str string) (move Move) {
-	if len(str) == 0 || len(str) > 2 {
-		fmt.Println("ERROR: Invalid move:", str, ", of length:", len(str))
-		os.Exit(1)
-	}
-	move.numRotations = 1
-	move.clockwise = true
-	for i, c := range str {
-		switch i {
-		case 0:
-			switch c {
-			case 'U':
-				move.face = up
-			case 'D':
-				move.face = down
-			case 'L':
-				move.face = left
-			case 'R':
-				move.face = right
-			case 'F':
-				move.face = front
-			case 'B':
-				move.face =back
-			default:
-				fmt.Println("ERROR: Invalid face.")
-				os.Exit(1)
-			}
-		case 1:
-			switch c {
-			case '\'':
-				move.clockwise = false
-			case '2':
-				move.numRotations = 2
-			default:
-				fmt.Println("ERROR: Invalid rotation.")
-				os.Exit(1)
-			}
-		}
-	}
-	return
-}
-
-
-func parseMoveList(str string) (moveList []Move) {
-	strArray := strings.Split(str, " ")
-	for _, moveStr := range strArray {
-		move := parseMove(moveStr)
-		moveList = append(moveList, move)
-	}
-	return
-}
-
 
 func main() {
 
@@ -95,7 +18,11 @@ func main() {
 
 	moveListStr := args[0]
 
-	moveList := parseMoveList(moveListStr)
+	moveList, err := ParseMoveList(moveListStr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	for _, move := range moveList {
 		fmt.Println(move)
 	}
