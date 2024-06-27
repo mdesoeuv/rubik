@@ -23,9 +23,15 @@ type Move struct {
 	numRotations 	int
 }
 
+func (m Move) String() string {
+    return fmt.Sprintf("face: %d, clockwise: %t, rotations: %d", m.face, m.clockwise, m.numRotations)
+}
+
+
+
 func parseMove(str string) (move Move) {
 	if len(str) == 0 || len(str) > 2 {
-		fmt.Println("ERROR: Invalid move string.")
+		fmt.Println("ERROR: Invalid move:", str, ", of length:", len(str))
 		os.Exit(1)
 	}
 	move.numRotations = 1
@@ -83,11 +89,11 @@ func main() {
 		fmt.Println("Usage: go run main.go <move list>")
 		return
 	}
-	moveListStr := args[0]
-
 	for _, arg := range args {
 		fmt.Println(arg)
 	}
+
+	moveListStr := args[0]
 
 	moveList := parseMoveList(moveListStr)
 	for _, move := range moveList {
