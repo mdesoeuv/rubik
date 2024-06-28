@@ -6,7 +6,7 @@ var colors = []Color{Red, Blue, Green, White, Yellow, Orange}
 
 func GetUniformFace(color Color) (face Face) {
 	for i, line := range face {
-		for j, _ := range line {
+		for j := range line {
 			face[i][j] = color
 		}
 	}
@@ -26,6 +26,15 @@ func GetSortedCube() (cube *Cube) {
 	return
 }
 
+func sliceIsOfColor(array [] Color, expected Color) bool {
+	for _, color := range array {
+		if color != expected {
+			return false
+		}
+	}
+	return true
+}
+
 func TestSortedCubeMoveUp(t *testing.T) {
 	cube := GetSortedCube()
 	leftColor := cube.faces[Left][0][0]
@@ -38,69 +47,48 @@ func TestSortedCubeMoveUp(t *testing.T) {
 	cube.apply(Move{Up, true, 1})
 
 	// Check that the up face is rotated
-	for i, line := range cube.faces[Left] {
-		if line[i] != frontColor {
-			t.FailNow()
-		}
+	if !sliceIsOfColor(cube.faces[Right][0][:], backColor) {
+		t.Errorf("Right face did not rotate correctly")
 	}
-	for i, line := range cube.faces[Right] {
-		if line[i] != backColor {
-			t.FailNow()
-		}
+	if !sliceIsOfColor(cube.faces[Front][0][:], rightColor) {
+		t.Errorf("Front face did not rotate correctly")
 	}
-	for i, line := range cube.faces[Front] {
-		if line[i] != rightColor {
-			t.FailNow()
-		}
+	if !sliceIsOfColor(cube.faces[Back][0][:], leftColor) {
+		t.Errorf("Back face did not rotate correctly")
 	}
-	for i, line := range cube.faces[Back] {
-		if line[i] != leftColor {
-			t.FailNow()
-		}
+	if !sliceIsOfColor(cube.faces[Left][0][:], frontColor) {
+		t.Errorf("Left face did not rotate correctly")
 	}
 
 	// Check that the other squares are unchanged
-	for _, line := range cube.faces[Up][1:2] {
-		for _, color := range line {
-			if color != upColor {
-				t.FailNow()
-			}
+	for _, line := range cube.faces[Up][:] {
+		if !sliceIsOfColor(line[:], upColor) {
+			t.Errorf("Up face has changed")	
 		}
 	}
-	for _, line := range cube.faces[Left][1:2] {
-		for _, color := range line {
-			if color != leftColor {
-				t.FailNow()
-			}
+	for _, line := range cube.faces[Left][1:] {
+		if !sliceIsOfColor(line[:], leftColor) {
+			t.Errorf("Left: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Right][1:2] {
-		for _, color := range line {
-			if color != rightColor {
-				t.FailNow()
-			}
+	for _, line := range cube.faces[Right][1:] {
+		if !sliceIsOfColor(line[:], rightColor) {
+			t.Errorf("Right: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Front][1:2] {
-		for _, color := range line {
-			if color != frontColor {
-				t.FailNow()
-			}
+	for _, line := range cube.faces[Front][1:] {
+		if !sliceIsOfColor(line[:], frontColor) {
+			t.Errorf("Front: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Back][1:2] {
-		for _, color := range line {
-			if color != backColor {
-				t.FailNow()
-			}
+	for _, line := range cube.faces[Back][1:] {
+		if !sliceIsOfColor(line[:], backColor) {
+			t.Errorf("Back: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Down][0:3] {
-		for _, color := range line {
-			if color != downColor {
-				t.FailNow()
-			}
+	for _, line := range cube.faces[Down][:] {
+		if !sliceIsOfColor(line[:], downColor) {
+			t.Errorf("Up face has changed")	
 		}
 	}
 }
-
