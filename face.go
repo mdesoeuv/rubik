@@ -28,7 +28,6 @@ func NewFaceUniform(side Side) (face Face) {
 	return
 }
 
-
 func FaceEqual(a, b Face) bool {
 	for line, _ := range a.f {
 		for column, _ := range a.f[line] {
