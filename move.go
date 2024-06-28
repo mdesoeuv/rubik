@@ -17,6 +17,8 @@ const (
 	Back 	Side = iota
 )
 
+var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: 'L', Right: 'R'}
+
 type Move struct {
 	Side 			Side
 	Clockwise 		bool
@@ -44,7 +46,11 @@ func ParseSide(c rune) (face Side, err error) {
 }
 
 func (m Move) String() string {
-    return fmt.Sprintf("face: %d, clockwise: %t, rotations: %d", m.Side, m.Clockwise, m.NumRotations)
+    return fmt.Sprintf("face: %c, clockwise: %t, rotations: %d", SideToString(m.Side), m.Clockwise, m.NumRotations)
+}
+
+func SideToString(s Side) rune {
+	return sideNames[s]
 }
 
 func ParseMove(str string) (move Move, err error) {
