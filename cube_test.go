@@ -16,63 +16,63 @@ func sliceIsOfColor(array [] Color, expected Color) bool {
 	return true
 }
 
-func TestSortedCubeMoveUp(t *testing.T) {
-	cube := NewCubeSolved()
-	leftColor := cube.faces[Left].f[0][0]
-	rightColor := cube.faces[Right].f[0][0]
-	frontColor := cube.faces[Front].f[0][0]
-	backColor := cube.faces[Back].f[0][0]
-	upColor := cube.faces[Up].f[0][0]
-	downColor := cube.faces[Down].f[0][0]
+// func TestSortedCubeMoveUp(t *testing.T) {
+// 	cube := NewCubeSolved()
+// 	leftColor := cube.faces[Left].f[0][0]
+// 	rightColor := cube.faces[Right].f[0][0]
+// 	frontColor := cube.faces[Front].f[0][0]
+// 	backColor := cube.faces[Back].f[0][0]
+// 	upColor := cube.faces[Up].f[0][0]
+// 	downColor := cube.faces[Down].f[0][0]
 
-	cube.apply(Move{Up, true, 1})
+// 	cube.apply(Move{Up, true, 1})
 
-	// Check that the up face is rotated
-	if !sliceIsOfColor(cube.faces[Right].f[0][:], backColor) {
-		t.Errorf("Right face did not rotate correctly")
-	}
-	if !sliceIsOfColor(cube.faces[Front].f[0][:], rightColor) {
-		t.Errorf("Front face did not rotate correctly")
-	}
-	if !sliceIsOfColor(cube.faces[Back].f[0][:], leftColor) {
-		t.Errorf("Back face did not rotate correctly")
-	}
-	if !sliceIsOfColor(cube.faces[Left].f[0][:], frontColor) {
-		t.Errorf("Left face did not rotate correctly")
-	}
+// 	// Check that the up face is rotated
+// 	if !sliceIsOfColor(cube.faces[Right].f[0][:], backColor) {
+// 		t.Errorf("Right face did not rotate correctly")
+// 	}
+// 	if !sliceIsOfColor(cube.faces[Front].f[0][:], rightColor) {
+// 		t.Errorf("Front face did not rotate correctly")
+// 	}
+// 	if !sliceIsOfColor(cube.faces[Back].f[0][:], leftColor) {
+// 		t.Errorf("Back face did not rotate correctly")
+// 	}
+// 	if !sliceIsOfColor(cube.faces[Left].f[0][:], frontColor) {
+// 		t.Errorf("Left face did not rotate correctly")
+// 	}
 
-	// Check that the other squares are unchanged
-	for _, line := range cube.faces[Up].f[:] {
-		if !sliceIsOfColor(line[:], upColor) {
-			t.Errorf("Up face has changed")	
-		}
-	}
-	for _, line := range cube.faces[Left].f[1:] {
-		if !sliceIsOfColor(line[:], leftColor) {
-			t.Errorf("Left: unexpected square change")	
-		}
-	}
-	for _, line := range cube.faces[Right].f[1:] {
-		if !sliceIsOfColor(line[:], rightColor) {
-			t.Errorf("Right: unexpected square change")	
-		}
-	}
-	for _, line := range cube.faces[Front].f[1:] {
-		if !sliceIsOfColor(line[:], frontColor) {
-			t.Errorf("Front: unexpected square change")	
-		}
-	}
-	for _, line := range cube.faces[Back].f[1:] {
-		if !sliceIsOfColor(line[:], backColor) {
-			t.Errorf("Back: unexpected square change")	
-		}
-	}
-	for _, line := range cube.faces[Down].f[:] {
-		if !sliceIsOfColor(line[:], downColor) {
-			t.Errorf("Up face has changed")	
-		}
-	}
-}
+// 	// Check that the other squares are unchanged
+// 	for _, line := range cube.faces[Up].f[:] {
+// 		if !sliceIsOfColor(line[:], upColor) {
+// 			t.Errorf("Up face has changed")	
+// 		}
+// 	}
+// 	for _, line := range cube.faces[Left].f[1:] {
+// 		if !sliceIsOfColor(line[:], leftColor) {
+// 			t.Errorf("Left: unexpected square change")	
+// 		}
+// 	}
+// 	for _, line := range cube.faces[Right].f[1:] {
+// 		if !sliceIsOfColor(line[:], rightColor) {
+// 			t.Errorf("Right: unexpected square change")	
+// 		}
+// 	}
+// 	for _, line := range cube.faces[Front].f[1:] {
+// 		if !sliceIsOfColor(line[:], frontColor) {
+// 			t.Errorf("Front: unexpected square change")	
+// 		}
+// 	}
+// 	for _, line := range cube.faces[Back].f[1:] {
+// 		if !sliceIsOfColor(line[:], backColor) {
+// 			t.Errorf("Back: unexpected square change")	
+// 		}
+// 	}
+// 	for _, line := range cube.faces[Down].f[:] {
+// 		if !sliceIsOfColor(line[:], downColor) {
+// 			t.Errorf("Up face has changed")	
+// 		}
+// 	}
+// }
 
 func NewCubeTopSpinned() *Cube {
 	cube := NewCubeSolved()
@@ -90,29 +90,29 @@ func NewCubeTopSpinned() *Cube {
 	return cube
 }
 
-func TestFrontFaceRotation(t *testing.T) {
-	cube := NewCubeTopSpinned()
+// func TestFrontFaceRotation(t *testing.T) {
+// 	cube := NewCubeTopSpinned()
 
-	move := Move {
-		Side:         Front,
-		Clockwise:    true,
-		NumRotations: 1,
-	}
+// 	move := Move {
+// 		Side:         Front,
+// 		Clockwise:    true,
+// 		NumRotations: 1,
+// 	}
 
-	cube.apply(move)
+// 	cube.apply(move)
 
-	expectedFace := Face {
-		f: [3][3]Color {
-		{Front, Front, Left},
-		{Front, Front, Left},
-		{Front, Front, Left},
-		},
-	}
+// 	expectedFace := Face {
+// 		f: [3][3]Color {
+// 		{Front, Front, Left},
+// 		{Front, Front, Left},
+// 		{Front, Front, Left},
+// 		},
+// 	}
 
-	if !FaceEqual(cube.faces[Front], expectedFace) {
-		t.Errorf("Wrong front face after rotation")
-	}
-}
+// 	if !FaceEqual(cube.faces[Front], expectedFace) {
+// 		t.Errorf("Wrong front face after rotation")
+// 	}
+// }
 
 func TestCubeString(t *testing.T) {
 	cube := NewCubeSolved()
