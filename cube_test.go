@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -117,8 +116,31 @@ func TestFrontFaceRotation(t *testing.T) {
 
 func TestCubeString(t *testing.T) {
 	cube := NewCubeSolved()
-	result := fmt.Sprint(cube)
-	expected := "Face: U\n[U][U][U]\n[U][U][U]\n[U][U][U]\n\nFace: D\n[D][D][D]\n[D][D][D]\n[D][D][D]\n\nFace: L\n[L][L][L]\n[L][L][L]\n[L][L][L]\n\nFace: R\n[R][R][R]\n[R][R][R]\n[R][R][R]\n\nFace: F\n[F][F][F]\n[F][F][F]\n[F][F][F]\n\nFace: B\n[B][B][B]\n[B][B][B]\n[B][B][B]\n\n"
+	result := cube.String()
+	expected := "Face: U\n" +
+				"[U][U][U]\n" +
+				"[U][U][U]\n" +
+				"[U][U][U]\n\n" +
+				"Face: D\n" +
+				"[D][D][D]\n" +
+				"[D][D][D]\n"+
+				"[D][D][D]\n\n" +
+				"Face: L\n" +
+				"[L][L][L]\n" +
+				"[L][L][L]\n" +
+				"[L][L][L]\n\n" +
+				"Face: R\n" + 
+				"[R][R][R]\n" + 
+				"[R][R][R]\n" + 
+				"[R][R][R]\n\n" +
+				"Face: F\n" + 
+				"[F][F][F]\n" + 
+				"[F][F][F]\n" +
+				"[F][F][F]\n\n" +
+				"Face: B\n" +
+				"[B][B][B]\n" +
+				"[B][B][B]\n" +
+				"[B][B][B]\n\n"
 	if result != expected {
 		t.Errorf("Expected: %v, got: %v", expected, result)
 	}
