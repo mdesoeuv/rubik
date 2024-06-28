@@ -4,27 +4,6 @@ import "testing"
 
 var colors = []Color{Red, Blue, Green, White, Yellow, Orange}
 
-func GetUniformFace(color Color) (face Face) {
-	for i, line := range face {
-		for j := range line {
-			face[i][j] = color
-		}
-	}
-	return
-}
-
-
-func GetSortedCube() (cube *Cube) {
-
-	cube = NewCube()
-	cube.faces[Front] = GetUniformFace(Red)
-	cube.faces[Back] = GetUniformFace(Blue)
-	cube.faces[Left] = GetUniformFace(Green)
-	cube.faces[Right] = GetUniformFace(White)
-	cube.faces[Up] = GetUniformFace(Yellow)
-	cube.faces[Down] = GetUniformFace(Orange)
-	return
-}
 
 func sliceIsOfColor(array [] Color, expected Color) bool {
 	for _, color := range array {
@@ -36,7 +15,7 @@ func sliceIsOfColor(array [] Color, expected Color) bool {
 }
 
 func TestSortedCubeMoveUp(t *testing.T) {
-	cube := GetSortedCube()
+	cube := NewCubeSolved()
 	leftColor := cube.faces[Left][0][0]
 	rightColor := cube.faces[Right][0][0]
 	frontColor := cube.faces[Front][0][0]
@@ -90,5 +69,43 @@ func TestSortedCubeMoveUp(t *testing.T) {
 		if !sliceIsOfColor(line[:], downColor) {
 			t.Errorf("Up face has changed")	
 		}
+	}
+}
+
+func NewCubeTopSpinned() *Cube {
+	cube := NewCubeSolved()
+
+	// Spin top
+	frontLine := cube.faces[Front][0]
+	rightLine := cube.faces[Right][0]
+	backLine := cube.faces[Back][0]
+	leftLine := cube.faces[Left][0]
+	cube.faces[Front][0] = leftLine
+	cube.faces[Right][0] = frontLine
+	cube.faces[Back][0] = rightLine
+	cube.faces[Left][0] = backLine
+	
+	return cube
+}
+
+func TestFrontFaceRotation(t *testing.T) {
+	cube := NewCubeTopSpinned()
+
+	move := Move {
+		Side:         Front,
+		Clockwise:    true,
+		NumRotations: 1,
+	}
+
+	cube.apply(move)
+
+	expectedFace := Face {
+		{Front, Front, Left},
+		{Front, Front, Left},
+		{Front, Front, Left},
+	}
+
+	if !FaceEqual(cube.faces[Front], expectedFace) {
+		t.Errorf("Wrong front face after rotation")
 	}
 }

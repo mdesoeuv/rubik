@@ -15,6 +15,8 @@ const (
 	Right 	Side = iota
 	Front 	Side = iota
 	Back 	Side = iota
+	FirstSide Side = Up
+	LastSide = Back
 )
 
 var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: 'L', Right: 'R'}
