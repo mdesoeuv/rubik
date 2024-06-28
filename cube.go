@@ -21,8 +21,40 @@ func NewCube() *Cube {
 	return &Cube{}
 }
 
+func rotateFace(face Face, clockWise bool) (result Face) {
+	// Center never moves
+	result[1][1] = face[1][1]
+
+	if clockWise {
+		result[0][0] = face[0][1]
+		result[0][1] = face[0][2]
+		result[0][2] = face[1][2]
+		result[1][2] = face[2][2]
+		result[2][2] = face[2][1]
+		result[2][1] = face[2][0]
+		result[2][0] = face[1][0]
+		result[1][0] = face[0][0]
+	} else {
+		result[0][0] = face[0][0]
+		result[0][1] = face[0][1]
+		result[0][2] = face[0][2]
+		result[1][2] = face[1][2]
+		result[2][2] = face[2][2]
+		result[2][1] = face[2][1]
+		result[2][0] = face[2][0]
+		result[1][0] = face[0][0]
+	}
+	return
+}
+
 func (c *Cube)apply(move Move) {
-	panic("Todo")
+	face := &c.faces[move.Side]
+
+	// rotate face it self
+	*face = rotateFace(*face, move.Clockwise)
+
+	// TODO: rotate crown
+	return 
 }
 
 func (c *Cube)isSolved() bool {
