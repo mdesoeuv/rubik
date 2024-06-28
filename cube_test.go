@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 var colors = []Color{Red, Blue, Green, White, Yellow, Orange}
 
@@ -110,4 +113,19 @@ func TestFrontFaceRotation(t *testing.T) {
 	if !FaceEqual(cube.faces[Front], expectedFace) {
 		t.Errorf("Wrong front face after rotation")
 	}
+}
+
+func TestPrintFace(t *testing.T) {
+	cube := NewCubeSolved()
+	fmt.Println("----- Print Face -----")
+	fmt.Print(cube.faces[Front])
+	fmt.Println("----- End -----")
+
+}
+
+func TestPrintCube(t *testing.T) {
+	fmt.Println("-----Print Cube -----")
+	cube := NewCubeSolved()
+	fmt.Print(cube)
+	fmt.Println("----- End -----")
 }

@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Color = int
 const (
 	Red Color = 0
@@ -17,6 +19,27 @@ type Cube struct {
 
 type Face struct {
 	f [3][3]Side
+}
+
+func (f Face) String() string {
+	result := ""
+	for _, line := range f.f {
+		for _, side := range line {
+			result += fmt.Sprintf("[%c]", sideNames[side])
+		}
+		result += "\n"
+	}
+	return result
+}
+
+func (c Cube) String() string {
+	result := ""
+	for side, face := range c.faces {
+		result += fmt.Sprintf("Face: %c\n", sideNames[Side(side)])
+		result += face.String()
+		result += "\n"
+	}
+	return result
 }
 
 func NewFaceUniform(side Side) (face Face) {
@@ -122,7 +145,7 @@ func (c *Cube)apply(move Move) {
 	*face = rotateFace(*face, move.Clockwise)
 
 	// TODO: rotate crown
-	return 
+	return
 }
 
 func (c *Cube)isSolved() bool {
