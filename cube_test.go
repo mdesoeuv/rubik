@@ -1,6 +1,8 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
 var colors = []Color{Red, Blue, Green, White, Yellow, Orange}
 
@@ -16,56 +18,56 @@ func sliceIsOfColor(array [] Color, expected Color) bool {
 
 func TestSortedCubeMoveUp(t *testing.T) {
 	cube := NewCubeSolved()
-	leftColor := cube.faces[Left][0][0]
-	rightColor := cube.faces[Right][0][0]
-	frontColor := cube.faces[Front][0][0]
-	backColor := cube.faces[Back][0][0]
-	upColor := cube.faces[Up][0][0]
-	downColor := cube.faces[Down][0][0]
+	leftColor := cube.faces[Left].f[0][0]
+	rightColor := cube.faces[Right].f[0][0]
+	frontColor := cube.faces[Front].f[0][0]
+	backColor := cube.faces[Back].f[0][0]
+	upColor := cube.faces[Up].f[0][0]
+	downColor := cube.faces[Down].f[0][0]
 
 	cube.apply(Move{Up, true, 1})
 
 	// Check that the up face is rotated
-	if !sliceIsOfColor(cube.faces[Right][0][:], backColor) {
+	if !sliceIsOfColor(cube.faces[Right].f[0][:], backColor) {
 		t.Errorf("Right face did not rotate correctly")
 	}
-	if !sliceIsOfColor(cube.faces[Front][0][:], rightColor) {
+	if !sliceIsOfColor(cube.faces[Front].f[0][:], rightColor) {
 		t.Errorf("Front face did not rotate correctly")
 	}
-	if !sliceIsOfColor(cube.faces[Back][0][:], leftColor) {
+	if !sliceIsOfColor(cube.faces[Back].f[0][:], leftColor) {
 		t.Errorf("Back face did not rotate correctly")
 	}
-	if !sliceIsOfColor(cube.faces[Left][0][:], frontColor) {
+	if !sliceIsOfColor(cube.faces[Left].f[0][:], frontColor) {
 		t.Errorf("Left face did not rotate correctly")
 	}
 
 	// Check that the other squares are unchanged
-	for _, line := range cube.faces[Up][:] {
+	for _, line := range cube.faces[Up].f[:] {
 		if !sliceIsOfColor(line[:], upColor) {
 			t.Errorf("Up face has changed")	
 		}
 	}
-	for _, line := range cube.faces[Left][1:] {
+	for _, line := range cube.faces[Left].f[1:] {
 		if !sliceIsOfColor(line[:], leftColor) {
 			t.Errorf("Left: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Right][1:] {
+	for _, line := range cube.faces[Right].f[1:] {
 		if !sliceIsOfColor(line[:], rightColor) {
 			t.Errorf("Right: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Front][1:] {
+	for _, line := range cube.faces[Front].f[1:] {
 		if !sliceIsOfColor(line[:], frontColor) {
 			t.Errorf("Front: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Back][1:] {
+	for _, line := range cube.faces[Back].f[1:] {
 		if !sliceIsOfColor(line[:], backColor) {
 			t.Errorf("Back: unexpected square change")	
 		}
 	}
-	for _, line := range cube.faces[Down][:] {
+	for _, line := range cube.faces[Down].f[:] {
 		if !sliceIsOfColor(line[:], downColor) {
 			t.Errorf("Up face has changed")	
 		}
@@ -76,14 +78,14 @@ func NewCubeTopSpinned() *Cube {
 	cube := NewCubeSolved()
 
 	// Spin top
-	frontLine := cube.faces[Front][0]
-	rightLine := cube.faces[Right][0]
-	backLine := cube.faces[Back][0]
-	leftLine := cube.faces[Left][0]
-	cube.faces[Front][0] = leftLine
-	cube.faces[Right][0] = frontLine
-	cube.faces[Back][0] = rightLine
-	cube.faces[Left][0] = backLine
+	frontLine := cube.faces[Front].f[0]
+	rightLine := cube.faces[Right].f[0]
+	backLine := cube.faces[Back].f[0]
+	leftLine := cube.faces[Left].f[0]
+	cube.faces[Front].f[0] = leftLine
+	cube.faces[Right].f[0] = frontLine
+	cube.faces[Back].f[0] = rightLine
+	cube.faces[Left].f[0] = backLine
 	
 	return cube
 }
@@ -100,12 +102,46 @@ func TestFrontFaceRotation(t *testing.T) {
 	cube.apply(move)
 
 	expectedFace := Face {
+		f: [3][3]Color {
 		{Front, Front, Left},
 		{Front, Front, Left},
 		{Front, Front, Left},
+		},
 	}
 
 	if !FaceEqual(cube.faces[Front], expectedFace) {
 		t.Errorf("Wrong front face after rotation")
+	}
+}
+
+func TestCubeString(t *testing.T) {
+	cube := NewCubeSolved()
+	result := cube.String()
+	expected := "Face: U\n" +
+				"[U][U][U]\n" +
+				"[U][U][U]\n" +
+				"[U][U][U]\n\n" +
+				"Face: D\n" +
+				"[D][D][D]\n" +
+				"[D][D][D]\n"+
+				"[D][D][D]\n\n" +
+				"Face: L\n" +
+				"[L][L][L]\n" +
+				"[L][L][L]\n" +
+				"[L][L][L]\n\n" +
+				"Face: R\n" + 
+				"[R][R][R]\n" + 
+				"[R][R][R]\n" + 
+				"[R][R][R]\n\n" +
+				"Face: F\n" + 
+				"[F][F][F]\n" + 
+				"[F][F][F]\n" +
+				"[F][F][F]\n\n" +
+				"Face: B\n" +
+				"[B][B][B]\n" +
+				"[B][B][B]\n" +
+				"[B][B][B]\n\n"
+	if result != expected {
+		t.Errorf("Expected: %v, got: %v", expected, result)
 	}
 }

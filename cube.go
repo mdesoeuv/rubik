@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Color = int
 const (
 	Red Color = 0
@@ -15,26 +17,14 @@ type Cube struct {
 	faces [6]Face
 }
 
-type Face = [3][3]Side
-
-func NewFaceUniform(side Side) (face Face) {
-	for i, line := range face {
-		for j := range line {
-			face[i][j] = side
-		}
+func (c Cube) String() string {
+	result := ""
+	for side, face := range c.faces {
+		result += fmt.Sprintf("Face: %c\n", sideNames[Side(side)])
+		result += face.String()
+		result += "\n"
 	}
-	return
-}
-
-func FaceEqual(a, b Face) bool {
-	for line, _ := range a {
-		for column, _ := range a[line] {
-			if a[line][column] != b[line][column] {
-				return false
-			}
-		}
-	}
-	return true
+	return result
 }
 
 func NewCubeSolved() *Cube {
@@ -45,17 +35,6 @@ func NewCubeSolved() *Cube {
 	}
 
 	return &cube
-}
-
-func FaceIsUniform(face Face, side Side) bool {
-	for line := range face {
-		for column := range face[line] {
-			if face[line][column] != side {
-				return false
-			}
-		}
-	}
-	return true
 }
 
 func (c *Cube)IsSolved() bool {
@@ -74,7 +53,7 @@ type Coord struct {
 
 func rotateFace(face Face, clockWise bool) (result Face) {
 	// Center never moves
-	result[1][1] = face[1][1]
+	result.f[1][1] = face.f[1][1]
 
 	// cycle := []Coord {
 	// 	{0, 0},
@@ -92,23 +71,23 @@ func rotateFace(face Face, clockWise bool) (result Face) {
 		// 	from, to := cycle[i], cycle[(i + 1) % len(cycle)];
 		// 	result[from.line][from.column] = face[to.line][to.column]
 		// }
-		result[0][0] = face[0][1]
-		result[0][1] = face[0][2]
-		result[0][2] = face[1][2]
-		result[1][2] = face[2][2]
-		result[2][2] = face[2][1]
-		result[2][1] = face[2][0]
-		result[2][0] = face[1][0]
-		result[1][0] = face[0][0]
+		result.f[0][0] = face.f[0][1]
+		result.f[0][1] = face.f[0][2]
+		result.f[0][2] = face.f[1][2]
+		result.f[1][2] = face.f[2][2]
+		result.f[2][2] = face.f[2][1]
+		result.f[2][1] = face.f[2][0]
+		result.f[2][0] = face.f[1][0]
+		result.f[1][0] = face.f[0][0]
 	} else {
-		result[0][0] = face[0][0]
-		result[0][1] = face[0][1]
-		result[0][2] = face[0][2]
-		result[1][2] = face[1][2]
-		result[2][2] = face[2][2]
-		result[2][1] = face[2][1]
-		result[2][0] = face[2][0]
-		result[1][0] = face[0][0]
+		result.f[0][0] = face.f[0][0]
+		result.f[0][1] = face.f[0][1]
+		result.f[0][2] = face.f[0][2]
+		result.f[1][2] = face.f[1][2]
+		result.f[2][2] = face.f[2][2]
+		result.f[2][1] = face.f[2][1]
+		result.f[2][0] = face.f[2][0]
+		result.f[1][0] = face.f[0][0]
 	}
 	return
 }
@@ -120,14 +99,14 @@ func (c *Cube)apply(move Move) {
 	*face = rotateFace(*face, move.Clockwise)
 
 	// TODO: rotate crown
-	return 
+	return
 }
 
 func (c *Cube)isSolved() bool {
 	seenColors := [ColorCount]bool{}
 	for _, face := range c.faces {
 		var currentColor *Color = nil
-		for _, line := range face {
+		for _, line := range face.f {
 			for _, color := range line {
 				if currentColor != nil  && color != *currentColor {
 					return false
