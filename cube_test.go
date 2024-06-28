@@ -115,17 +115,11 @@ func TestFrontFaceRotation(t *testing.T) {
 	}
 }
 
-func TestPrintFace(t *testing.T) {
+func TestCubeString(t *testing.T) {
 	cube := NewCubeSolved()
-	fmt.Println("----- Print Face -----")
-	fmt.Print(cube.faces[Front])
-	fmt.Println("----- End -----")
-
-}
-
-func TestPrintCube(t *testing.T) {
-	fmt.Println("-----Print Cube -----")
-	cube := NewCubeSolved()
-	fmt.Print(cube)
-	fmt.Println("----- End -----")
+	result := fmt.Sprint(cube)
+	expected := "Face: U\n[U][U][U]\n[U][U][U]\n[U][U][U]\n\nFace: D\n[D][D][D]\n[D][D][D]\n[D][D][D]\n\nFace: L\n[L][L][L]\n[L][L][L]\n[L][L][L]\n\nFace: R\n[R][R][R]\n[R][R][R]\n[R][R][R]\n\nFace: F\n[F][F][F]\n[F][F][F]\n[F][F][F]\n\nFace: B\n[B][B][B]\n[B][B][B]\n[B][B][B]\n\n"
+	if result != expected {
+		t.Errorf("Expected: %v, got: %v", expected, result)
+	}
 }
