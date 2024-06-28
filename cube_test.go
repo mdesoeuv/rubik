@@ -1,6 +1,6 @@
 package main
 
-// import "testing"
+import "testing"
 
 var colors = []Color{Red, Blue, Green, White, Yellow, Orange}
 
@@ -38,65 +38,65 @@ func TestSortedCubeMoveUp(t *testing.T) {
 	cube.apply(Move{Up, true, 1})
 
 	// Check that the up face is rotated
-	for i, line := range cube.faces[Left][0] {
+	for i, line := range cube.faces[Left] {
 		if line[i] != frontColor {
 			t.FailNow()
 		}
 	}
-	for i, line := range cube.faces[Right][0] {
+	for i, line := range cube.faces[Right] {
 		if line[i] != backColor {
 			t.FailNow()
 		}
 	}
-	for i, line := range cube.faces[Front][0] {
+	for i, line := range cube.faces[Front] {
 		if line[i] != rightColor {
 			t.FailNow()
 		}
 	}
-	for i, line := range cube.faces[Back][0] {
+	for i, line := range cube.faces[Back] {
 		if line[i] != leftColor {
 			t.FailNow()
 		}
 	}
 
 	// Check that the other squares are unchanged
-	for i, line := range cube.faces[Up][1:2] {
-		for j, color := range line {
+	for _, line := range cube.faces[Up][1:2] {
+		for _, color := range line {
 			if color != upColor {
 				t.FailNow()
 			}
 		}
 	}
-	for i, line := range cube.faces[Left][1:2] {
-		for j, color := range line {
+	for _, line := range cube.faces[Left][1:2] {
+		for _, color := range line {
 			if color != leftColor {
 				t.FailNow()
 			}
 		}
 	}
-	for i, line := range cube.faces[Right][1:2] {
-		for j, color := range line {
+	for _, line := range cube.faces[Right][1:2] {
+		for _, color := range line {
 			if color != rightColor {
 				t.FailNow()
 			}
 		}
 	}
-	for i, line := range cube.faces[Front][1:2] {
-		for j, color := range line {
+	for _, line := range cube.faces[Front][1:2] {
+		for _, color := range line {
 			if color != frontColor {
 				t.FailNow()
 			}
 		}
 	}
-	for i, line := range cube.faces[Back][1:2] {
-		for j, color := range line {
+	for _, line := range cube.faces[Back][1:2] {
+		for _, color := range line {
 			if color != backColor {
 				t.FailNow()
 			}
 		}
 	}
-	for i, line := range cube.faces[Down][0:3] {
-		for j, color := range line {
+	for _, line := range cube.faces[Down][0:3] {
+		for _, color := range line {
 			if color != downColor {
 				t.FailNow()
 			}
