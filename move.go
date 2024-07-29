@@ -1,31 +1,30 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 )
 
-type Side = int 
+type Side = int
 
 const (
-	Up 		Side = 0
-	Down 	Side = iota
-	Left 	Side = iota
-	Right 	Side = iota
-	Front 	Side = iota
-	Back 	Side = iota
+	Up        Side = 0
+	Down      Side = iota
+	Left      Side = iota
+	Right     Side = iota
+	Front     Side = iota
+	Back      Side = iota
 	FirstSide Side = Up
-	LastSide = Back
-    SideCount = LastSide + 1
+	LastSide       = Back
+	SideCount      = LastSide + 1
 )
 
 var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: 'L', Right: 'R'}
 
 type Move struct {
-	Side 			Side
-	Clockwise 		bool
-	NumRotations 	int
+	Side         Side
+	NumRotations int
 }
 
 func ParseSide(c rune) (face Side, err error) {
@@ -49,7 +48,7 @@ func ParseSide(c rune) (face Side, err error) {
 }
 
 func (m Move) String() string {
-    return fmt.Sprintf("face: %c, clockwise: %t, rotations: %d", SideToString(m.Side), m.Clockwise, m.NumRotations)
+	return fmt.Sprintf("face: %c, rotations: %d", SideToString(m.Side), m.NumRotations)
 }
 
 func SideToString(s Side) rune {
@@ -59,11 +58,10 @@ func SideToString(s Side) rune {
 func ParseMove(str string) (move Move, err error) {
 	if len(str) == 0 || len(str) > 2 {
 		err = fmt.Errorf("invalid move: %v, of length: %v", str, len(str))
-		return 
+		return
 	}
 	var face Side
 	move.NumRotations = 1
-	move.Clockwise = true
 	for i, c := range str {
 		switch i {
 		case 0:
@@ -75,7 +73,7 @@ func ParseMove(str string) (move Move, err error) {
 		case 1:
 			switch c {
 			case '\'':
-				move.Clockwise = false
+				move.NumRotations = -1
 			case '2':
 				move.NumRotations = 2
 			default:

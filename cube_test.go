@@ -22,7 +22,7 @@ func TestSortedCubeMoveUp(t *testing.T) {
 	upSide := cube.faces[Up].f[0][0]
 	downSide := cube.faces[Down].f[0][0]
 
-	cube.apply(Move{Up, true, 1})
+	cube.apply(Move{Up, 1})
 
 	// Check that the up face is rotated
 	if !sliceIsOfSide(cube.faces[Right].f[0][:], backSide) {
@@ -92,7 +92,6 @@ func TestFrontFaceRotation(t *testing.T) {
 
 	move := Move{
 		Side:         Front,
-		Clockwise:    true,
 		NumRotations: 1,
 	}
 
@@ -108,8 +107,8 @@ func TestFrontFaceRotation(t *testing.T) {
 
 	if !FaceEqual(cube.faces[Front], expectedFace) {
 		t.Errorf("Wrong front face after rotation")
-        t.Errorf("Expected:\n%vFound:\n%v", expectedFace, cube.faces[Front])
-        cube.print()
+		t.Errorf("Expected:\n%vFound:\n%v", expectedFace, cube.faces[Front])
+		cube.print()
 	}
 }
 
@@ -146,13 +145,13 @@ func TestCubeString(t *testing.T) {
 }
 
 func TestCubeCopy(t *testing.T) {
-    cube := NewCubeSolved()
+	cube := NewCubeSolved()
 
-    duplicate := *cube;
+	duplicate := *cube
 
-    cube.faces[Front].f[0][0] = Back;
+	cube.faces[Front].f[0][0] = Back
 
-    if FaceEqual(cube.faces[Front], duplicate.faces[Front]) {
-        t.Errorf("Cubes are not supposed to be the same ")
-    }
+	if FaceEqual(cube.faces[Front], duplicate.faces[Front]) {
+		t.Errorf("Cubes are not supposed to be the same ")
+	}
 }

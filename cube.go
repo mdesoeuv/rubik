@@ -49,8 +49,8 @@ type CubeCoord struct {
 	coord FaceCoord
 }
 
-func rotateFace(face *Face, clockWise bool) {
-    result := Face{}
+func rotateFace(face *Face, rotationCount int) {
+	result := Face{}
 	// Center never moves
 	result.f[1][1] = face.f[1][1]
 
@@ -62,21 +62,15 @@ func rotateFace(face *Face, clockWise bool) {
 		{2, 2},
 		{2, 1},
 		{2, 0},
-        {1, 0},
+		{1, 0},
 	}
 
-	if clockWise {
-		for i := range cycle {
-			to, from := cycle[(i+2)%len(cycle)], cycle[i]
-			result.f[to.line][to.column] = face.f[from.line][from.column]
-		}
-	} else {
-		for i := range cycle {
-			from, to := cycle[i], cycle[(i+2)%len(cycle)]
-			result.f[to.line][to.column] = face.f[from.line][from.column]
-		}
+	for i := range cycle {
+		index := len(cycle) + i + 2*rotationCount
+		to, from := cycle[index%len(cycle)], cycle[i]
+		result.f[to.line][to.column] = face.f[from.line][from.column]
 	}
-    *face = result
+	*face = result
 }
 
 func rotateCrown(cube *Cube, move Move) {
@@ -171,7 +165,7 @@ func rotateCrown(cube *Cube, move Move) {
 
 	newCube := *cube
 
-    // TODO: Handle anti-clockwise
+	// TODO: Handle anti-clockwise
 	for i := range crown {
 		from, to := crown[i], crown[(i+3)%len(crown)]
 		*newCube.get(to) = *cube.get(from)
@@ -185,10 +179,10 @@ func (c *Cube) get(coord CubeCoord) *Side {
 }
 
 func (c *Cube) apply(move Move) {
-    // TODO: Handle count an Clockwise
+	// TODO: Handle count an Clockwise
 
 	// rotate face it self
-	rotateFace(&c.faces[move.Side], move.Clockwise)
+	rotateFace(&c.faces[move.Side], move.NumRotations)
 
 	rotateCrown(c, move)
 	return
@@ -225,7 +219,7 @@ func (c *Cube) print() {
 	lines[3] = c.faces[Left].FaceGetLineString(0) + " " + c.faces[Front].FaceGetLineString(0) + " " + c.faces[Right].FaceGetLineString(0) + " " + c.faces[Back].FaceGetLineString(0)
 	lines[4] = c.faces[Left].FaceGetLineString(1) + " " + c.faces[Front].FaceGetLineString(1) + " " + c.faces[Right].FaceGetLineString(1) + " " + c.faces[Back].FaceGetLineString(1)
 	lines[5] = c.faces[Left].FaceGetLineString(2) + " " + c.faces[Front].FaceGetLineString(2) + " " + c.faces[Right].FaceGetLineString(2) + " " + c.faces[Back].FaceGetLineString(2) + "\n"
-	
+
 	lines[6] = emptyLine + " " + c.faces[Down].FaceGetLineString(0)
 	lines[7] = emptyLine + " " + c.faces[Down].FaceGetLineString(1)
 	lines[8] = emptyLine + " " + c.faces[Down].FaceGetLineString(2)
@@ -238,8 +232,8 @@ func (c *Cube) print() {
 var theme = map[Side]func(a ...interface{}) string{
 	Right: color.New(color.BgRed).SprintFunc(),
 	Front: color.New(color.BgBlue).SprintFunc(),
-	Back: color.New(color.BgGreen).SprintFunc(),
-	Up: color.New(color.BgWhite).SprintFunc(),
-	Down: color.New(color.BgYellow).SprintFunc(),
-	Left:color.New(color.BgMagenta).SprintFunc(),
+	Back:  color.New(color.BgGreen).SprintFunc(),
+	Up:    color.New(color.BgWhite).SprintFunc(),
+	Down:  color.New(color.BgYellow).SprintFunc(),
+	Left:  color.New(color.BgMagenta).SprintFunc(),
 }

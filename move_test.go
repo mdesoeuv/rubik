@@ -2,14 +2,12 @@ package main
 
 import "testing"
 
-
 // Move Parsing Tests
 func TestParseMove(t *testing.T) {
-		
+
 	move, err := ParseMove("D2")
-	expectedMove := Move {
+	expectedMove := Move{
 		Side:         Down,
-		Clockwise:    true,
 		NumRotations: 2,
 	}
 	if err != nil || move != expectedMove {
@@ -19,9 +17,8 @@ func TestParseMove(t *testing.T) {
 
 func TestParseMoveSingle(t *testing.T) {
 	move, err := ParseMove("D")
-	expectedMove := Move {
+	expectedMove := Move{
 		Side:         Down,
-		Clockwise:    true,
 		NumRotations: 1,
 	}
 	if err != nil || move != expectedMove {
@@ -31,10 +28,9 @@ func TestParseMoveSingle(t *testing.T) {
 
 func TestParseMoveCounterClockwise(t *testing.T) {
 	move, err := ParseMove("D'")
-	expectedMove := Move {
+	expectedMove := Move{
 		Side:         Down,
-		Clockwise:    false,
-		NumRotations: 1,
+		NumRotations: -1,
 	}
 	if err != nil || move != expectedMove {
 		t.FailNow()
@@ -47,7 +43,6 @@ func TestParseMoveInvalidLength(t *testing.T) {
 		t.FailNow()
 	}
 }
-
 
 func TestParseMoveInvalidRotation(t *testing.T) {
 	_, err := ParseMove("D3")
