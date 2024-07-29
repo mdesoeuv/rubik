@@ -38,8 +38,8 @@ func NewFaceUniform(side Side) (face Face) {
 }
 
 func FaceEqual(a, b Face) bool {
-	for line, _ := range a.f {
-		for column, _ := range a.f[line] {
+	for line := range a.f {
+		for column := range a.f[line] {
 			if a.f[line][column] != b.f[line][column] {
 				return false
 			}
