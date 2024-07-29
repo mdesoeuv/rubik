@@ -96,7 +96,6 @@ func TestFrontFaceRotation(t *testing.T) {
 		NumRotations: 1,
 	}
 
-    cube.print()
 	cube.apply(move)
 
 	expectedFace := Face{
