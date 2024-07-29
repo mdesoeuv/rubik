@@ -6,18 +6,6 @@ import (
 	"github.com/fatih/color"
 )
 
-type Color = int
-
-const (
-	Red        Color = 0
-	Blue       Color = iota
-	Green      Color = iota
-	White      Color = iota
-	Yellow     Color = iota
-	Orange     Color = iota
-	ColorCount int   = iota
-)
-
 type Cube struct {
 	faces [6]Face
 }
@@ -207,21 +195,21 @@ func (c *Cube) apply(move Move) {
 }
 
 func (c *Cube) isSolved() bool {
-	seenColors := [ColorCount]bool{}
+	seenSides := [SideCount]bool{}
 	for _, face := range c.faces {
-		var currentColor *Color = nil
+		var currentSide *Side = nil
 		for _, line := range face.f {
-			for _, color := range line {
-				if currentColor != nil && color != *currentColor {
+			for _, side := range line {
+				if currentSide != nil && side != *currentSide {
 					return false
 				}
-				currentColor = &color
+				currentSide = &side
 			}
 		}
-		if seenColors[*currentColor] {
+		if seenSides[*currentSide] {
 			return false
 		}
-		seenColors[*currentColor] = true
+		seenSides[*currentSide] = true
 	}
 	return true
 }

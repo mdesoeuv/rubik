@@ -17,6 +17,7 @@ const (
 	Back 	Side = iota
 	FirstSide Side = Up
 	LastSide = Back
+    SideCount = LastSide + 1
 )
 
 var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: 'L', Right: 'R'}
