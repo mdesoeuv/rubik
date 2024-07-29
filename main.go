@@ -1,12 +1,18 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
+)
+
+var (
+	tuiFlag = flag.Bool("tui", false, "Enable Terminal User Interface")
 )
 
 func main() {
-	args := os.Args[1:]
+	flag.Parse()
+	fmt.Println("tuiFlag:", *tuiFlag)
+	args := flag.Args()
 	if len(args) != 1 {
 		fmt.Println("Usage: go run main.go <move list>")
 		return
