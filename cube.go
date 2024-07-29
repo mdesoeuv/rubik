@@ -22,7 +22,7 @@ type Cube struct {
 	faces [6]Face
 }
 
-func (c Cube) String() string {
+func (c *Cube) String() string {
 	result := ""
 	for side, face := range c.faces {
 		result += fmt.Sprintf("Face: %c\n", sideNames[Side(side)])
@@ -61,7 +61,8 @@ type CubeCoord struct {
 	coord FaceCoord
 }
 
-func rotateFace(face Face, clockWise bool) (result Face) {
+func rotateFace(face *Face, clockWise bool) {
+    result := Face{}
 	// Center never moves
 	result.f[1][1] = face.f[1][1]
 
@@ -73,11 +74,12 @@ func rotateFace(face Face, clockWise bool) (result Face) {
 		{2, 2},
 		{2, 1},
 		{2, 0},
+        {1, 0},
 	}
 
 	if clockWise {
 		for i := range cycle {
-			to, from := cycle[i], cycle[(i+2)%len(cycle)]
+			to, from := cycle[(i+2)%len(cycle)], cycle[i]
 			result.f[to.line][to.column] = face.f[from.line][from.column]
 		}
 	} else {
@@ -86,7 +88,7 @@ func rotateFace(face Face, clockWise bool) (result Face) {
 			result.f[to.line][to.column] = face.f[from.line][from.column]
 		}
 	}
-	return
+    *face = result
 }
 
 func rotateCrown(cube *Cube, move Move) {
@@ -181,6 +183,7 @@ func rotateCrown(cube *Cube, move Move) {
 
 	newCube := *cube
 
+    // TODO: Handle anti-clockwise
 	for i := range crown {
 		from, to := crown[i], crown[(i+3)%len(crown)]
 		*newCube.get(to) = *cube.get(from)
@@ -194,10 +197,10 @@ func (c *Cube) get(coord CubeCoord) *Side {
 }
 
 func (c *Cube) apply(move Move) {
-	face := &c.faces[move.Side]
+    // TODO: Handle count an Clockwise
 
 	// rotate face it self
-	*face = rotateFace(*face, move.Clockwise)
+	rotateFace(&c.faces[move.Side], move.Clockwise)
 
 	rotateCrown(c, move)
 	return

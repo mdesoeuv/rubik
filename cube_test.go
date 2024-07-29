@@ -98,6 +98,7 @@ func TestFrontFaceRotation(t *testing.T) {
 		NumRotations: 1,
 	}
 
+    cube.print()
 	cube.apply(move)
 
 	expectedFace := Face{
@@ -110,6 +111,8 @@ func TestFrontFaceRotation(t *testing.T) {
 
 	if !FaceEqual(cube.faces[Front], expectedFace) {
 		t.Errorf("Wrong front face after rotation")
+        t.Errorf("Expected:\n%vFound:\n%v", expectedFace, cube.faces[Front])
+        cube.print()
 	}
 }
 
@@ -143,4 +146,16 @@ func TestCubeString(t *testing.T) {
 	if result != expected {
 		t.Errorf("Expected: %v, got: %v", expected, result)
 	}
+}
+
+func TestCubeCopy(t *testing.T) {
+    cube := NewCubeSolved()
+
+    duplicate := *cube;
+
+    cube.faces[Front].f[0][0] = Back;
+
+    if FaceEqual(cube.faces[Front], duplicate.faces[Front]) {
+        t.Errorf("Cubes are not supposed to be the same ")
+    }
 }
