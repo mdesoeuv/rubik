@@ -76,7 +76,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			move, err := ParseMove(m.choices[m.cursor])
 			if err != nil {
 				fmt.Println(err)
-
 				return m, nil
 			}
 			m.cube.apply(move)
