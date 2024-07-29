@@ -8,11 +8,6 @@ type Cube struct {
 	faces [6]Face
 }
 
-type FaceCoord struct {
-	line   int
-	column int
-}
-
 type CubeCoord struct {
 	side  Side
 	coord FaceCoord
