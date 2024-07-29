@@ -242,10 +242,6 @@ func (c *Cube) print() {
 	lines[7] = emptyLine + " " + c.faces[Down].FaceGetLineString(1)
 	lines[8] = emptyLine + " " + c.faces[Down].FaceGetLineString(2)
 
-	lines[6] = emptyLine + c.faces[Down].FaceGetLineString(0) + emptyLine + emptyLine
-	lines[7] = emptyLine + c.faces[Down].FaceGetLineString(1) + emptyLine + emptyLine
-	lines[8] = emptyLine + c.faces[Down].FaceGetLineString(2) + emptyLine + emptyLine
-
 	for _, line := range lines {
 		fmt.Println(line)
 	}
