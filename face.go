@@ -58,4 +58,3 @@ func FaceIsUniform(face Face, side Side) bool {
 	}
 	return true
 }
-
