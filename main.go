@@ -3,6 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 var (
@@ -11,14 +14,10 @@ var (
 
 func main() {
 	flag.Parse()
-	fmt.Println("tuiFlag:", *tuiFlag)
 	args := flag.Args()
 	if len(args) != 1 {
 		fmt.Println("Usage: go run main.go <move list>")
 		return
-	}
-	for _, arg := range args {
-		fmt.Println(arg)
 	}
 
 	moveListStr := args[0]
@@ -28,10 +27,19 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	for _, move := range moveList {
-		fmt.Println(move)
-	}
 
 	cube := NewCubeSolved()
-	cube.print()
+
+	if *tuiFlag {
+		p := tea.NewProgram(initialModel())
+		if _, err := p.Run(); err != nil {
+			fmt.Printf("Alas, there's been an error: %v", err)
+			os.Exit(1)
+		}
+	} else {
+		for _, move := range moveList {
+			cube.apply(move)
+		}
+		fmt.Println(cube.blueprint())
+	}
 }
