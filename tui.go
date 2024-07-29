@@ -13,9 +13,13 @@ type model struct {
 	cube     *Cube
 }
 
+func resetChoices() []string {
+	return []string{"F", "R", "L", "U", "D", "B"}
+}
+
 func initialModel() model {
 	return model{
-		choices:  []string{"F", "R", "L", "U", "D", "B"},
+		choices:  resetChoices(),
 		selected: make(map[int]struct{}),
 		cube:     NewCubeSolved(),
 	}
@@ -50,15 +54,33 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 
+		case "right":
+			if len(m.choices[m.cursor]) == 1 {
+				m.choices[m.cursor] += "2"
+			} else if m.choices[m.cursor][1] == '\'' {
+				m.choices[m.cursor] = string(m.choices[m.cursor][0])
+			}
+			return m, nil
+
+		case "left":
+			if len(m.choices[m.cursor]) == 1 {
+				m.choices[m.cursor] += "'"
+			} else if m.choices[m.cursor][1] == '2' {
+				m.choices[m.cursor] = string(m.choices[m.cursor][0])
+			}
+			return m, nil
+
 		// The "enter" key and the spacebar (a literal space) toggle
 		// the selected state for the item that the cursor is pointing at.
 		case "enter":
 			move, err := ParseMove(m.choices[m.cursor])
 			if err != nil {
 				fmt.Println(err)
+
 				return m, nil
 			}
 			m.cube.apply(move)
+			m.choices = resetChoices()
 			// _, ok := m.selected[m.cursor]
 			// if ok {
 			//     delete(m.selected, m.cursor)
