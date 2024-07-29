@@ -8,6 +8,11 @@ type Face struct {
 	f [3][3]Side
 }
 
+type FaceCoord struct {
+	line   int
+	column int
+}
+
 func (f Face) String() string {
 	result := ""
 	for _, line := range f.f {
@@ -58,4 +63,3 @@ func FaceIsUniform(face Face, side Side) bool {
 	}
 	return true
 }
-
