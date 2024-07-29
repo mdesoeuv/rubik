@@ -149,10 +149,10 @@ func (c *Cube)print() {
 }
 
 var theme = map[Side]func(a ...interface{}) string{
-	Right: color.New(color.FgRed).SprintFunc(),
-	Front: color.New(color.FgBlue).SprintFunc(),
-	Back: color.New(color.FgGreen).SprintFunc(),
-	Up: color.New(color.FgWhite).SprintFunc(),
-	Down: color.New(color.FgYellow).SprintFunc(),
-	Left: color.New(color.FgMagenta).SprintFunc(),
+	Right: color.New(color.BgRed).SprintFunc(),
+	Front: color.New(color.BgBlue).SprintFunc(),
+	Back: color.New(color.BgGreen).SprintFunc(),
+	Up: color.New(color.BgWhite).SprintFunc(),
+	Down: color.New(color.BgYellow).SprintFunc(),
+	Left:color.New(color.BgMagenta).SprintFunc(),
 }
