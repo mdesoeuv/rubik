@@ -38,15 +38,6 @@ func NewCubeSolved() *Cube {
 	return &cube
 }
 
-func (c *Cube) IsSolved() bool {
-	for side, face := range c.faces {
-		if !FaceIsUniform(face, side) {
-			return false
-		}
-	}
-	return true
-}
-
 func (c *Cube) get(coord CubeCoord) *Side {
 	return &c.faces[coord.side].f[coord.coord.line][coord.coord.column]
 }
