@@ -22,7 +22,8 @@ func (f Face) String() string {
 func (f Face) FaceGetLineString(line int) string {
 	result := ""
 	for _, side := range f.f[line] {
-		result += fmt.Sprintf("[%c]", sideNames[side])
+		line := fmt.Sprintf("[%c]", sideNames[side])
+		result += theme[side](line)
 	}
 	return result
 }
@@ -57,3 +58,4 @@ func FaceIsUniform(face Face, side Side) bool {
 	}
 	return true
 }
+

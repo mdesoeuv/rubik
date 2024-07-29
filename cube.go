@@ -6,6 +6,7 @@ import (
 	"github.com/fatih/color"
 )
 
+
 type Color = int
 const (
 	Red Color = 0
@@ -145,4 +146,13 @@ func (c *Cube)print() {
 	for _, line := range lines {
 		fmt.Println(line)
 	} 
+}
+
+var theme = map[Side]func(a ...interface{}) string{
+	Right: color.New(color.FgRed).SprintFunc(),
+	Front: color.New(color.FgBlue).SprintFunc(),
+	Back: color.New(color.FgGreen).SprintFunc(),
+	Up: color.New(color.FgWhite).SprintFunc(),
+	Down: color.New(color.FgYellow).SprintFunc(),
+	Left: color.New(color.FgMagenta).SprintFunc(),
 }
