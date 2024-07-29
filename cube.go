@@ -9,8 +9,8 @@ type Cube struct {
 }
 
 type CubeCoord struct {
-	side  Side
-	coord FaceCoord
+	side      Side
+	faceCoord FaceCoord
 }
 
 func (c *Cube) String() string {
@@ -34,7 +34,7 @@ func NewCubeSolved() *Cube {
 }
 
 func (c *Cube) get(coord CubeCoord) *Side {
-	return &c.faces[coord.side].f[coord.coord.line][coord.coord.column]
+	return &c.faces[coord.side].f[coord.faceCoord.line][coord.faceCoord.column]
 }
 
 func (c *Cube) isSolved() bool {
