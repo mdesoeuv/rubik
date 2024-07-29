@@ -80,12 +80,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m.cube.apply(move)
 			m.choices = resetChoices()
-			// _, ok := m.selected[m.cursor]
-			// if ok {
-			//     delete(m.selected, m.cursor)
-			// } else {
-			//     m.selected[m.cursor] = struct{}{}
-			// }
 		}
 	}
 
