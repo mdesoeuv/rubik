@@ -6,7 +6,6 @@ import (
 	"github.com/fatih/color"
 )
 
-
 type Color = int
 const (
 	Red Color = 0
@@ -60,22 +59,7 @@ func rotateFace(face Face, clockWise bool) (result Face) {
 	// Center never moves
 	result.f[1][1] = face.f[1][1]
 
-	// cycle := []Coord {
-	// 	{0, 0},
-	// 	{0, 1},
-	// 	{0, 2},
-	// 	{1, 2},
-	// 	{2, 2},
-	// 	{2, 1},
-	// 	{2, 0},
-	// 	{1, 0},
-	// }
-
 	if clockWise {
-		// for i, _ := range cycle {
-		// 	from, to := cycle[i], cycle[(i + 1) % len(cycle)];
-		// 	result[from.line][from.column] = face[to.line][to.column]
-		// }
 		result.f[0][0] = face.f[0][1]
 		result.f[0][1] = face.f[0][2]
 		result.f[0][2] = face.f[1][2]
