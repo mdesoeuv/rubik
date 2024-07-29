@@ -19,6 +19,14 @@ func (f Face) String() string {
 	return result
 }
 
+func (f Face) FaceGetLineString(line int) string {
+	result := ""
+	for _, side := range f.f[line] {
+		result += fmt.Sprintf("[%c]", sideNames[side])
+	}
+	return result
+}
+
 func NewFaceUniform(side Side) (face Face) {
 	for i, line := range face.f {
 		for j := range line {

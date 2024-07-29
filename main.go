@@ -26,4 +26,7 @@ func main() {
 	for _, move := range moveList {
 		fmt.Println(move)
 	}
+
+	cube := NewCubeSolved()
+	cube.print()
 }
