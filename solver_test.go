@@ -1,12 +1,16 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"math/rand/v2"
+	"testing"
+)
 
 func TestManhattanDistanceSolved(t *testing.T) {
 	cube := NewCubeSolved()
 
 	for corner := FirstCorner; corner <= LastCorner; corner++ {
-		distance := cube.corner_manhattan_distance(CornerDownLeftFront)
+		distance := cube.cornerManhattanDistance(CornerDownLeftFront)
 		if distance != 0 {
 			t.Fatalf(
 				"All corners in solved cube should be at distance 0, "+
@@ -19,7 +23,7 @@ func TestManhattanDistanceSolved(t *testing.T) {
 func TestManhattanDistanceBasic(t *testing.T) {
 	cube := NewCubeTopSpinned()
 
-	if cube.corner_manhattan_distance(CornerUpLeftFront) != 1 {
+	if cube.cornerManhattanDistance(CornerUpLeftFront) != 1 {
 		t.Fatalf("Top spinned cube should have up left front corner at distance 1")
 	}
 }
@@ -30,7 +34,7 @@ func TestManhattanDistanceDoubleMove(t *testing.T) {
 	cube.apply(Move{Front, -1})
 	cube.apply(Move{Down, 1})
 
-	distance := cube.corner_manhattan_distance(CornerDownRightFront)
+	distance := cube.cornerManhattanDistance(CornerDownRightFront)
 	if distance != 2 {
 		t.Fatalf(
 			"Cube with 2 moves have distance of r, "+
@@ -60,5 +64,24 @@ func TestSolveSingleMove(t *testing.T) {
 	steps := len(*solution) - 1
 	if steps != 1 {
 		t.Fatalf("Should take 1 step, but took %v steps", steps)
+	}
+}
+
+func TestShuffledCube(t *testing.T) {
+	r := rand.New(rand.NewPCG(0, 0))
+	for move_count := 0; move_count < 10; move_count++ {
+		cube := NewCubeSolved()
+		cube.Shuffle(r, move_count)
+		solution := cube.solve()
+		fmt.Printf("Cube %v solved!\n", move_count)
+		if solution == nil {
+			t.Fatalf("There should be a solution")
+		}
+
+		steps := len(*solution) - 1
+		fmt.Printf("Took %v steps\n", steps)
+		if steps > move_count {
+			t.Fatalf("Solution shouldn't have more than %v moves but got %v", move_count, steps)
+		}
 	}
 }

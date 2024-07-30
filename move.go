@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-type Side = int
+type Side = uint8
 
-// WARN: Do not change the order
+// WARN: Do not change values
 // It is required for `corner_for` to work properly
 const (
-	Up        Side = iota
-	Down      Side = iota
-	Left      Side = iota
-	Right     Side = iota
-	Front     Side = iota
-	Back      Side = iota
+	Up        Side = 0
+	Down      Side = 1
+	Left      Side = 2
+	Right     Side = 3
+	Front     Side = 4
+	Back      Side = 5
 	FirstSide Side = Up
 	LastSide       = Back
-	SideCount      = LastSide + 1
+	SideCount      = int(LastSide) + 1
 )
 
 var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: 'L', Right: 'R'}
@@ -27,6 +27,18 @@ var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: '
 type Move struct {
 	Side         Side
 	NumRotations int
+}
+
+var AllMoves []Move = makeAllMoves()
+
+func makeAllMoves() (result []Move) {
+	rotations := []int{-1, 1, 2}
+	for side := FirstSide; side <= LastSide; side++ {
+		for _, numRotation := range rotations {
+			result = append(result, Move{side, numRotation})
+		}
+	}
+	return result
 }
 
 func ParseSide(c rune) (face Side, err error) {

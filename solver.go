@@ -107,12 +107,26 @@ func corner_for(a, b, c Side) (Corner, error) {
 	return 0, fmt.Errorf("Impossible side combination")
 }
 
-func (cube *Cube) corner_manhattan_distance(id Corner) int {
-	to_explore := []Cube{*cube}
+type MemoizationEntry struct {
+	a, b, c Side
+	corner  Corner
+}
+
+var cornerManhattanDistanceMap = map[MemoizationEntry]int{}
+
+func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	cornerCoords := corner(id)
 	sideA := *cube.get(cornerCoords.a)
 	sideB := *cube.get(cornerCoords.b)
 	sideC := *cube.get(cornerCoords.c)
+
+	entry := MemoizationEntry{sideA, sideB, sideC, id}
+	result, stored := cornerManhattanDistanceMap[entry]
+	if stored {
+		return result
+	}
+
+	to_explore := []Cube{*cube}
 	expectedCorner, _ := corner_for(sideA, sideB, sideC)
 	toValidateCoords := corner(expectedCorner)
 	for move_count := 0; move_count < 10; move_count++ {
@@ -122,22 +136,33 @@ func (cube *Cube) corner_manhattan_distance(id Corner) int {
 			bIsValid := *c.get(toValidateCoords.b) == toValidateCoords.b.side
 			cIsValid := *c.get(toValidateCoords.c) == toValidateCoords.c.side
 			if aIsValid && bIsValid && cIsValid {
+				cornerManhattanDistanceMap[entry] = move_count
 				return move_count
 			}
-			to_explore_next = append(to_explore_next, c.successors()...)
+			to_explore_next = append(to_explore_next, c.Successors()...)
 		}
 		to_explore = to_explore_next
 	}
 	panic("Could not find distance")
 }
 
+func (c *Cube) Successors() []Cube {
+	result := make([]Cube, 0, len(AllMoves))
+	for _, move := range AllMoves {
+		newCube := *c
+		newCube.apply(move)
+		result = append(result, newCube)
+	}
+	return result
+}
+
 func heuristic(cube *Cube) int {
 	sum := 0
 	for corner := FirstCorner; corner <= LastCorner; corner++ {
-		sum += cube.corner_manhattan_distance(corner)
+		sum += cube.cornerManhattanDistance(corner)
 	}
 	// TODO: Add side_manhattan_distance
-	return sum
+	return (sum / 4)
 }
 
 func (cube *Cube) solve() *[]Cube {
@@ -159,19 +184,6 @@ func (cube *Cube) solve() *[]Cube {
 
 const FOUND int = -1
 
-func (cube *Cube) successors() []Cube {
-	rotations := []int{-1, 1, 2}
-	result := make([]Cube, 0, len(rotations)*SideCount)
-	for side := FirstSide; side <= LastSide; side++ {
-		for _, numRotation := range rotations {
-			newCube := *cube
-			newCube.apply(Move{side, numRotation})
-			result = append(result, newCube)
-		}
-	}
-	return result
-}
-
 func search(path *[]Cube, g int, bound int) int {
 	cube := &(*path)[len(*path)-1]
 	f := g + heuristic(cube)
@@ -182,9 +194,11 @@ func search(path *[]Cube, g int, bound int) int {
 		return FOUND
 	}
 	min := math.MaxInt
-	for _, succ := range cube.successors() {
-		if !slices.Contains(*path, succ) {
-			*path = append(*path, succ)
+	for _, move := range AllMoves {
+		newCube := *cube
+		newCube.apply(move)
+		if !slices.Contains(*path, newCube) {
+			*path = append(*path, newCube)
 			t := search(path, g+1, bound)
 			if t == FOUND {
 				return FOUND

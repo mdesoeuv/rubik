@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 )
 
 type Cube struct {
@@ -33,26 +34,29 @@ func NewCubeSolved() *Cube {
 	return &cube
 }
 
+func (cube *Cube) Shuffle(r *rand.Rand, move_count int) {
+	rotations := []int{-1, 1, 2}
+	for move := 0; move < move_count; move++ {
+		side := Side(r.IntN(SideCount))
+		numRotation := rotations[r.IntN(len(rotations))]
+		move := Move{side, numRotation}
+		cube.apply(move)
+	}
+}
+
 func (c *Cube) get(coord CubeCoord) *Side {
 	return &c.faces[coord.side].f[coord.faceCoord.line][coord.faceCoord.column]
 }
 
 func (c *Cube) isSolved() bool {
-	seenSides := [SideCount]bool{}
-	for _, face := range c.faces {
-		var currentSide *Side = nil
+	for face_index, face := range c.faces {
 		for _, line := range face.f {
 			for _, side := range line {
-				if currentSide != nil && side != *currentSide {
+				if side != Side(face_index) {
 					return false
 				}
-				currentSide = &side
 			}
 		}
-		if seenSides[*currentSide] {
-			return false
-		}
-		seenSides[*currentSide] = true
 	}
 	return true
 }
