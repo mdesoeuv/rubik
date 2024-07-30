@@ -30,16 +30,16 @@ func main() {
 
 	cube := NewCubeSolved()
 
+	for _, move := range moveList {
+		cube.apply(move)
+	}
 	if *tuiFlag {
-		p := tea.NewProgram(initialModel())
+		p := tea.NewProgram(initialModel(cube))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
 		}
 	} else {
-		for _, move := range moveList {
-			cube.apply(move)
-		}
 		fmt.Println(cube.blueprint())
 	}
 }

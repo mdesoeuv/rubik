@@ -7,21 +7,21 @@ import (
 )
 
 type model struct {
-	choices  []string         // items on the to-do list
-	cursor   int              // which to-do list item our cursor is pointing at
-	selected map[int]struct{} // which to-do items are selected
+	choices  []string
+	cursor   int
+	selected map[int]struct{}
 	cube     *Cube
 }
 
 func resetChoices() []string {
-	return []string{"F", "R", "L", "U", "D", "B"}
+	return []string{"F", "R", "L", "U", "D", "B", "Solve!"}
 }
 
-func initialModel() model {
+func initialModel(c *Cube) model {
 	return model{
 		choices:  resetChoices(),
 		selected: make(map[int]struct{}),
-		cube:     NewCubeSolved(),
+		cube:     c,
 	}
 }
 
@@ -70,16 +70,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		// The "enter" key and the spacebar (a literal space) toggle
-		// the selected state for the item that the cursor is pointing at.
 		case "enter":
-			move, err := ParseMove(m.choices[m.cursor])
-			if err != nil {
-				fmt.Println(err)
-				return m, nil
+			if m.choices[m.cursor] == "Solve!" {
+				fmt.Println("Solving Cube...")
+				m.cube.solve()
+				fmt.Println("Cube Solved!")
+			} else {
+				move, err := ParseMove(m.choices[m.cursor])
+				if err != nil {
+					fmt.Println(err)
+					return m, nil
+				}
+				m.cube.apply(move)
+				m.choices = resetChoices()
 			}
-			m.cube.apply(move)
-			m.choices = resetChoices()
 		}
 	}
 
@@ -89,11 +93,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
+
 	// The header
 
 	s := m.cube.blueprint()
 
-	s += "What type of move do you want to execute ?\n\n"
+	s += "What type of move do you want to execute ?\n"
+	s += "(Use <- / -> to select alternative moves)\n\n"
 
 	// Iterate over our choices
 	for i, choice := range m.choices {
