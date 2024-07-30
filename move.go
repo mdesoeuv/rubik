@@ -8,8 +8,10 @@ import (
 
 type Side = int
 
+// WARN: Do not change the order
+// It is required for `corner_for` to work properly
 const (
-	Up        Side = 0
+	Up        Side = iota
 	Down      Side = iota
 	Left      Side = iota
 	Right     Side = iota
