@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/fatih/color"
 )
 
-func (c *Cube) print() {
-
+func (c *Cube) blueprint() string {
 	lines := [9]string{}
 	emptyLine := "         "
 	lines[0] = emptyLine + " " + c.faces[Up].FaceGetLineString(0)
@@ -22,9 +19,11 @@ func (c *Cube) print() {
 	lines[7] = emptyLine + " " + c.faces[Down].FaceGetLineString(1)
 	lines[8] = emptyLine + " " + c.faces[Down].FaceGetLineString(2)
 
+	s := ""
 	for _, line := range lines {
-		fmt.Println(line)
+		s += line + "\n"
 	}
+	return s
 }
 
 var theme = map[Side]func(a ...interface{}) string{

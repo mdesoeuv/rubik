@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -108,7 +109,7 @@ func TestFrontFaceRotation(t *testing.T) {
 	if !FaceEqual(cube.faces[Front], expectedFace) {
 		t.Errorf("Wrong front face after rotation")
 		t.Errorf("Expected:\n%vFound:\n%v", expectedFace, cube.faces[Front])
-		cube.print()
+		fmt.Println(cube.blueprint())
 	}
 }
 
