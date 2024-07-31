@@ -82,12 +82,13 @@ func (m model) helpView() string {
 }
 
 func resetChoices() []string {
-	return []string{"F", "R", "L", "U", "D", "B", "Solve!"}
+	return []string{"F", "R", "L", "U", "D", "B"}
 }
 
 func initialModel(c *Cube) model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
+	s.Spinner.FPS = 30
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 
 	return model{
@@ -103,7 +104,7 @@ func initialModel(c *Cube) model {
 }
 
 func (m model) Init() tea.Cmd {
-	return m.stopwatch.Init()
+	return nil
 }
 
 type DoneSolving struct {
@@ -132,11 +133,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor > 0 {
 				m.cursor--
 			}
+			return m, nil
 
 		case key.Matches(msg, m.keymap.down):
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
 			}
+			return m, nil
 
 		case key.Matches(msg, m.keymap.right):
 			if len(m.choices[m.cursor]) == 1 {
@@ -154,37 +157,39 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
+		case key.Matches(msg, m.keymap.solve):
+			cube := *m.cube
+			m.loader.Tick()
+			m.isSolving = true
+			m.stopwatch.Start()
+			return m, func() tea.Msg {
+				return DoneSolving{
+					states: cube.solve(),
+					moves:  AllMoves,
+				}
+			}
+
 		case key.Matches(msg, m.keymap.enter):
-			if m.choices[m.cursor] == "Solve!" {
-				cube := *m.cube
-				m.loader.Tick()
-				m.isSolving = true
-				m.stopwatch.Start()
-				return m, func() tea.Msg {
-					return DoneSolving{
-						states: cube.solve(),
-						moves:  AllMoves,
-					}
-				}
-			} else {
-				move, err := ParseMove(m.choices[m.cursor])
-				if err != nil {
-					fmt.Println(err)
-					return m, nil
-				}
-				m.cube.apply(move)
-				m.choices = resetChoices()
+			move, err := ParseMove(m.choices[m.cursor])
+			if err != nil {
+				fmt.Println(err)
 				return m, nil
 			}
+			m.cube.apply(move)
+			m.choices = resetChoices()
+			return m, nil
+
 		case key.Matches(msg, m.keymap.reset):
 			m.stopwatch.Reset()
 			m.cube = NewCubeSolved()
 			m.solution = DoneSolving{}
 			return m, nil
 		}
+		// default:
+		// 	m.loader.Update(msg)
+		// 	m.stopwatch.Update(msg)
 	}
 	var cmd tea.Cmd
-	m.loader, _ = m.loader.Update(msg)
 	m.stopwatch, cmd = m.stopwatch.Update(msg)
 	return m, cmd
 }
