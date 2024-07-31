@@ -11,7 +11,7 @@ type model struct {
 	cursor   int
 	selected map[int]struct{}
 	cube     *Cube
-	solution *[]Cube
+	solution DoneSolving
 }
 
 func resetChoices() []string {
@@ -31,30 +31,29 @@ func (m model) Init() tea.Cmd {
 }
 
 type DoneSolving struct {
-	solution *[]Cube
+	states *[]Cube
+	moves  []Move
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+
 	case DoneSolving:
-		m.solution = msg.solution
-	// Is it a key press?
+		m.solution = msg
+		return m, nil
+
 	case tea.KeyMsg:
 
-		// Cool, what was the actual key pressed?
 		switch msg.String() {
 
-		// These keys should exit the program.
 		case "ctrl+c", "q":
 			return m, tea.Quit
 
-		// The "up" and "k" keys move the cursor up
 		case "up", "k":
 			if m.cursor > 0 {
 				m.cursor--
 			}
 
-		// The "down" and "j" keys move the cursor down
 		case "down", "j":
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
@@ -81,7 +80,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cube := *m.cube
 				return m, func() tea.Msg {
 					return DoneSolving{
-						solution: cube.solve(),
+						states: cube.solve(),
+						moves:  AllMoves,
 					}
 				}
 			} else {
@@ -92,8 +92,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.cube.apply(move)
 				m.choices = resetChoices()
+				return m, nil
 			}
+		case "r":
+			m.cube = NewCubeSolved()
+			m.solution = DoneSolving{}
+			return m, nil
 		}
+
 	}
 
 	// Return the updated model to the Bubble Tea runtime for processing.
@@ -130,10 +136,14 @@ func (m model) View() string {
 	}
 
 	// The footer
-	s += "\nPress q to quit.\n"
+	s += "\nPress q to quit, press r to reset.\n"
 
-	if m.solution != nil {
-		s += "Solution FOUND"
+	if m.solution.moves != nil {
+		s += "Solution found: "
+		for _, move := range m.solution.moves {
+			s += move.CompactString() + " "
+		}
+		s += "\n"
 	}
 
 	// Send the UI for rendering

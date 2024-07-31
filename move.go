@@ -65,6 +65,16 @@ func (m Move) String() string {
 	return fmt.Sprintf("face: %c, rotations: %d", SideToString(m.Side), m.NumRotations)
 }
 
+func (m Move) CompactString() string {
+	s := string(SideToString(m.Side))
+	if m.NumRotations == -1 {
+		s += "'"
+	} else if m.NumRotations == 2 {
+		s += "2"
+	}
+	return s
+}
+
 func SideToString(s Side) rune {
 	return sideNames[s]
 }
