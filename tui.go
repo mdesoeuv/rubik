@@ -2,8 +2,12 @@ package main
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -16,6 +20,65 @@ type model struct {
 	solution  DoneSolving
 	loader    spinner.Model
 	isSolving bool
+	stopwatch stopwatch.Model
+	keymap    keymap
+	help      help.Model
+}
+
+type keymap struct {
+	solve key.Binding
+	reset key.Binding
+	quit  key.Binding
+	up    key.Binding
+	down  key.Binding
+	right key.Binding
+	left  key.Binding
+	enter key.Binding
+}
+
+func NewKeyMap() keymap {
+	return keymap{
+		solve: key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp("s", "start solving"),
+		),
+		reset: key.NewBinding(
+			key.WithKeys("r"),
+			key.WithHelp("r", "reset the cube"),
+		),
+		quit: key.NewBinding(
+			key.WithKeys("q", "ctrl+c"),
+			key.WithHelp("q", "quit"),
+		),
+		up: key.NewBinding(
+			key.WithKeys("up", "k"),
+			key.WithHelp("up", "move up"),
+		),
+		down: key.NewBinding(
+			key.WithKeys("down", "j"),
+			key.WithHelp("down", "move down"),
+		),
+		right: key.NewBinding(
+			key.WithKeys("right", "l"),
+			key.WithHelp("right", "move right"),
+		),
+		left: key.NewBinding(
+			key.WithKeys("left", "h"),
+			key.WithHelp("left", "move left"),
+		),
+		enter: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "validate"),
+		),
+	}
+}
+
+func (m model) helpView() string {
+	return "\n" + m.help.ShortHelpView([]key.Binding{
+		m.keymap.solve,
+		m.keymap.reset,
+		m.keymap.quit,
+	})
 }
 
 func resetChoices() []string {
@@ -33,11 +96,14 @@ func initialModel(c *Cube) model {
 		cube:      c,
 		loader:    s,
 		isSolving: false,
+		stopwatch: stopwatch.NewWithInterval(time.Millisecond),
+		help:      help.New(),
+		keymap:    NewKeyMap(),
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return m.stopwatch.Init()
 }
 
 type DoneSolving struct {
@@ -51,27 +117,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case DoneSolving:
 		m.isSolving = false
+		m.stopwatch.Stop()
 		m.solution = msg
 		return m, nil
 
 	case tea.KeyMsg:
 
-		switch msg.String() {
+		switch {
 
-		case "ctrl+c", "q":
+		case key.Matches(msg, m.keymap.quit):
 			return m, tea.Quit
 
-		case "up", "k":
+		case key.Matches(msg, m.keymap.up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
 
-		case "down", "j":
+		case key.Matches(msg, m.keymap.down):
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
 			}
 
-		case "right":
+		case key.Matches(msg, m.keymap.right):
 			if len(m.choices[m.cursor]) == 1 {
 				m.choices[m.cursor] += "2"
 			} else if m.choices[m.cursor][1] == '\'' {
@@ -79,7 +146,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "left":
+		case key.Matches(msg, m.keymap.left):
 			if len(m.choices[m.cursor]) == 1 {
 				m.choices[m.cursor] += "'"
 			} else if m.choices[m.cursor][1] == '2' {
@@ -87,11 +154,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "enter":
+		case key.Matches(msg, m.keymap.enter):
 			if m.choices[m.cursor] == "Solve!" {
 				cube := *m.cube
 				m.loader.Tick()
 				m.isSolving = true
+				m.stopwatch.Start()
 				return m, func() tea.Msg {
 					return DoneSolving{
 						states: cube.solve(),
@@ -108,17 +176,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.choices = resetChoices()
 				return m, nil
 			}
-		case "r":
+		case key.Matches(msg, m.keymap.reset):
+			m.stopwatch.Reset()
 			m.cube = NewCubeSolved()
 			m.solution = DoneSolving{}
 			return m, nil
 		}
-	default:
-		var cmd tea.Cmd
-		m.loader, cmd = m.loader.Update(msg)
-		return m, cmd
 	}
-	return m, nil
+	var cmd tea.Cmd
+	m.loader, _ = m.loader.Update(msg)
+	m.stopwatch, cmd = m.stopwatch.Update(msg)
+	return m, cmd
 }
 
 func (m model) View() string {
@@ -149,11 +217,8 @@ func (m model) View() string {
 		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
 	}
 
-	// The footer
-	s += "\nPress q to quit, press r to reset.\n"
-
 	if m.isSolving {
-		s += m.loader.View() + "Solving...\n"
+		s += m.loader.View() + "Solving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()) + "\n"
 	} else if m.solution.moves != nil {
 		s += "Solution found: "
 		for _, move := range m.solution.moves {
@@ -161,6 +226,9 @@ func (m model) View() string {
 		}
 		s += "\n"
 	}
+
+	// The footer
+	s += m.helpView()
 
 	// Send the UI for rendering
 	return s
