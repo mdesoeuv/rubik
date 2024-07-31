@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type model struct {
@@ -12,6 +14,7 @@ type model struct {
 	selected map[int]struct{}
 	cube     *Cube
 	solution DoneSolving
+	spinner  spinner.Model
 }
 
 func resetChoices() []string {
@@ -19,10 +22,15 @@ func resetChoices() []string {
 }
 
 func initialModel(c *Cube) model {
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+
 	return model{
 		choices:  resetChoices(),
 		selected: make(map[int]struct{}),
 		cube:     c,
+		spinner:  s,
 	}
 }
 
