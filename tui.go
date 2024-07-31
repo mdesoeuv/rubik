@@ -88,7 +88,6 @@ func resetChoices() []string {
 func initialModel(c *Cube) model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
-	s.Spinner.FPS = 30
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 
 	return model{
@@ -113,33 +112,35 @@ type DoneSolving struct {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var stopWatchCmd tea.Cmd
+	var loaderCmd tea.Cmd
+	m.stopwatch, stopWatchCmd = m.stopwatch.Update(msg)
+	m.loader, loaderCmd = m.loader.Update(msg)
 
+	var myCmd tea.Cmd
 	switch msg := msg.(type) {
 
 	case DoneSolving:
 		m.isSolving = false
 		m.stopwatch.Stop()
 		m.solution = msg
-		return m, nil
 
 	case tea.KeyMsg:
 
 		switch {
 
 		case key.Matches(msg, m.keymap.quit):
-			return m, tea.Quit
+			myCmd = tea.Quit
 
 		case key.Matches(msg, m.keymap.up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
-			return m, nil
 
 		case key.Matches(msg, m.keymap.down):
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
 			}
-			return m, nil
 
 		case key.Matches(msg, m.keymap.right):
 			if len(m.choices[m.cursor]) == 1 {
@@ -147,7 +148,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else if m.choices[m.cursor][1] == '\'' {
 				m.choices[m.cursor] = string(m.choices[m.cursor][0])
 			}
-			return m, nil
 
 		case key.Matches(msg, m.keymap.left):
 			if len(m.choices[m.cursor]) == 1 {
@@ -155,43 +155,37 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else if m.choices[m.cursor][1] == '2' {
 				m.choices[m.cursor] = string(m.choices[m.cursor][0])
 			}
-			return m, nil
 
 		case key.Matches(msg, m.keymap.solve):
 			cube := *m.cube
-			m.loader.Tick()
 			m.isSolving = true
-			m.stopwatch.Start()
-			return m, func() tea.Msg {
-				return DoneSolving{
-					states: cube.solve(),
-					moves:  AllMoves,
-				}
-			}
+			myCmd = tea.Batch(
+				m.stopwatch.Start(),
+				m.loader.Tick,
+				func() tea.Msg {
+					return DoneSolving{
+						states: cube.solve(),
+						moves:  AllMoves,
+					}
+				},
+			)
 
 		case key.Matches(msg, m.keymap.enter):
 			move, err := ParseMove(m.choices[m.cursor])
 			if err != nil {
+				// TODO: Better
 				fmt.Println(err)
-				return m, nil
 			}
 			m.cube.apply(move)
 			m.choices = resetChoices()
-			return m, nil
 
 		case key.Matches(msg, m.keymap.reset):
 			m.stopwatch.Reset()
 			m.cube = NewCubeSolved()
 			m.solution = DoneSolving{}
-			return m, nil
 		}
-		// default:
-		// 	m.loader.Update(msg)
-		// 	m.stopwatch.Update(msg)
 	}
-	var cmd tea.Cmd
-	m.stopwatch, cmd = m.stopwatch.Update(msg)
-	return m, cmd
+	return m, tea.Batch(myCmd, stopWatchCmd, loaderCmd)
 }
 
 func (m model) View() string {
