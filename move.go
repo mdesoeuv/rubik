@@ -18,7 +18,7 @@ const (
 	Front     Side = 4
 	Back      Side = 5
 	FirstSide Side = Up
-	LastSide       = Back
+	LastSide  Side = Back
 	SideCount      = int(LastSide) + 1
 )
 
