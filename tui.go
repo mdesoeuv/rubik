@@ -11,6 +11,7 @@ type model struct {
 	cursor   int
 	selected map[int]struct{}
 	cube     *Cube
+	solution *[]Cube
 }
 
 func resetChoices() []string {
@@ -29,9 +30,14 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
+type DoneSolving struct {
+	solution *[]Cube
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-
+	case DoneSolving:
+		m.solution = msg.solution
 	// Is it a key press?
 	case tea.KeyMsg:
 
@@ -72,9 +78,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter":
 			if m.choices[m.cursor] == "Solve!" {
-				fmt.Println("Solving Cube...")
-				m.cube.solve()
-				fmt.Println("Cube Solved!")
+				cube := *m.cube
+				return m, func() tea.Msg {
+					return DoneSolving{
+						solution: cube.solve(),
+					}
+				}
 			} else {
 				move, err := ParseMove(m.choices[m.cursor])
 				if err != nil {
@@ -122,6 +131,10 @@ func (m model) View() string {
 
 	// The footer
 	s += "\nPress q to quit.\n"
+
+	if m.solution != nil {
+		s += "Solution FOUND"
+	}
 
 	// Send the UI for rendering
 	return s
