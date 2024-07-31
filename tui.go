@@ -9,12 +9,13 @@ import (
 )
 
 type model struct {
-	choices  []string
-	cursor   int
-	selected map[int]struct{}
-	cube     *Cube
-	solution DoneSolving
-	spinner  spinner.Model
+	choices   []string
+	cursor    int
+	selected  map[int]struct{}
+	cube      *Cube
+	solution  DoneSolving
+	loader    spinner.Model
+	isSolving bool
 }
 
 func resetChoices() []string {
@@ -27,10 +28,11 @@ func initialModel(c *Cube) model {
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 
 	return model{
-		choices:  resetChoices(),
-		selected: make(map[int]struct{}),
-		cube:     c,
-		spinner:  s,
+		choices:   resetChoices(),
+		selected:  make(map[int]struct{}),
+		cube:      c,
+		loader:    s,
+		isSolving: false,
 	}
 }
 
@@ -44,9 +46,11 @@ type DoneSolving struct {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+
 	switch msg := msg.(type) {
 
 	case DoneSolving:
+		m.isSolving = false
 		m.solution = msg
 		return m, nil
 
@@ -86,6 +90,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			if m.choices[m.cursor] == "Solve!" {
 				cube := *m.cube
+				m.loader.Tick()
+				m.isSolving = true
 				return m, func() tea.Msg {
 					return DoneSolving{
 						states: cube.solve(),
@@ -107,11 +113,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.solution = DoneSolving{}
 			return m, nil
 		}
-
+	default:
+		var cmd tea.Cmd
+		m.loader, cmd = m.loader.Update(msg)
+		return m, cmd
 	}
-
-	// Return the updated model to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
 	return m, nil
 }
 
@@ -146,7 +152,9 @@ func (m model) View() string {
 	// The footer
 	s += "\nPress q to quit, press r to reset.\n"
 
-	if m.solution.moves != nil {
+	if m.isSolving {
+		s += m.loader.View() + "Solving...\n"
+	} else if m.solution.moves != nil {
 		s += "Solution found: "
 		for _, move := range m.solution.moves {
 			s += move.CompactString() + " "
