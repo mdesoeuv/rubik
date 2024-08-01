@@ -35,8 +35,14 @@ func NewCubeSolved() *Cube {
 }
 
 func (cube *Cube) Shuffle(r *rand.Rand, move_count int) {
+	var previouSide *Side = nil
 	for move := 0; move < move_count; move++ {
-		cube.apply(AllMoves[rand.IntN(len(AllMoves))])
+		m := AllMoves[rand.IntN(len(AllMoves))]
+		for previouSide != nil && m.Side == *previouSide {
+			m = AllMoves[rand.IntN(len(AllMoves))]
+		}
+		cube.apply(m)
+		previouSide = &m.Side
 	}
 }
 

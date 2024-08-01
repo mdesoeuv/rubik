@@ -50,7 +50,7 @@ type EdgeCoords struct {
 	a, b CubeCoord
 }
 
-func corner(corner Corner) CornerCoords {
+func cornerCoords(corner Corner) CornerCoords {
 	var a, b, c CubeCoord
 	switch corner {
 	case CornerUpLeftFront:
@@ -75,7 +75,7 @@ func corner(corner Corner) CornerCoords {
 		c = CubeCoord{Front, FaceCoord{2, 0}}
 	case CornerDownRightFront:
 		a = CubeCoord{Down, FaceCoord{0, 2}}
-		b = CubeCoord{Left, FaceCoord{2, 2}}
+		b = CubeCoord{Right, FaceCoord{2, 0}}
 		c = CubeCoord{Front, FaceCoord{2, 2}}
 	case CornerDownLeftBack:
 		a = CubeCoord{Down, FaceCoord{2, 0}}
@@ -89,9 +89,9 @@ func corner(corner Corner) CornerCoords {
 	return CornerCoords{a, b, c}
 }
 
-func edge(edge Edge) EdgeCoords {
+func edgeCoords(e Edge) EdgeCoords {
 	var a, b CubeCoord
-	switch edge {
+	switch e {
 	case EdgeUpLeft:
 		a = CubeCoord{Up, FaceCoord{1, 0}}
 		b = CubeCoord{Left, FaceCoord{0, 1}}
@@ -231,14 +231,60 @@ type EdgeMemoizationEntry struct {
 	edge Edge
 }
 
-var cornerManhattanDistanceMap = map[CornerMemoizationEntry]int{}
-var edgeManhattanDistanceMap = map[EdgeMemoizationEntry]int{}
+// var cornerManhattanDistanceMap = map[CornerMemoizationEntry]int{}
+// var edgeManhattanDistanceMap = map[EdgeMemoizationEntry]int{}
+var cornerManhattanDistanceMap = makeCornerManhattanDistanceMap()
+var edgeManhattanDistanceMap = makeEdgeManhattanDistanceMap()
+
+func makeCornerManhattanDistanceMap() map[CornerMemoizationEntry]int {
+	result := map[CornerMemoizationEntry]int{}
+
+	expectedSize := 8 * 8 * 3
+
+	solvedCube := NewCubeSolved()
+
+	seenCubes := map[Cube]struct{}{
+		*solvedCube: {},
+	}
+	toExplore := []Cube{*solvedCube}
+	toExploreNext := []Cube{}
+	for distance := 0; len(result) < expectedSize; distance++ {
+		for _, cube := range toExplore {
+			for c := FirstCorner; c <= LastCorner; c++ {
+				cc := cornerCoords(c)
+				entry := CornerMemoizationEntry{
+					a:      *cube.get(cc.a),
+					b:      *cube.get(cc.b),
+					c:      *cube.get(cc.c),
+					corner: c,
+				}
+				_, configurationSeen := result[entry]
+				if !configurationSeen {
+					result[entry] = distance
+				}
+			}
+			for _, next := range cube.Successors() {
+				_, seen := seenCubes[next]
+				if seen {
+					continue
+				}
+				seenCubes[next] = struct{}{}
+				toExploreNext = append(toExploreNext, next)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore
+		// Reuse allocated storage
+		toExploreNext = toExploreNext[:0]
+	}
+
+	return result
+}
 
 func (cube *Cube) cornerManhattanDistance(id Corner) int {
-	cornerCoords := corner(id)
-	sideA := *cube.get(cornerCoords.a)
-	sideB := *cube.get(cornerCoords.b)
-	sideC := *cube.get(cornerCoords.c)
+	coords := cornerCoords(id)
+	sideA := *cube.get(coords.a)
+	sideB := *cube.get(coords.b)
+	sideC := *cube.get(coords.c)
 
 	entry := CornerMemoizationEntry{sideA, sideB, sideC, id}
 	result, stored := cornerManhattanDistanceMap[entry]
@@ -246,9 +292,11 @@ func (cube *Cube) cornerManhattanDistance(id Corner) int {
 		return result
 	}
 
+	panic("Unreachable")
+
 	to_explore := []Cube{*cube}
 	expectedCorner, _ := cornerFor(sideA, sideB, sideC)
-	toValidateCoords := corner(expectedCorner)
+	toValidateCoords := cornerCoords(expectedCorner)
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
 		for _, c := range to_explore {
@@ -266,10 +314,53 @@ func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	panic("Could not find distance")
 }
 
+func makeEdgeManhattanDistanceMap() map[EdgeMemoizationEntry]int {
+	result := map[EdgeMemoizationEntry]int{}
+
+	expectedSize := 12 * 12 * 2
+
+	solvedCube := NewCubeSolved()
+
+	seenCubes := map[Cube]struct{}{
+		*solvedCube: {},
+	}
+	toExplore := []Cube{*solvedCube}
+	toExploreNext := []Cube{}
+	for distance := 0; len(result) < expectedSize; distance++ {
+		for _, cube := range toExplore {
+			for e := FirstEdge; e <= LastEdge; e++ {
+				ec := edgeCoords(e)
+				entry := EdgeMemoizationEntry{
+					a:    *cube.get(ec.a),
+					b:    *cube.get(ec.b),
+					edge: e,
+				}
+				_, configurationSeen := result[entry]
+				if !configurationSeen {
+					result[entry] = distance
+				}
+			}
+			for _, next := range cube.Successors() {
+				_, seen := seenCubes[next]
+				if seen {
+					continue
+				}
+				seenCubes[next] = struct{}{}
+				toExploreNext = append(toExploreNext, next)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore
+		// Reuse allocated storage
+		toExploreNext = toExploreNext[:0]
+	}
+
+	return result
+}
+
 func (cube *Cube) edgeManhattanDistance(id Edge) int {
-	edgeCoords := edge(id)
-	sideA := *cube.get(edgeCoords.a)
-	sideB := *cube.get(edgeCoords.b)
+	coords := edgeCoords(id)
+	sideA := *cube.get(coords.a)
+	sideB := *cube.get(coords.b)
 
 	entry := EdgeMemoizationEntry{sideA, sideB, id}
 	result, stored := edgeManhattanDistanceMap[entry]
@@ -277,9 +368,11 @@ func (cube *Cube) edgeManhattanDistance(id Edge) int {
 		return result
 	}
 
+	panic("Unreachable")
+
 	to_explore := []Cube{*cube}
 	expectedEdge, _ := edgeFor(sideA, sideB)
-	toValidateCoords := edge(expectedEdge)
+	toValidateCoords := edgeCoords(expectedEdge)
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
 		for _, c := range to_explore {
@@ -388,15 +481,15 @@ func search(seen map[Cube]struct{}, cube Cube, previousMove *Move, g int, bound 
 				continue
 			}
 			// Enforce opperation order for independant operations
-			// if previousMove.Side == Right && move.Side == Left {
-			// 	continue
-			// }
-			// if previousMove.Side == Up && move.Side == Down {
-			// 	continue
-			// }
-			// if previousMove.Side == Front && move.Side == Back {
-			// 	continue
-			// }
+			if previousMove.Side == Right && move.Side == Left {
+				continue
+			}
+			if previousMove.Side == Up && move.Side == Down {
+				continue
+			}
+			if previousMove.Side == Front && move.Side == Back {
+				continue
+			}
 		}
 		newCube := cube
 		newCube.apply(move)
