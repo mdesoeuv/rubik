@@ -17,7 +17,6 @@ import (
 
 type model struct {
 	choice    string
-	cursor    int
 	selected  map[int]struct{}
 	cube      *Cube
 	solution  SolutionMsg
@@ -30,14 +29,15 @@ type model struct {
 }
 
 type keymap struct {
-	solve key.Binding
-	reset key.Binding
-	quit  key.Binding
-	up    key.Binding
-	down  key.Binding
-	right key.Binding
-	left  key.Binding
-	enter key.Binding
+	solve   key.Binding
+	reset   key.Binding
+	quit    key.Binding
+	up      key.Binding
+	down    key.Binding
+	right   key.Binding
+	left    key.Binding
+	enter   key.Binding
+	explore key.Binding
 }
 
 func NewKeyMap() keymap {
@@ -74,12 +74,17 @@ func NewKeyMap() keymap {
 			key.WithKeys("enter"),
 			key.WithHelp("enter", "validate"),
 		),
+		explore: key.NewBinding(
+			key.WithKeys("e"),
+			key.WithHelp("e", "explore"),
+		),
 	}
 }
 
 func (m model) helpView() string {
 	return "\n" + m.help.ShortHelpView([]key.Binding{
 		m.keymap.solve,
+		m.keymap.explore,
 		m.keymap.reset,
 		m.keymap.quit,
 	})
@@ -112,7 +117,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	fmt.Fprint(w, fn(str))
 }
 
-func CreateList() list.Model {
+func CreateApplyMoveList() list.Model {
 	items := []list.Item{
 		item("F"),
 		item("R"),
@@ -146,7 +151,7 @@ func initialModel(c *Cube) model {
 		stopwatch: stopwatch.NewWithInterval(time.Millisecond),
 		help:      help.New(),
 		keymap:    NewKeyMap(),
-		list:      CreateList(),
+		list:      CreateApplyMoveList(),
 	}
 }
 
@@ -185,11 +190,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.keymap.quit):
 			myCmd = tea.Quit
-
-		case key.Matches(msg, m.keymap.up):
-			if m.cursor > 0 {
-				m.cursor--
-			}
 
 		case key.Matches(msg, m.keymap.right):
 			i, ok := m.list.SelectedItem().(item)
@@ -241,7 +241,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.stopwatch.Reset()
 			m.cube = NewCubeSolved()
 			m.solution = SolutionMsg{}
+
+		case key.Matches(msg, m.keymap.explore):
+
 		}
+
 	}
 	return m, tea.Batch(myCmd, stopWatchCmd, loaderCmd, listCmd)
 }
