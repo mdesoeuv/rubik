@@ -9,11 +9,20 @@ import (
 )
 
 var (
-	tuiFlag = flag.Bool("tui", false, "Enable Terminal User Interface")
+	tuiFlag     = flag.Bool("tui", false, "Enable Terminal User Interface")
+	profileFlag = flag.Bool("profile", false, "Enable CPU profiling")
 )
 
 func main() {
+
+	var err error
 	flag.Parse()
+
+	if *profileFlag {
+		startProfiling()
+		defer stopProfiling()
+	}
+
 	args := flag.Args()
 	if len(args) != 1 && !*tuiFlag {
 		fmt.Println("Usage: go run main.go <move list>")
@@ -23,7 +32,6 @@ func main() {
 	var (
 		moveListStr = ""
 		moveList    = []Move{}
-		err         error
 	)
 	if len(args) > 0 {
 		moveListStr = args[0]
