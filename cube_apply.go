@@ -3,7 +3,6 @@ package main
 func (c *Cube) apply(move Move) {
 	rotateFace(&c.faces[move.Side], move.NumRotations)
 	rotateCrown(c, move)
-	return
 }
 
 func rotateFace(face *Face, rotationCount int) {
