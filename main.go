@@ -15,17 +15,23 @@ var (
 func main() {
 	flag.Parse()
 	args := flag.Args()
-	if len(args) != 1 {
+	if len(args) != 1 && !*tuiFlag {
 		fmt.Println("Usage: go run main.go <move list>")
 		return
 	}
 
-	moveListStr := args[0]
-
-	moveList, err := ParseMoveList(moveListStr)
-	if err != nil {
-		fmt.Println(err)
-		return
+	var (
+		moveListStr = ""
+		moveList    = []Move{}
+		err         error
+	)
+	if len(args) > 0 {
+		moveListStr = args[0]
+		moveList, err = ParseMoveList(moveListStr)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 
 	cube := NewCubeSolved()
@@ -41,5 +47,11 @@ func main() {
 		}
 	} else {
 		fmt.Println(cube.blueprint())
+		fmt.Println("Solving...")
+		cube.solve()
+		s := fmt.Sprintf("Solution found in %v steps: ", len(AllMoves))
+		for _, move := range AllMoves {
+			s += move.CompactString()
+		}
 	}
 }
