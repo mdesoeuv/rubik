@@ -26,6 +26,30 @@ type CornerCoords struct {
 	a, b, c CubeCoord
 }
 
+type Edge = int
+
+const (
+	EdgeUpLeft     Edge = 0
+	EdgeUpRight    Edge = 1
+	EdgeUpFront    Edge = 2
+	EdgeUpBack     Edge = 3
+	EdgeDownLeft   Edge = 4
+	EdgeDownRight  Edge = 5
+	EdgeDownFront  Edge = 6
+	EdgeDownBack   Edge = 7
+	EdgeLeftFront  Edge = 8
+	EdgeLeftBack   Edge = 9
+	EdgeRightFront Edge = 10
+	EdgeRightBack  Edge = 11
+	FirstEdge      Edge = EdgeUpLeft
+	LastEdge       Edge = EdgeRightBack
+	EdgeCount      int  = LastEdge + 1
+)
+
+type EdgeCoords struct {
+	a, b CubeCoord
+}
+
 func corner(corner Corner) CornerCoords {
 	var a, b, c CubeCoord
 	switch corner {
@@ -65,7 +89,51 @@ func corner(corner Corner) CornerCoords {
 	return CornerCoords{a, b, c}
 }
 
-func corner_for(a, b, c Side) (Corner, error) {
+func edge(edge Edge) EdgeCoords {
+	var a, b CubeCoord
+	switch edge {
+	case EdgeUpLeft:
+		a = CubeCoord{Up, FaceCoord{1, 0}}
+		b = CubeCoord{Left, FaceCoord{0, 1}}
+	case EdgeUpRight:
+		a = CubeCoord{Up, FaceCoord{1, 2}}
+		b = CubeCoord{Right, FaceCoord{0, 1}}
+	case EdgeUpFront:
+		a = CubeCoord{Up, FaceCoord{2, 1}}
+		b = CubeCoord{Front, FaceCoord{0, 1}}
+	case EdgeUpBack:
+		a = CubeCoord{Up, FaceCoord{0, 1}}
+		b = CubeCoord{Back, FaceCoord{0, 1}}
+	case EdgeDownLeft:
+		a = CubeCoord{Down, FaceCoord{1, 0}}
+		b = CubeCoord{Left, FaceCoord{2, 1}}
+	case EdgeDownRight:
+		a = CubeCoord{Down, FaceCoord{1, 2}}
+		b = CubeCoord{Right, FaceCoord{2, 1}}
+	case EdgeDownFront:
+		a = CubeCoord{Down, FaceCoord{0, 1}}
+		b = CubeCoord{Front, FaceCoord{2, 1}}
+	case EdgeDownBack:
+		a = CubeCoord{Down, FaceCoord{2, 1}}
+		b = CubeCoord{Back, FaceCoord{2, 1}}
+	case EdgeLeftFront:
+		a = CubeCoord{Left, FaceCoord{1, 2}}
+		b = CubeCoord{Front, FaceCoord{1, 0}}
+	case EdgeLeftBack:
+		a = CubeCoord{Left, FaceCoord{1, 0}}
+		b = CubeCoord{Back, FaceCoord{1, 2}}
+	case EdgeRightFront:
+		a = CubeCoord{Right, FaceCoord{1, 0}}
+		b = CubeCoord{Front, FaceCoord{1, 2}}
+	case EdgeRightBack:
+		a = CubeCoord{Right, FaceCoord{1, 2}}
+		b = CubeCoord{Back, FaceCoord{1, 0}}
+	}
+	return EdgeCoords{a, b}
+}
+
+// TODO: Create CornerPiece type
+func cornerFor(a, b, c Side) (Corner, error) {
 	sides := []Side{a, b, c}
 	slices.Sort(sides)
 	switch sides[0] {
@@ -107,12 +175,64 @@ func corner_for(a, b, c Side) (Corner, error) {
 	return 0, fmt.Errorf("Impossible side combination")
 }
 
-type MemoizationEntry struct {
+// TODO: Create EdgePiece type
+func edgeFor(a, b Side) (Edge, error) {
+	if b < a {
+		a, b = b, a
+	}
+	switch a {
+	case Up:
+		switch b {
+		case Left:
+			return EdgeUpLeft, nil
+		case Right:
+			return EdgeUpRight, nil
+		case Front:
+			return EdgeUpFront, nil
+		case Back:
+			return EdgeUpBack, nil
+		}
+	case Down:
+		switch b {
+		case Left:
+			return EdgeDownLeft, nil
+		case Right:
+			return EdgeDownRight, nil
+		case Front:
+			return EdgeDownFront, nil
+		case Back:
+			return EdgeDownBack, nil
+		}
+	case Left:
+		switch b {
+		case Front:
+			return EdgeLeftFront, nil
+		case Back:
+			return EdgeLeftBack, nil
+		}
+	case Right:
+		switch b {
+		case Front:
+			return EdgeRightFront, nil
+		case Back:
+			return EdgeRightBack, nil
+		}
+	}
+	return -1, fmt.Errorf("Impossible side combination")
+}
+
+type CornerMemoizationEntry struct {
 	a, b, c Side
 	corner  Corner
 }
 
-var cornerManhattanDistanceMap = map[MemoizationEntry]int{}
+type EdgeMemoizationEntry struct {
+	a, b Side
+	edge Edge
+}
+
+var cornerManhattanDistanceMap = map[CornerMemoizationEntry]int{}
+var edgeManhattanDistanceMap = map[EdgeMemoizationEntry]int{}
 
 func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	cornerCoords := corner(id)
@@ -120,14 +240,14 @@ func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	sideB := *cube.get(cornerCoords.b)
 	sideC := *cube.get(cornerCoords.c)
 
-	entry := MemoizationEntry{sideA, sideB, sideC, id}
+	entry := CornerMemoizationEntry{sideA, sideB, sideC, id}
 	result, stored := cornerManhattanDistanceMap[entry]
 	if stored {
 		return result
 	}
 
 	to_explore := []Cube{*cube}
-	expectedCorner, _ := corner_for(sideA, sideB, sideC)
+	expectedCorner, _ := cornerFor(sideA, sideB, sideC)
 	toValidateCoords := corner(expectedCorner)
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
@@ -137,6 +257,36 @@ func (cube *Cube) cornerManhattanDistance(id Corner) int {
 			cIsValid := *c.get(toValidateCoords.c) == toValidateCoords.c.side
 			if aIsValid && bIsValid && cIsValid {
 				cornerManhattanDistanceMap[entry] = move_count
+				return move_count
+			}
+			to_explore_next = append(to_explore_next, c.Successors()...)
+		}
+		to_explore = to_explore_next
+	}
+	panic("Could not find distance")
+}
+
+func (cube *Cube) edgeManhattanDistance(id Edge) int {
+	edgeCoords := edge(id)
+	sideA := *cube.get(edgeCoords.a)
+	sideB := *cube.get(edgeCoords.b)
+
+	entry := EdgeMemoizationEntry{sideA, sideB, id}
+	result, stored := edgeManhattanDistanceMap[entry]
+	if stored {
+		return result
+	}
+
+	to_explore := []Cube{*cube}
+	expectedEdge, _ := edgeFor(sideA, sideB)
+	toValidateCoords := edge(expectedEdge)
+	for move_count := 0; move_count < 10; move_count++ {
+		to_explore_next := []Cube{}
+		for _, c := range to_explore {
+			aIsValid := *c.get(toValidateCoords.a) == toValidateCoords.a.side
+			bIsValid := *c.get(toValidateCoords.b) == toValidateCoords.b.side
+			if aIsValid && bIsValid {
+				edgeManhattanDistanceMap[entry] = move_count
 				return move_count
 			}
 			to_explore_next = append(to_explore_next, c.Successors()...)
@@ -156,24 +306,43 @@ func (c *Cube) Successors() []Cube {
 	return result
 }
 
-func heuristic(cube *Cube) int {
+func (cube *Cube) edgeDistanceSum() int {
+	sum := 0
+	for edge := FirstEdge; edge <= LastEdge; edge++ {
+		sum += cube.edgeManhattanDistance(edge)
+	}
+	return sum
+}
+
+func (cube *Cube) cornerDistanceSum() int {
 	sum := 0
 	for corner := FirstCorner; corner <= LastCorner; corner++ {
 		sum += cube.cornerManhattanDistance(corner)
 	}
-	// TODO: Add side_manhattan_distance
-	return (sum / 4)
+	return sum
 }
 
-func (cube *Cube) solve() *[]Cube {
+func heuristic(cube *Cube) int {
+	edgeDistanceSum := cube.edgeDistanceSum()
+	cornerDistanceSum := cube.cornerDistanceSum()
+	if edgeDistanceSum > cornerDistanceSum {
+		return edgeDistanceSum / 4
+	} else {
+		return cornerDistanceSum / 4
+	}
+}
+
+func (cube *Cube) solve() []Move {
 	bound := heuristic(cube)
 
-	path := []Cube{*cube}
+	seen := map[Cube]struct{}{}
+	seen[*cube] = struct{}{}
 
 	for {
-		t := search(&path, 0, bound)
-		if t == FOUND {
-			return &path
+		t, solution := search(seen, *cube, nil, 0, bound)
+		if solution != nil {
+			slices.Reverse(solution)
+			return solution
 		}
 		if t == math.MaxInt {
 			return nil
@@ -182,32 +351,67 @@ func (cube *Cube) solve() *[]Cube {
 	}
 }
 
-const FOUND int = -1
+func (c *Cube) goodCorners() bool {
+	for side := FirstSide; side <= LastSide; side++ {
+		f := c.faces[side]
+		good := f.f[0][0] == side && f.f[0][2] == side && f.f[2][0] == side && f.f[2][2] == side
+		if !good {
+			return false
+		}
+	}
+	return true
+}
 
-func search(path *[]Cube, g int, bound int) int {
-	cube := &(*path)[len(*path)-1]
-	f := g + heuristic(cube)
+func (c *Cube) goodEdges() bool {
+	for side := FirstSide; side <= LastSide; side++ {
+		f := c.faces[side]
+		good := f.f[0][1] == side && f.f[1][0] == side && f.f[1][2] == side && f.f[2][1] == side
+		if !good {
+			return false
+		}
+	}
+	return true
+}
+
+func search(seen map[Cube]struct{}, cube Cube, previousMove *Move, g int, bound int) (int, []Move) {
+	f := g + heuristic(&cube)
 	if f > bound {
-		return f
+		return f, nil
 	}
 	if cube.isSolved() {
-		return FOUND
+		return 0, []Move{}
 	}
 	min := math.MaxInt
 	for _, move := range AllMoves {
-		newCube := *cube
+		if previousMove != nil {
+			if previousMove.Side == move.Side {
+				continue
+			}
+			// Enforce opperation order for independant operations
+			// if previousMove.Side == Right && move.Side == Left {
+			// 	continue
+			// }
+			// if previousMove.Side == Up && move.Side == Down {
+			// 	continue
+			// }
+			// if previousMove.Side == Front && move.Side == Back {
+			// 	continue
+			// }
+		}
+		newCube := cube
 		newCube.apply(move)
-		if !slices.Contains(*path, newCube) {
-			*path = append(*path, newCube)
-			t := search(path, g+1, bound)
-			if t == FOUND {
-				return FOUND
+		_, wasSeen := seen[newCube]
+		if !wasSeen {
+			seen[newCube] = struct{}{}
+			t, steps := search(seen, newCube, &move, g+1, bound)
+			if steps != nil {
+				return t, append(steps, move)
 			}
 			if t < min {
 				min = t
 			}
-			*path = (*path)[:len(*path)-1]
+			delete(seen, newCube)
 		}
 	}
-	return min
+	return min, nil
 }

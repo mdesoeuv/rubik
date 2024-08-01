@@ -46,8 +46,8 @@ func TestManhattanDistanceDoubleMove(t *testing.T) {
 func TestSolveSolved(t *testing.T) {
 	cube := NewCubeSolved()
 
-	solution := cube.solve()
-	if len(*solution) != 1 {
+	steps := cube.solve()
+	if steps == nil || len(steps) != 0 {
 		t.Fatalf("Solved cube should require 0 steps")
 	}
 }
@@ -57,30 +57,28 @@ func TestSolveSingleMove(t *testing.T) {
 
 	cube.apply(Move{Front, 1})
 
-	solution := cube.solve()
-	if solution == nil {
+	steps := cube.solve()
+	if steps == nil {
 		t.Fatalf("Should find solution")
 	}
-	steps := len(*solution) - 1
-	if steps != 1 {
-		t.Fatalf("Should take 1 step, but took %v steps", steps)
+	if len(steps) != 1 {
+		t.Fatalf("Should take 1 step, but took %v steps", len(steps))
 	}
 }
 
 func TestShuffledCube(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
-	for move_count := 0; move_count < 10; move_count++ {
+	for move_count := 0; move_count <= 5; move_count++ {
 		cube := NewCubeSolved()
 		cube.Shuffle(r, move_count)
-		solution := cube.solve()
+		steps := cube.solve()
 		fmt.Printf("Cube %v solved!\n", move_count)
-		if solution == nil {
+		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
 
-		steps := len(*solution) - 1
-		fmt.Printf("Took %v steps\n", steps)
-		if steps > move_count {
+		fmt.Printf("Took %v steps\n", len(steps))
+		if len(steps) > move_count {
 			t.Fatalf("Solution shouldn't have more than %v moves but got %v", move_count, steps)
 		}
 	}

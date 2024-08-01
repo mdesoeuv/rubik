@@ -35,12 +35,8 @@ func NewCubeSolved() *Cube {
 }
 
 func (cube *Cube) Shuffle(r *rand.Rand, move_count int) {
-	rotations := []int{-1, 1, 2}
 	for move := 0; move < move_count; move++ {
-		side := Side(r.IntN(SideCount))
-		numRotation := rotations[r.IntN(len(rotations))]
-		move := Move{side, numRotation}
-		cube.apply(move)
+		cube.apply(AllMoves[rand.IntN(len(AllMoves))])
 	}
 }
 
