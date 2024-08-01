@@ -387,15 +387,16 @@ func search(seen map[Cube]struct{}, cube Cube, previousMove *Move, g int, bound 
 			if previousMove.Side == move.Side {
 				continue
 			}
-			if previousMove.Side == Right && move.Side == Left {
-				continue
-			}
-			if previousMove.Side == Up && move.Side == Down {
-				continue
-			}
-			if previousMove.Side == Front && move.Side == Back {
-				continue
-			}
+			// Enforce opperation order for independant operations
+			// if previousMove.Side == Right && move.Side == Left {
+			// 	continue
+			// }
+			// if previousMove.Side == Up && move.Side == Down {
+			// 	continue
+			// }
+			// if previousMove.Side == Front && move.Side == Back {
+			// 	continue
+			// }
 		}
 		newCube := cube
 		newCube.apply(move)
