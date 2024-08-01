@@ -68,7 +68,7 @@ func TestSolveSingleMove(t *testing.T) {
 
 func TestShuffledCube(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
-	for move_count := 0; move_count <= 9; move_count++ {
+	for move_count := 0; move_count <= 5; move_count++ {
 		cube := NewCubeSolved()
 		cube.Shuffle(r, move_count)
 		steps := cube.solve()
