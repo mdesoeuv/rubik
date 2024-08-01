@@ -16,16 +16,18 @@ import (
 )
 
 type model struct {
-	choice    string
-	selected  map[int]struct{}
-	cube      *Cube
-	solution  SolutionMsg
-	loader    spinner.Model
-	isSolving bool
-	stopwatch stopwatch.Model
-	keymap    keymap
-	help      help.Model
-	list      list.Model
+	choice      string
+	selected    map[int]struct{}
+	cube        Cube
+	solution    SolutionMsg
+	loader      spinner.Model
+	isSolving   bool
+	stopwatch   stopwatch.Model
+	keymap      keymap
+	help        help.Model
+	list        list.Model
+	isExploring bool
+	initialCube Cube
 }
 
 type keymap struct {
@@ -137,21 +139,43 @@ func CreateApplyMoveList() list.Model {
 	return l
 }
 
+func CreateExploreMoveList(solution []Move) list.Model {
+
+	items := []list.Item{item("Start")}
+
+	for _, move := range solution {
+		items = append(items, item(move.CompactString()))
+	}
+	items = append(items, item("Solved"))
+	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
+	l.Title = "Solution steps"
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
+	l.Styles.Title = titleStyle
+	l.Styles.PaginationStyle = paginationStyle
+	l.SetShowHelp(false)
+	return l
+}
+
 func initialModel(c *Cube) model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 
+	cubeCopy := *c
+
 	return model{
-		choice:    "",
-		selected:  make(map[int]struct{}),
-		cube:      c,
-		loader:    s,
-		isSolving: false,
-		stopwatch: stopwatch.NewWithInterval(time.Millisecond),
-		help:      help.New(),
-		keymap:    NewKeyMap(),
-		list:      CreateApplyMoveList(),
+		choice:      "",
+		selected:    make(map[int]struct{}),
+		cube:        cubeCopy,
+		loader:      s,
+		isSolving:   false,
+		isExploring: false,
+		stopwatch:   stopwatch.NewWithInterval(time.Millisecond),
+		help:        help.New(),
+		keymap:      NewKeyMap(),
+		list:        CreateApplyMoveList(),
+		initialCube: *c,
 	}
 }
 
@@ -213,7 +237,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, m.keymap.solve):
-			cube := *m.cube
+			cube := m.cube
 			m.isSolving = true
 			myCmd = tea.Batch(
 				m.stopwatch.Start(),
@@ -239,10 +263,52 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.keymap.reset):
 			m.stopwatch.Reset()
-			m.cube = NewCubeSolved()
+			m.cube = *NewCubeSolved()
 			m.solution = SolutionMsg{}
 
 		case key.Matches(msg, m.keymap.explore):
+			if !m.isExploring {
+				m.list = CreateExploreMoveList(m.solution.moves)
+				m.cube = m.initialCube
+				m.keymap.enter.SetEnabled(false)
+				m.keymap.left.SetEnabled(false)
+				m.keymap.right.SetEnabled(false)
+			} else {
+				m.list = CreateApplyMoveList()
+				m.cube = m.initialCube
+				m.keymap.enter.SetEnabled(true)
+				m.keymap.left.SetEnabled(true)
+				m.keymap.right.SetEnabled(true)
+			}
+			m.isExploring = !m.isExploring
+
+		case key.Matches(msg, m.keymap.down):
+			if m.isExploring {
+				i, ok := m.list.SelectedItem().(item)
+				if ok && i != "Solved" && i != "Start" {
+					m.choice = string(i)
+					move, err := ParseMove(m.choice)
+					if err != nil {
+						// TODO: Better
+						fmt.Println(err)
+					}
+					m.cube.apply(move)
+				}
+			}
+
+		case key.Matches(msg, m.keymap.up):
+			if m.isExploring {
+				i, ok := m.list.SelectedItem().(item)
+				if ok && i != "Solved" && i != "Start" {
+					m.choice = string(i)
+					move, err := ParseMove(m.choice)
+					if err != nil {
+						fmt.Println(err)
+					}
+					move = move.Reverse()
+					m.cube.apply(move)
+				}
+			}
 
 		}
 
