@@ -278,8 +278,8 @@ func (cube *Cube) edgeManhattanDistance(id Edge) int {
 	}
 
 	to_explore := []Cube{*cube}
-	expectedCorner, _ := edgeFor(sideA, sideB)
-	toValidateCoords := edge(expectedCorner)
+	expectedEdge, _ := edgeFor(sideA, sideB)
+	toValidateCoords := edge(expectedEdge)
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
 		for _, c := range to_explore {
@@ -335,7 +335,6 @@ func heuristic(cube *Cube) int {
 func (cube *Cube) solve() []Move {
 	bound := heuristic(cube)
 
-	// path := []Cube{*cube}
 	seen := map[Cube]struct{}{}
 	seen[*cube] = struct{}{}
 
@@ -375,7 +374,6 @@ func (c *Cube) goodEdges() bool {
 }
 
 func search(seen map[Cube]struct{}, cube Cube, previousMove *Move, g int, bound int) (int, []Move) {
-	// cube := &(*path)[len(*path)-1]
 	f := g + heuristic(&cube)
 	if f > bound {
 		return f, nil
@@ -389,15 +387,15 @@ func search(seen map[Cube]struct{}, cube Cube, previousMove *Move, g int, bound 
 			if previousMove.Side == move.Side {
 				continue
 			}
-			// if previousMove.Side == Right && move.Side == Left {
-			// 	continue
-			// }
-			// if previousMove.Side == Up && move.Side == Down {
-			// 	continue
-			// }
-			// if previousMove.Side == Front && move.Side == Back {
-			// 	continue
-			// }
+			if previousMove.Side == Right && move.Side == Left {
+				continue
+			}
+			if previousMove.Side == Up && move.Side == Down {
+				continue
+			}
+			if previousMove.Side == Front && move.Side == Back {
+				continue
+			}
 		}
 		newCube := cube
 		newCube.apply(move)
@@ -412,7 +410,6 @@ func search(seen map[Cube]struct{}, cube Cube, previousMove *Move, g int, bound 
 				min = t
 			}
 			delete(seen, newCube)
-			// *path = (*path)[:len(*path)-1]
 		}
 	}
 	return min, nil
