@@ -122,13 +122,13 @@ func CreateList() list.Model {
 		item("B"),
 	}
 	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
-	l.Title = "\nWhat type of move do you want to execute ?\n"
-	l.Title += "(Use <- / -> to select alternative moves)\n\n"
+	l.Title = "What type of move do you want to execute ?\n"
+	l.Title += "(Use <- / -> to select alternative moves)"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 	l.Styles.Title = titleStyle
 	l.Styles.PaginationStyle = paginationStyle
-	// l.Styles.HelpStyle = helpStyle
+	l.SetShowHelp(false)
 	return l
 }
 
@@ -248,20 +248,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 
-	s := m.cube.blueprint()
+	s := rectangleStyle.Render(m.cube.blueprint()) + "\n"
 
 	s += m.list.View()
 
 	if m.isSolving {
-		s += "\n" + m.loader.View() + "Solving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()) + "\n"
+		s += resultStyle.Render("\n" + m.loader.View() + "Solving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()))
 	} else if m.solution.moves != nil {
-		s += "\nSolution found: "
-		for _, move := range m.solution.moves {
-			s += move.CompactString() + " "
-		}
-		s += fmt.Sprintf("(%s)", m.stopwatch.View()) + "\n"
-	}
+		solutionString := "\nSolution found: "
 
+		for _, move := range m.solution.moves {
+			solutionString += move.CompactString() + " "
+		}
+		solutionString += fmt.Sprintf("(%s)", m.stopwatch.View())
+		s += resultStyle.Render(solutionString)
+	}
 	s += m.helpView()
 
 	return s
