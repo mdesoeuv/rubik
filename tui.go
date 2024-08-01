@@ -28,6 +28,7 @@ type model struct {
 	list        list.Model
 	isExploring bool
 	initialCube Cube
+	lastMove    string
 }
 
 type keymap struct {
@@ -146,7 +147,6 @@ func CreateExploreMoveList(solution []Move) list.Model {
 	for _, move := range solution {
 		items = append(items, item(move.CompactString()))
 	}
-	items = append(items, item("Solved"))
 	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
 	l.Title = "Solution steps"
 	l.SetShowStatusBar(false)
@@ -176,6 +176,7 @@ func initialModel(c *Cube) model {
 		keymap:      NewKeyMap(),
 		list:        CreateApplyMoveList(),
 		initialCube: *c,
+		lastMove:    "Start",
 	}
 }
 
@@ -269,10 +270,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.explore):
 			if !m.isExploring {
 				m.list = CreateExploreMoveList(m.solution.moves)
-				m.cube = m.initialCube
 				m.keymap.enter.SetEnabled(false)
 				m.keymap.left.SetEnabled(false)
 				m.keymap.right.SetEnabled(false)
+				m.initialCube = m.cube
 			} else {
 				m.list = CreateApplyMoveList()
 				m.cube = m.initialCube
@@ -285,8 +286,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.down):
 			if m.isExploring {
 				i, ok := m.list.SelectedItem().(item)
-				if ok && i != "Solved" && i != "Start" {
-					m.choice = string(i)
+				move := string(i)
+				if ok && move != "Solved" && i != "Start" {
+					m.choice = move
+					fmt.Printf("Current Move: %s, new move: %s", m.lastMove, m.choice)
 					move, err := ParseMove(m.choice)
 					if err != nil {
 						// TODO: Better
@@ -294,20 +297,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 					m.cube.apply(move)
 				}
+				m.lastMove = move
 			}
 
 		case key.Matches(msg, m.keymap.up):
 			if m.isExploring {
 				i, ok := m.list.SelectedItem().(item)
-				if ok && i != "Solved" && i != "Start" {
-					m.choice = string(i)
-					move, err := ParseMove(m.choice)
+				move := string(i)
+				if ok && m.lastMove != "Start" {
+					m.choice = move
+					fmt.Printf("Current Move: %s, new move: %s", m.lastMove, m.choice)
+					move, err := ParseMove(m.lastMove)
 					if err != nil {
 						fmt.Println(err)
 					}
 					move = move.Reverse()
 					m.cube.apply(move)
 				}
+				m.lastMove = move
 			}
 
 		}
