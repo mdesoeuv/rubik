@@ -2,26 +2,151 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"strings"
+	"time"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type model struct {
-	choices  []string         // items on the to-do list
-	cursor   int              // which to-do list item our cursor is pointing at
-	selected map[int]struct{} // which to-do items are selected
-	cube     *Cube
+	choice    string
+	cursor    int
+	selected  map[int]struct{}
+	cube      *Cube
+	solution  DoneSolving
+	loader    spinner.Model
+	isSolving bool
+	stopwatch stopwatch.Model
+	keymap    keymap
+	help      help.Model
+	list      list.Model
 }
 
-func resetChoices() []string {
-	return []string{"F", "R", "L", "U", "D", "B"}
+type keymap struct {
+	solve key.Binding
+	reset key.Binding
+	quit  key.Binding
+	up    key.Binding
+	down  key.Binding
+	right key.Binding
+	left  key.Binding
+	enter key.Binding
 }
 
-func initialModel() model {
+func NewKeyMap() keymap {
+	return keymap{
+		solve: key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp("s", "start solving"),
+		),
+		reset: key.NewBinding(
+			key.WithKeys("r"),
+			key.WithHelp("r", "reset the cube"),
+		),
+		quit: key.NewBinding(
+			key.WithKeys("q", "ctrl+c"),
+			key.WithHelp("q", "quit"),
+		),
+		up: key.NewBinding(
+			key.WithKeys("up", "k"),
+			key.WithHelp("up", "move up"),
+		),
+		down: key.NewBinding(
+			key.WithKeys("down", "j"),
+			key.WithHelp("down", "move down"),
+		),
+		right: key.NewBinding(
+			key.WithKeys("right", "l"),
+			key.WithHelp("right", "move right"),
+		),
+		left: key.NewBinding(
+			key.WithKeys("left", "h"),
+			key.WithHelp("left", "move left"),
+		),
+		enter: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "validate"),
+		),
+	}
+}
+
+func (m model) helpView() string {
+	return "\n" + m.help.ShortHelpView([]key.Binding{
+		m.keymap.solve,
+		m.keymap.reset,
+		m.keymap.quit,
+	})
+}
+
+type item string
+
+func (i item) FilterValue() string { return "" }
+
+type itemDelegate struct{}
+
+func (d itemDelegate) Height() int                             { return 1 }
+func (d itemDelegate) Spacing() int                            { return 0 }
+func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(item)
+	if !ok {
+		return
+	}
+
+	str := string(i)
+
+	fn := itemStyle.Render
+	if index == m.Index() {
+		fn = func(s ...string) string {
+			return selectedItemStyle.Render("> " + strings.Join(s, " "))
+		}
+	}
+
+	fmt.Fprint(w, fn(str))
+}
+
+func CreateList() list.Model {
+	items := []list.Item{
+		item("F"),
+		item("R"),
+		item("L"),
+		item("U"),
+		item("D"),
+		item("B"),
+	}
+	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
+	l.Title = "\nWhat type of move do you want to execute ?\n"
+	l.Title += "(Use <- / -> to select alternative moves)\n\n"
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
+	l.Styles.Title = titleStyle
+	l.Styles.PaginationStyle = paginationStyle
+	// l.Styles.HelpStyle = helpStyle
+	return l
+}
+
+func initialModel(c *Cube) model {
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+
 	return model{
-		choices:  resetChoices(),
-		selected: make(map[int]struct{}),
-		cube:     NewCubeSolved(),
+		choice:    "",
+		selected:  make(map[int]struct{}),
+		cube:      c,
+		loader:    s,
+		isSolving: false,
+		stopwatch: stopwatch.NewWithInterval(time.Millisecond),
+		help:      help.New(),
+		keymap:    NewKeyMap(),
+		list:      CreateList(),
 	}
 }
 
@@ -29,94 +154,117 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
+type DoneSolving struct {
+	states *[]Cube
+	moves  []Move
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var stopWatchCmd tea.Cmd
+	var loaderCmd tea.Cmd
+	var listCmd tea.Cmd
+	m.stopwatch, stopWatchCmd = m.stopwatch.Update(msg)
+	m.loader, loaderCmd = m.loader.Update(msg)
+	m.list, listCmd = m.list.Update(msg)
+
+	var myCmd tea.Cmd
 	switch msg := msg.(type) {
 
-	// Is it a key press?
+	case tea.WindowSizeMsg:
+		m.list.SetWidth(msg.Width)
+		return m, nil
+
+	case DoneSolving:
+		m.isSolving = false
+
+		stopWatchCmd = m.stopwatch.Stop()
+		m.solution = msg
+
 	case tea.KeyMsg:
 
-		// Cool, what was the actual key pressed?
-		switch msg.String() {
+		switch {
 
-		// These keys should exit the program.
-		case "ctrl+c", "q":
-			return m, tea.Quit
+		case key.Matches(msg, m.keymap.quit):
+			myCmd = tea.Quit
 
-		// The "up" and "k" keys move the cursor up
-		case "up", "k":
+		case key.Matches(msg, m.keymap.up):
 			if m.cursor > 0 {
 				m.cursor--
 			}
 
-		// The "down" and "j" keys move the cursor down
-		case "down", "j":
-			if m.cursor < len(m.choices)-1 {
-				m.cursor++
+		case key.Matches(msg, m.keymap.right):
+			i, ok := m.list.SelectedItem().(item)
+			if ok {
+				if len(i) == 1 {
+					m.list.SetItem(m.list.Index(), item(string(i)+"2"))
+				} else if i[1] == '\'' {
+					m.list.SetItem(m.list.Index(), item(string(i[0])))
+				}
+
 			}
 
-		case "right":
-			if len(m.choices[m.cursor]) == 1 {
-				m.choices[m.cursor] += "2"
-			} else if m.choices[m.cursor][1] == '\'' {
-				m.choices[m.cursor] = string(m.choices[m.cursor][0])
+		case key.Matches(msg, m.keymap.left):
+			i, ok := m.list.SelectedItem().(item)
+			if ok {
+				if len(i) == 1 {
+					m.list.SetItem(m.list.Index(), item(string(i)+"'"))
+				} else if i[1] == '2' {
+					m.list.SetItem(m.list.Index(), item(string(i[0])))
+				}
 			}
-			return m, nil
 
-		case "left":
-			if len(m.choices[m.cursor]) == 1 {
-				m.choices[m.cursor] += "'"
-			} else if m.choices[m.cursor][1] == '2' {
-				m.choices[m.cursor] = string(m.choices[m.cursor][0])
-			}
-			return m, nil
+		case key.Matches(msg, m.keymap.solve):
+			cube := *m.cube
+			m.isSolving = true
+			myCmd = tea.Batch(
+				m.stopwatch.Start(),
+				m.loader.Tick,
+				func() tea.Msg {
+					return DoneSolving{
+						states: cube.solve(),
+						moves:  AllMoves,
+					}
+				},
+			)
 
-		// The "enter" key and the spacebar (a literal space) toggle
-		// the selected state for the item that the cursor is pointing at.
-		case "enter":
-			move, err := ParseMove(m.choices[m.cursor])
-			if err != nil {
-				fmt.Println(err)
-				return m, nil
+		case key.Matches(msg, m.keymap.enter):
+			i, ok := m.list.SelectedItem().(item)
+			if ok {
+				m.choice = string(i)
+				move, err := ParseMove(m.choice)
+				if err != nil {
+					// TODO: Better
+					fmt.Println(err)
+				}
+				m.cube.apply(move)
 			}
-			m.cube.apply(move)
-			m.choices = resetChoices()
+
+		case key.Matches(msg, m.keymap.reset):
+			m.stopwatch.Reset()
+			m.cube = NewCubeSolved()
+			m.solution = DoneSolving{}
 		}
 	}
-
-	// Return the updated model to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
-	return m, nil
+	return m, tea.Batch(myCmd, stopWatchCmd, loaderCmd, listCmd)
 }
 
 func (m model) View() string {
-	// The header
 
 	s := m.cube.blueprint()
 
-	s += "What type of move do you want to execute ?\n\n"
+	s += m.list.View()
 
-	// Iterate over our choices
-	for i, choice := range m.choices {
-
-		// Is the cursor pointing at this choice?
-		cursor := " " // no cursor
-		if m.cursor == i {
-			cursor = ">" // cursor!
+	if m.isSolving {
+		s += m.loader.View() + "\nSolving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()) + "\n"
+	} else if m.solution.moves != nil {
+		s += "\nSolution found: "
+		for _, move := range m.solution.moves {
+			s += move.CompactString() + " "
 		}
-
-		// Is this choice selected?
-		checked := " " // not selected
-		if _, ok := m.selected[i]; ok {
-			checked = "x" // selected!
-		}
-
-		// Render the row
-		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, choice)
+		s += fmt.Sprintf("(%s)", m.stopwatch.View()) + "\n"
 	}
 
-	// The footer
-	s += "\nPress q to quit.\n"
+	s += m.helpView()
 
-	// Send the UI for rendering
 	return s
 }
