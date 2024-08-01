@@ -19,7 +19,6 @@ func rotateFace(face *Face, rotationCount int) {
 }
 
 func rotateCrown(cube *Cube, move Move) {
-
 	crown := crownCycle[move.Side]
 
 	newCube := *cube
@@ -88,18 +87,18 @@ var crownCycle = map[Side][12]CubeCoord{
 		{side: Front, faceCoord: FaceCoord{line: 0, column: 2}},
 	},
 	Down: {
-		{side: Front, faceCoord: FaceCoord{line: 2, column: 2}},
-		{side: Front, faceCoord: FaceCoord{line: 2, column: 1}},
 		{side: Front, faceCoord: FaceCoord{line: 2, column: 0}},
-		{side: Left, faceCoord: FaceCoord{line: 2, column: 2}},
-		{side: Left, faceCoord: FaceCoord{line: 2, column: 1}},
-		{side: Left, faceCoord: FaceCoord{line: 2, column: 0}},
-		{side: Back, faceCoord: FaceCoord{line: 2, column: 2}},
-		{side: Back, faceCoord: FaceCoord{line: 2, column: 1}},
-		{side: Back, faceCoord: FaceCoord{line: 2, column: 0}},
-		{side: Right, faceCoord: FaceCoord{line: 2, column: 2}},
-		{side: Right, faceCoord: FaceCoord{line: 2, column: 1}},
+		{side: Front, faceCoord: FaceCoord{line: 2, column: 1}},
+		{side: Front, faceCoord: FaceCoord{line: 2, column: 2}},
 		{side: Right, faceCoord: FaceCoord{line: 2, column: 0}},
+		{side: Right, faceCoord: FaceCoord{line: 2, column: 1}},
+		{side: Right, faceCoord: FaceCoord{line: 2, column: 2}},
+		{side: Back, faceCoord: FaceCoord{line: 2, column: 0}},
+		{side: Back, faceCoord: FaceCoord{line: 2, column: 1}},
+		{side: Back, faceCoord: FaceCoord{line: 2, column: 2}},
+		{side: Left, faceCoord: FaceCoord{line: 2, column: 0}},
+		{side: Left, faceCoord: FaceCoord{line: 2, column: 1}},
+		{side: Left, faceCoord: FaceCoord{line: 2, column: 2}},
 	},
 	Left: {
 		{side: Up, faceCoord: FaceCoord{line: 0, column: 0}},
