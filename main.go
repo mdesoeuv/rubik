@@ -56,10 +56,11 @@ func main() {
 	} else {
 		fmt.Println(cube.blueprint())
 		fmt.Println("Solving...")
-		cube.solve()
-		s := fmt.Sprintf("Solution found in %v steps: ", len(AllMoves))
-		for _, move := range AllMoves {
-			s += move.CompactString()
+		solution := cube.solve()
+		s := fmt.Sprintf("Solution found in %v steps: ", len(solution))
+		for _, move := range solution {
+			s += move.CompactString() + " "
 		}
+		fmt.Println(s)
 	}
 }
