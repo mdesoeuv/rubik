@@ -20,7 +20,7 @@ type model struct {
 	cursor    int
 	selected  map[int]struct{}
 	cube      *Cube
-	solution  DoneSolving
+	solution  SolutionMsg
 	loader    spinner.Model
 	isSolving bool
 	stopwatch stopwatch.Model
@@ -154,9 +154,8 @@ func (m model) Init() tea.Cmd {
 	return nil
 }
 
-type DoneSolving struct {
-	states *[]Cube
-	moves  []Move
+type SolutionMsg struct {
+	moves []Move
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -174,7 +173,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetWidth(msg.Width)
 		return m, nil
 
-	case DoneSolving:
+	case SolutionMsg:
 		m.isSolving = false
 
 		stopWatchCmd = m.stopwatch.Stop()
@@ -220,9 +219,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.stopwatch.Start(),
 				m.loader.Tick,
 				func() tea.Msg {
-					return DoneSolving{
-						states: cube.solve(),
-						moves:  AllMoves,
+					return SolutionMsg{
+						moves: cube.solve(),
 					}
 				},
 			)
@@ -242,7 +240,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.reset):
 			m.stopwatch.Reset()
 			m.cube = NewCubeSolved()
-			m.solution = DoneSolving{}
+			m.solution = SolutionMsg{}
 		}
 	}
 	return m, tea.Batch(myCmd, stopWatchCmd, loaderCmd, listCmd)
@@ -255,7 +253,7 @@ func (m model) View() string {
 	s += m.list.View()
 
 	if m.isSolving {
-		s += m.loader.View() + "\nSolving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()) + "\n"
+		s += "\n" + m.loader.View() + "Solving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()) + "\n"
 	} else if m.solution.moves != nil {
 		s += "\nSolution found: "
 		for _, move := range m.solution.moves {
