@@ -16,7 +16,6 @@ import (
 )
 
 type model struct {
-	choice      string
 	selected    map[int]struct{}
 	cube        Cube
 	solution    SolutionMsg
@@ -165,7 +164,6 @@ func initialModel(c *Cube) model {
 	cubeCopy := *c
 
 	return model{
-		choice:      "",
 		selected:    make(map[int]struct{}),
 		cube:        cubeCopy,
 		loader:      s,
@@ -253,8 +251,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.enter):
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
-				m.choice = string(i)
-				move, err := ParseMove(m.choice)
+				choice := string(i)
+				move, err := ParseMove(choice)
 				if err != nil {
 					// TODO: Better
 					fmt.Println(err)
@@ -288,9 +286,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				i, ok := m.list.SelectedItem().(item)
 				move := string(i)
 				if ok && move != "Solved" && i != "Start" {
-					m.choice = move
-					fmt.Printf("Current Move: %s, new move: %s", m.lastMove, m.choice)
-					move, err := ParseMove(m.choice)
+					choice := move
+					fmt.Printf("Current Move: %s, new move: %s", m.lastMove, choice)
+					move, err := ParseMove(choice)
 					if err != nil {
 						// TODO: Better
 						fmt.Println(err)
@@ -305,8 +303,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				i, ok := m.list.SelectedItem().(item)
 				move := string(i)
 				if ok && m.lastMove != "Start" {
-					m.choice = move
-					fmt.Printf("Current Move: %s, new move: %s", m.lastMove, m.choice)
+					choice := move
+					fmt.Printf("Current Move: %s, new move: %s", m.lastMove, choice)
 					move, err := ParseMove(m.lastMove)
 					if err != nil {
 						fmt.Println(err)
