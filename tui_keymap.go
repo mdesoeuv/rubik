@@ -20,7 +20,7 @@ func NewKeyMap() keymap {
 	return keymap{
 		solve: key.NewBinding(
 			key.WithKeys("s"),
-			key.WithHelp("s", "start solving"),
+			key.WithHelp("s", "solve"),
 		),
 		reset: key.NewBinding(
 			key.WithKeys("r"),
@@ -53,6 +53,7 @@ func NewKeyMap() keymap {
 		explore: key.NewBinding(
 			key.WithKeys("e"),
 			key.WithHelp("e", "explore"),
+			key.WithDisabled(),
 		),
 	}
 }

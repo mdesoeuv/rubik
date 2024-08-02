@@ -56,6 +56,19 @@ type SolutionMsg struct {
 	moves []Move
 }
 
+func (m *model) SwitchKeyBindings(isExploring bool) {
+	m.keymap.enter.SetEnabled(isExploring)
+	m.keymap.left.SetEnabled(isExploring)
+	m.keymap.right.SetEnabled(isExploring)
+	m.keymap.reset.SetEnabled(isExploring)
+	m.keymap.solve.SetEnabled(isExploring)
+	if isExploring {
+		m.keymap.explore.SetHelp("e", "explore")
+	} else {
+		m.keymap.explore.SetHelp("e", "edit")
+	}
+}
+
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var stopWatchCmd tea.Cmd
 	var loaderCmd tea.Cmd
@@ -73,6 +86,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case SolutionMsg:
 		m.isSolving = false
+		m.keymap.solve.SetEnabled(true)
+		m.keymap.reset.SetEnabled(true)
+		m.keymap.explore.SetEnabled(true)
 
 		stopWatchCmd = m.stopwatch.Stop()
 		m.solution = msg
@@ -108,6 +124,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.solve):
 			cube := m.cube
 			m.isSolving = true
+			m.keymap.solve.SetEnabled(false)
+			m.keymap.reset.SetEnabled(false)
 			myCmd = tea.Batch(
 				m.stopwatch.Start(),
 				m.loader.Tick,
@@ -128,6 +146,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					fmt.Println(err)
 				}
 				m.cube.apply(move)
+				m.keymap.explore.SetEnabled(false)
 			}
 
 		case key.Matches(msg, m.keymap.reset):
@@ -136,24 +155,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.solution = SolutionMsg{}
 
 		case key.Matches(msg, m.keymap.explore):
+			m.SwitchKeyBindings(m.isExploring)
 			if !m.isExploring {
 				m.list = CreateExploreMoveList(m.solution.moves)
-				m.keymap.enter.SetEnabled(false)
-				m.keymap.left.SetEnabled(false)
-				m.keymap.right.SetEnabled(false)
-				m.keymap.reset.SetEnabled(false)
-				m.keymap.solve.SetEnabled(false)
-				m.keymap.explore.SetHelp("e", "edit")
 				m.initialCube = m.cube
 			} else {
 				m.list = CreateApplyMoveList()
 				m.cube = m.initialCube
-				m.keymap.enter.SetEnabled(true)
-				m.keymap.left.SetEnabled(true)
-				m.keymap.right.SetEnabled(true)
-				m.keymap.reset.SetEnabled(true)
-				m.keymap.solve.SetEnabled(true)
-				m.keymap.explore.SetHelp("e", "explore")
 			}
 			m.isExploring = !m.isExploring
 
