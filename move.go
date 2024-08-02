@@ -120,3 +120,7 @@ func ParseMoveList(str string) (moveList []Move, err error) {
 	}
 	return
 }
+
+func (m Move) Reverse() Move {
+	return Move{m.Side, -m.NumRotations}
+}

@@ -20,8 +20,11 @@ func (c *Cube) blueprint() string {
 	lines[8] = emptyLine + " " + c.faces[Down].FaceGetLineString(2)
 
 	s := ""
-	for _, line := range lines {
-		s += line + "\n"
+	for i, line := range lines {
+		s += line
+		if i < len(lines)-1 {
+			s += "\n"
+		}
 	}
 	return s
 }
