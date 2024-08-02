@@ -146,6 +146,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.keymap.solve.SetEnabled(false)
 			m.keymap.reset.SetEnabled(false)
 			myCmd = tea.Batch(
+				m.edit.stopwatch.Reset(),
 				m.edit.stopwatch.Start(),
 				m.edit.spinner.Tick,
 				func() tea.Msg {
@@ -169,6 +170,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, m.keymap.reset):
+			m.keymap.explore.SetEnabled(false)
 			m.edit.stopwatch.Reset()
 			m.displayedCube = *NewCubeSolved()
 			m.explore.solution = SolutionMsg{}
@@ -188,7 +190,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.down):
 			if m.explore.isExploring {
 				i, ok := m.menu.SelectedItem().(item)
-				// fmt.Println("item number: ", len(m.list.VisibleItems()))
 				move := string(i)
 				if ok && i != "Start" && m.explore.lastIndex != len(m.menu.VisibleItems())-1 {
 					choice := move
