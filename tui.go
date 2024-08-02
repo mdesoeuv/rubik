@@ -14,7 +14,6 @@ import (
 )
 
 type model struct {
-	selected    map[int]struct{}
 	cube        Cube
 	solution    SolutionMsg
 	loader      spinner.Model
@@ -36,7 +35,6 @@ func initialModel(c *Cube) model {
 	cubeCopy := *c
 
 	return model{
-		selected:    make(map[int]struct{}),
 		cube:        cubeCopy,
 		loader:      s,
 		isSolving:   false,
@@ -143,6 +141,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.keymap.enter.SetEnabled(false)
 				m.keymap.left.SetEnabled(false)
 				m.keymap.right.SetEnabled(false)
+				m.keymap.reset.SetEnabled(false)
+				m.keymap.solve.SetEnabled(false)
+				m.keymap.explore.SetHelp("e", "edit")
 				m.initialCube = m.cube
 			} else {
 				m.list = CreateApplyMoveList()
@@ -150,6 +151,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.keymap.enter.SetEnabled(true)
 				m.keymap.left.SetEnabled(true)
 				m.keymap.right.SetEnabled(true)
+				m.keymap.reset.SetEnabled(true)
+				m.keymap.solve.SetEnabled(true)
+				m.keymap.explore.SetHelp("e", "explore")
 			}
 			m.isExploring = !m.isExploring
 
