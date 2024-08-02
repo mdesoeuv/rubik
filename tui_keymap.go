@@ -14,9 +14,10 @@ type keymap struct {
 	left    key.Binding
 	enter   key.Binding
 	explore key.Binding
+	edit    key.Binding
 }
 
-func NewKeyMap() keymap {
+func NewEditKeyMap() keymap {
 	return keymap{
 		solve: key.NewBinding(
 			key.WithKeys("s"),
@@ -53,16 +54,27 @@ func NewKeyMap() keymap {
 		explore: key.NewBinding(
 			key.WithKeys("e"),
 			key.WithHelp("e", "explore"),
-			key.WithDisabled(),
 		),
 	}
 }
 
-func (m model) helpView() string {
-	return "\n" + m.help.ShortHelpView([]key.Binding{
-		m.keymap.solve,
-		m.keymap.explore,
-		m.keymap.reset,
-		m.keymap.quit,
-	})
+func NewExploreKeyMap() keymap {
+	return keymap{
+		quit: key.NewBinding(
+			key.WithKeys("q", "ctrl+c"),
+			key.WithHelp("q", "quit"),
+		),
+		down: key.NewBinding(
+			key.WithKeys("down", "j"),
+			key.WithHelp("down", "move down"),
+		),
+		up: key.NewBinding(
+			key.WithKeys("up", "k"),
+			key.WithHelp("up", "move up"),
+		),
+		edit: key.NewBinding(
+			key.WithKeys("e"),
+			key.WithHelp("e", "edit"),
+		),
+	}
 }
