@@ -15,15 +15,15 @@ import (
 
 type model struct {
 	cube        Cube
+	initialCube Cube
 	solution    SolutionMsg
-	loader      spinner.Model
-	isSolving   bool
+	list        list.Model
+	spinner     spinner.Model
 	stopwatch   stopwatch.Model
 	keymap      keymap
 	help        help.Model
-	list        list.Model
+	isSolving   bool
 	isExploring bool
-	initialCube Cube
 	lastMove    string
 }
 
@@ -36,14 +36,14 @@ func initialModel(c *Cube) model {
 
 	return model{
 		cube:        cubeCopy,
-		loader:      s,
+		initialCube: *c,
+		list:        CreateApplyMoveList(),
+		spinner:     s,
+		stopwatch:   stopwatch.NewWithInterval(time.Millisecond),
+		keymap:      NewKeyMap(),
+		help:        help.New(),
 		isSolving:   false,
 		isExploring: false,
-		stopwatch:   stopwatch.NewWithInterval(time.Millisecond),
-		help:        help.New(),
-		keymap:      NewKeyMap(),
-		list:        CreateApplyMoveList(),
-		initialCube: *c,
 		lastMove:    "Start",
 	}
 }
@@ -71,10 +71,10 @@ func (m *model) SwitchKeyBindings(isExploring bool) {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var stopWatchCmd tea.Cmd
-	var loaderCmd tea.Cmd
+	var spinnerCmd tea.Cmd
 	var listCmd tea.Cmd
 	m.stopwatch, stopWatchCmd = m.stopwatch.Update(msg)
-	m.loader, loaderCmd = m.loader.Update(msg)
+	m.spinner, spinnerCmd = m.spinner.Update(msg)
 	m.list, listCmd = m.list.Update(msg)
 
 	var myCmd tea.Cmd
@@ -128,7 +128,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.keymap.reset.SetEnabled(false)
 			myCmd = tea.Batch(
 				m.stopwatch.Start(),
-				m.loader.Tick,
+				m.spinner.Tick,
 				func() tea.Msg {
 					return SolutionMsg{
 						moves: cube.solve(),
@@ -199,7 +199,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	}
-	return m, tea.Batch(myCmd, stopWatchCmd, loaderCmd, listCmd)
+	return m, tea.Batch(myCmd, stopWatchCmd, spinnerCmd, listCmd)
 }
 
 func (m model) View() string {
@@ -209,7 +209,7 @@ func (m model) View() string {
 	s += m.list.View()
 
 	if m.isSolving {
-		s += resultStyle.Render("\n" + m.loader.View() + "Solving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()))
+		s += resultStyle.Render("\n" + m.spinner.View() + "Solving..." + fmt.Sprintf(" (%s)", m.stopwatch.View()))
 	} else if m.solution.moves != nil {
 		solutionString := "\nSolution found: "
 
