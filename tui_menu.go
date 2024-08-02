@@ -70,5 +70,9 @@ func CreateExploreMoveList(solution []Move) list.Model {
 	l.Styles.Title = titleStyle
 	l.Styles.PaginationStyle = paginationStyle
 	l.SetShowHelp(false)
+	l.KeyMap.NextPage.SetEnabled(false)
+	l.KeyMap.PrevPage.SetEnabled(false)
+	l.KeyMap.GoToStart.SetEnabled(false)
+	l.KeyMap.GoToEnd.SetEnabled(false)
 	return l
 }

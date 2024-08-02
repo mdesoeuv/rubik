@@ -25,6 +25,7 @@ type model struct {
 	isSolving   bool
 	isExploring bool
 	lastMove    string
+	lastIndex   int
 }
 
 func initialModel(c *Cube) model {
@@ -45,6 +46,7 @@ func initialModel(c *Cube) model {
 		isSolving:   false,
 		isExploring: false,
 		lastMove:    "Start",
+		lastIndex:   0,
 	}
 }
 
@@ -159,6 +161,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !m.isExploring {
 				m.list = CreateExploreMoveList(m.solution.moves)
 				m.initialCube = m.cube
+				m.lastIndex = 0
 			} else {
 				m.list = CreateApplyMoveList()
 				m.cube = m.initialCube
@@ -168,8 +171,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keymap.down):
 			if m.isExploring {
 				i, ok := m.list.SelectedItem().(item)
+				// fmt.Println("item number: ", len(m.list.VisibleItems()))
 				move := string(i)
-				if ok && move != "Solved" && i != "Start" {
+				if ok && i != "Start" && m.lastIndex != len(m.list.VisibleItems())-1 {
 					choice := move
 					move, err := ParseMove(choice)
 					if err != nil {
@@ -179,6 +183,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.cube.apply(move)
 				}
 				m.lastMove = move
+				m.lastIndex = m.list.Index()
 			}
 
 		case key.Matches(msg, m.keymap.up):
@@ -194,6 +199,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.cube.apply(move)
 				}
 				m.lastMove = move
+				m.lastIndex = m.list.Index()
 			}
 
 		}
