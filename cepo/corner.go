@@ -103,3 +103,25 @@ func (cp *CornerPermutation) Apply(move cmn.Move) {
 func (cp CornerPermutation) IsSolved() bool {
 	return cp == NewCornerPermutationSolved()
 }
+
+func (cp CornerPermutation) AllInCorrectOrbit() bool {
+	orbit_1 := 1 << cp.Get(cmn.ULB)
+	orbit_1 += 1 << cp.Get(cmn.DLF)
+	orbit_1 += 1 << cp.Get(cmn.DRB)
+	orbit_1 += 1 << cp.Get(cmn.URF)
+	orbit_2 := 1 << cp.Get(cmn.ULF)
+	orbit_2 += 1 << cp.Get(cmn.DLB)
+	orbit_2 += 1 << cp.Get(cmn.DRF)
+	orbit_2 += 1 << cp.Get(cmn.URB)
+	return orbit_1 == 0b0000_1111_0 && orbit_2 == 0b1111_0000_0
+}
+
+func (cp CornerPermutation) Distance() int {
+	count := 0
+	for corner := cmn.FirstCornerIndex; corner <= cmn.LastCornerIndex; corner++ {
+		if cp.Get(corner) != corner {
+			count += 1
+		}
+	}
+	return (count + 3) / 4
+}

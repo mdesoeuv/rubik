@@ -26,7 +26,7 @@ const (
 	LB = LeftBack
 	LF = LeftFront
 	RF = RightFront
-	Rt = RightBack
+	RB = RightBack
 	UF = UpFront
 	DF = DownFront
 	DB = DownBack

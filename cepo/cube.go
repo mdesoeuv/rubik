@@ -69,7 +69,21 @@ func (c *Cube) IsG2() bool {
 }
 
 func (c *Cube) IsG3AssumingG2() bool {
-	return false
+	return (c.edgePermutation.AllInCorrectSlice() &&
+		c.cornerPermutation.AllInCorrectOrbit())
+}
+
+func (c *Cube) IsG3() bool {
+	return c.IsG2() && c.IsG3AssumingG2()
+}
+
+func (c *Cube) IsG4AssumingG3() bool {
+	return (c.edgePermutation.IsSolved() &&
+		c.cornerPermutation.IsSolved())
+}
+
+func (c *Cube) IsG4() bool {
+	return c.IsSolved()
 }
 
 // TODO: Improve precision
@@ -80,6 +94,21 @@ func (c *Cube) distanceToG2InG1() int {
 		return coDistance
 	} else {
 		return edgeDistance
+	}
+}
+
+func (c *Cube) distanceToG3InG2() int {
+	// TODO: the code \(^o^)/
+	return 0
+}
+
+func (c *Cube) distanceToG4InG3() int {
+	epDistance := c.edgePermutation.Distance()
+	cpDistance := c.cornerPermutation.Distance()
+	if epDistance > cpDistance {
+		return epDistance
+	} else {
+		return cpDistance
 	}
 }
 
