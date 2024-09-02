@@ -25,7 +25,8 @@ const (
 var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: 'L', Right: 'R'}
 
 type Move struct {
-	Side         Side
+	Side Side
+	// TODO: Make it a positive number
 	NumRotations int
 }
 
@@ -39,6 +40,16 @@ func makeAllMoves() (result []Move) {
 		}
 	}
 	return result
+}
+
+func (m Move) Reverse() Move {
+	switch m.NumRotations {
+	case -1:
+		m.NumRotations = 1
+	case 1:
+		m.NumRotations = -1
+	}
+	return m
 }
 
 func ParseSide(c rune) (face Side, err error) {

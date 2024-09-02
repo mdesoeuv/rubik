@@ -13,6 +13,14 @@ type FaceCoord struct {
 	column int
 }
 
+func (fc FaceCoord) isEdge() bool {
+	return fc.line == 1 || fc.column == 1
+}
+
+func (fc FaceCoord) isCorner() bool {
+	return !fc.isEdge()
+}
+
 func (f Face) String() string {
 	result := ""
 	for _, line := range f.f {

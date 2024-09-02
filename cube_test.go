@@ -156,3 +156,13 @@ func TestCubeCopy(t *testing.T) {
 		t.Errorf("Cubes are not supposed to be the same ")
 	}
 }
+
+func BenchmarkCubeApply(b *testing.B) {
+	cube := NewCubeSolved()
+
+	b.StartTimer()
+	for i := 0; i <= b.N; i += 1 {
+		cube.apply(AllMoves[i%len(AllMoves)])
+	}
+	b.StopTimer()
+}

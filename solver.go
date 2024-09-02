@@ -419,9 +419,9 @@ func heuristic(cube *Cube) int {
 	edgeDistanceSum := cube.edgeDistanceSum()
 	cornerDistanceSum := cube.cornerDistanceSum()
 	if edgeDistanceSum > cornerDistanceSum {
-		return edgeDistanceSum / 4
+		return (edgeDistanceSum + 3) / 4
 	} else {
-		return cornerDistanceSum / 4
+		return (cornerDistanceSum + 3) / 4
 	}
 }
 
