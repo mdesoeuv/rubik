@@ -13,6 +13,7 @@ type Move struct {
 }
 
 var AllMoves []Move = makeAllMoves()
+var sideNames = map[Side]rune{Front: 'F', Back: 'B', Up: 'U', Down: 'D', Left: 'L', Right: 'R'}
 
 func makeAllMoves() (result []Move) {
 	for side := FirstSide; side <= LastSide; side++ {
@@ -92,4 +93,18 @@ func ArticleExampleShuffleMoveList() []Move {
 	moves := ArticleExampleSolutionMoveList()
 	slices.Reverse(moves)
 	return moves
+}
+
+func (m Move) String() string {
+	s := string(SideToString(m.Side))
+	if m.Rotation.amount == -1 {
+		s += "'"
+	} else if m.Rotation.amount == 2 {
+		s += "2"
+	}
+	return s
+}
+
+func SideToString(s Side) rune {
+	return sideNames[s]
 }

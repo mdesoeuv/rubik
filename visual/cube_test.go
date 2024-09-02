@@ -1,11 +1,13 @@
-package main
+package visual
 
 import (
 	"fmt"
 	"testing"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
-func sliceIsOfSide(array []Side, expected Side) bool {
+func sliceIsOfSide(array []cmn.Side, expected cmn.Side) bool {
 	for _, side := range array {
 		if side != expected {
 			return false
@@ -16,56 +18,56 @@ func sliceIsOfSide(array []Side, expected Side) bool {
 
 func TestSortedCubeMoveUp(t *testing.T) {
 	cube := NewCubeSolved()
-	leftSide := cube.faces[Left].f[0][0]
-	rightSide := cube.faces[Right].f[0][0]
-	frontSide := cube.faces[Front].f[0][0]
-	backSide := cube.faces[Back].f[0][0]
-	upSide := cube.faces[Up].f[0][0]
-	downSide := cube.faces[Down].f[0][0]
+	leftSide := cube.faces[cmn.Left].f[0][0]
+	rightSide := cube.faces[cmn.Right].f[0][0]
+	frontSide := cube.faces[cmn.Front].f[0][0]
+	backSide := cube.faces[cmn.Back].f[0][0]
+	upSide := cube.faces[cmn.Up].f[0][0]
+	downSide := cube.faces[cmn.Down].f[0][0]
 
-	cube.apply(Move{Up, 1})
+	cube.Apply(cmn.Move{Side: cmn.Up, Rotation: cmn.RotationClockwise()})
 
 	// Check that the up face is rotated
-	if !sliceIsOfSide(cube.faces[Right].f[0][:], backSide) {
+	if !sliceIsOfSide(cube.faces[cmn.Right].f[0][:], backSide) {
 		t.Errorf("Right face did not rotate correctly")
 	}
-	if !sliceIsOfSide(cube.faces[Front].f[0][:], rightSide) {
+	if !sliceIsOfSide(cube.faces[cmn.Front].f[0][:], rightSide) {
 		t.Errorf("Front face did not rotate correctly")
 	}
-	if !sliceIsOfSide(cube.faces[Back].f[0][:], leftSide) {
+	if !sliceIsOfSide(cube.faces[cmn.Back].f[0][:], leftSide) {
 		t.Errorf("Back face did not rotate correctly")
 	}
-	if !sliceIsOfSide(cube.faces[Left].f[0][:], frontSide) {
+	if !sliceIsOfSide(cube.faces[cmn.Left].f[0][:], frontSide) {
 		t.Errorf("Left face did not rotate correctly")
 	}
 
 	// Check that the other squares are unchanged
-	for _, line := range cube.faces[Up].f[:] {
+	for _, line := range cube.faces[cmn.Up].f[:] {
 		if !sliceIsOfSide(line[:], upSide) {
 			t.Errorf("Up face has changed")
 		}
 	}
-	for _, line := range cube.faces[Left].f[1:] {
+	for _, line := range cube.faces[cmn.Left].f[1:] {
 		if !sliceIsOfSide(line[:], leftSide) {
 			t.Errorf("Left: unexpected square change")
 		}
 	}
-	for _, line := range cube.faces[Right].f[1:] {
+	for _, line := range cube.faces[cmn.Right].f[1:] {
 		if !sliceIsOfSide(line[:], rightSide) {
 			t.Errorf("Right: unexpected square change")
 		}
 	}
-	for _, line := range cube.faces[Front].f[1:] {
+	for _, line := range cube.faces[cmn.Front].f[1:] {
 		if !sliceIsOfSide(line[:], frontSide) {
 			t.Errorf("Front: unexpected square change")
 		}
 	}
-	for _, line := range cube.faces[Back].f[1:] {
+	for _, line := range cube.faces[cmn.Back].f[1:] {
 		if !sliceIsOfSide(line[:], backSide) {
 			t.Errorf("Back: unexpected square change")
 		}
 	}
-	for _, line := range cube.faces[Down].f[:] {
+	for _, line := range cube.faces[cmn.Down].f[:] {
 		if !sliceIsOfSide(line[:], downSide) {
 			t.Errorf("Up face has changed")
 		}
@@ -76,14 +78,14 @@ func NewCubeTopSpinned() *Cube {
 	cube := NewCubeSolved()
 
 	// Spin top
-	frontLine := cube.faces[Front].f[0]
-	rightLine := cube.faces[Right].f[0]
-	backLine := cube.faces[Back].f[0]
-	leftLine := cube.faces[Left].f[0]
-	cube.faces[Front].f[0] = leftLine
-	cube.faces[Right].f[0] = frontLine
-	cube.faces[Back].f[0] = rightLine
-	cube.faces[Left].f[0] = backLine
+	frontLine := cube.faces[cmn.Front].f[0]
+	rightLine := cube.faces[cmn.Right].f[0]
+	backLine := cube.faces[cmn.Back].f[0]
+	leftLine := cube.faces[cmn.Left].f[0]
+	cube.faces[cmn.Front].f[0] = leftLine
+	cube.faces[cmn.Right].f[0] = frontLine
+	cube.faces[cmn.Back].f[0] = rightLine
+	cube.faces[cmn.Left].f[0] = backLine
 
 	return cube
 }
@@ -91,25 +93,25 @@ func NewCubeTopSpinned() *Cube {
 func TestFrontFaceRotation(t *testing.T) {
 	cube := NewCubeTopSpinned()
 
-	move := Move{
-		Side:         Front,
-		NumRotations: 1,
+	move := cmn.Move{
+		Side:     cmn.Front,
+		Rotation: cmn.RotationClockwise(),
 	}
 
-	cube.apply(move)
+	cube.Apply(move)
 
 	expectedFace := Face{
-		f: [3][3]Side{
-			{Front, Front, Left},
-			{Front, Front, Left},
-			{Front, Front, Left},
+		f: [3][3]cmn.Side{
+			{cmn.Front, cmn.Front, cmn.Left},
+			{cmn.Front, cmn.Front, cmn.Left},
+			{cmn.Front, cmn.Front, cmn.Left},
 		},
 	}
 
-	if !FaceEqual(cube.faces[Front], expectedFace) {
+	if !FaceEqual(cube.faces[cmn.Front], expectedFace) {
 		t.Errorf("Wrong front face after rotation")
-		t.Errorf("Expected:\n%vFound:\n%v", expectedFace, cube.faces[Front])
-		fmt.Println(cube.blueprint())
+		t.Errorf("Expected:\n%vFound:\n%v", expectedFace, cube.faces[cmn.Front])
+		fmt.Println(cube.Blueprint())
 	}
 }
 
@@ -150,9 +152,9 @@ func TestCubeCopy(t *testing.T) {
 
 	duplicate := *cube
 
-	cube.faces[Front].f[0][0] = Back
+	cube.faces[cmn.Front].f[0][0] = cmn.Back
 
-	if FaceEqual(cube.faces[Front], duplicate.faces[Front]) {
+	if FaceEqual(cube.faces[cmn.Front], duplicate.faces[cmn.Front]) {
 		t.Errorf("Cubes are not supposed to be the same ")
 	}
 }
@@ -162,7 +164,7 @@ func BenchmarkCubeApply(b *testing.B) {
 
 	b.StartTimer()
 	for i := 0; i <= b.N; i += 1 {
-		cube.apply(AllMoves[i%len(AllMoves)])
+		cube.Apply(cmn.AllMoves[i%len(cmn.AllMoves)])
 	}
 	b.StopTimer()
 }

@@ -9,10 +9,13 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
+
+	cmn "github.com/mdesoeuv/rubik/common"
+	visual "github.com/mdesoeuv/rubik/visual"
 )
 
 type EditMenu struct {
-	cube      Cube
+	cube      visual.Cube
 	list      list.Model
 	solution  SolutionMsg
 	spinner   spinner.Model
@@ -84,7 +87,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				e.spinner.Tick,
 				func() tea.Msg {
 					return SolutionMsg{
-						moves: cube.solve(),
+						moves: cube.Solve(),
 					}
 				},
 			)
@@ -93,19 +96,19 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			i, ok := e.list.SelectedItem().(item)
 			if ok {
 				choice := string(i)
-				move, err := ParseMove(choice)
+				move, err := cmn.ParseMove(choice)
 				if err != nil {
 					// TODO: Better
 					fmt.Println(err)
 				}
-				e.cube.apply(move)
+				e.cube.Apply(move)
 				e.keymap.explore.SetEnabled(false)
 			}
 
 		case key.Matches(msg, e.keymap.reset):
 			e.keymap.explore.SetEnabled(false)
 			e.stopwatch.Reset()
-			e.cube = *NewCubeSolved()
+			e.cube = *visual.NewCubeSolved()
 			e.solution = SolutionMsg{}
 
 		case key.Matches(msg, e.keymap.explore):
@@ -134,7 +137,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 
 func (e EditMenu) View() string {
 
-	s := rectangleStyle.Render(e.cube.blueprint()) + "\n"
+	s := rectangleStyle.Render(e.cube.Blueprint()) + "\n"
 	s += e.list.View()
 
 	if e.isSolving {
@@ -142,7 +145,7 @@ func (e EditMenu) View() string {
 	} else if e.solution.moves != nil {
 		solutionString := "\nSolution found: "
 		for _, move := range e.solution.moves {
-			solutionString += move.CompactString() + " "
+			solutionString += move.String() + " "
 		}
 		solutionString += fmt.Sprintf("(%s)", e.stopwatch.View())
 		s += resultStyle.Render(solutionString)

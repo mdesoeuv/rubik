@@ -8,6 +8,9 @@ import (
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	cmn "github.com/mdesoeuv/rubik/common"
+	visual "github.com/mdesoeuv/rubik/visual"
 )
 
 type Menu interface {
@@ -26,7 +29,7 @@ func CreateSpinner() spinner.Model {
 	return s
 }
 
-func initialModel(c *Cube) model {
+func initialModel(c *visual.Cube) model {
 
 	editMenu := EditMenu{
 		cube:      *c,
@@ -49,7 +52,7 @@ func (m model) Init() tea.Cmd {
 }
 
 type SolutionMsg struct {
-	moves []Move
+	moves []cmn.Move
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
