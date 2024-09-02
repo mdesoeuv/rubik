@@ -45,8 +45,12 @@ func (cube *Cube) Shuffle(r *rand.Rand, move_count int) {
 	}
 }
 
-func (c *Cube) Get(coord cmn.CubeCoord) *cmn.Side {
-	return &c.faces[coord.Side].f[coord.FaceCoord.Line()][coord.FaceCoord.Column()]
+func (c *Cube) Get(coord cmn.CubeCoord) cmn.Side {
+	return c.faces[coord.Side].f[coord.FaceCoord.Line()][coord.FaceCoord.Column()]
+}
+
+func (c *Cube) Set(coord cmn.CubeCoord, side cmn.Side) {
+	c.faces[coord.Side].f[coord.FaceCoord.Line()][coord.FaceCoord.Column()] = side
 }
 
 func (c *Cube) IsSolved() bool {
@@ -60,4 +64,9 @@ func (c *Cube) IsSolved() bool {
 		}
 	}
 	return true
+}
+
+func (c *Cube) Clone() cmn.Cube {
+	newCube := *c
+	return &newCube
 }

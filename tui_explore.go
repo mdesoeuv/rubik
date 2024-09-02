@@ -11,12 +11,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	cmn "github.com/mdesoeuv/rubik/common"
-	visual "github.com/mdesoeuv/rubik/visual"
 )
 
 type ExploreMenu struct {
-	cube      visual.Cube
-	backup    visual.Cube
+	cube      cmn.Cube
+	backup    cmn.Cube
 	solution  SolutionMsg
 	list      list.Model
 	keymap    keymap

@@ -10,7 +10,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	cmn "github.com/mdesoeuv/rubik/common"
-	visual "github.com/mdesoeuv/rubik/visual"
 )
 
 type Menu interface {
@@ -29,10 +28,10 @@ func CreateSpinner() spinner.Model {
 	return s
 }
 
-func initialModel(c *visual.Cube) model {
+func initialModel(c cmn.Cube) model {
 
 	editMenu := EditMenu{
-		cube:      *c,
+		cube:      c,
 		list:      CreateApplyMoveList(),
 		spinner:   CreateSpinner(),
 		stopwatch: stopwatch.NewWithInterval(time.Millisecond),

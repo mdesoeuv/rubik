@@ -15,7 +15,7 @@ import (
 )
 
 type EditMenu struct {
-	cube      visual.Cube
+	cube      cmn.Cube
 	list      list.Model
 	solution  SolutionMsg
 	spinner   spinner.Model
@@ -108,7 +108,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		case key.Matches(msg, e.keymap.reset):
 			e.keymap.explore.SetEnabled(false)
 			e.stopwatch.Reset()
-			e.cube = *visual.NewCubeSolved()
+			e.cube = visual.NewCubeSolved()
 			e.solution = SolutionMsg{}
 
 		case key.Matches(msg, e.keymap.explore):
@@ -116,7 +116,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				lastMove:  "Start",
 				lastIndex: 0,
 				cube:      e.cube,
-				backup:    e.cube,
+				backup:    e.cube.Clone(),
 				solution:  e.solution,
 				list:      CreateExploreMoveList(e.solution.moves),
 				keymap:    NewExploreKeyMap(),

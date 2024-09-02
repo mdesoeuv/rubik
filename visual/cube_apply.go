@@ -30,7 +30,7 @@ func rotateCrown(cube *Cube, move cmn.Move) {
 	for i := range crown {
 		index := len(crown) + i + 3*move.Rotation.Int()
 		to, from := crown[index%len(crown)], crown[i]
-		*newCube.Get(to) = *cube.Get(from)
+		newCube.Set(to, cube.Get(from))
 	}
 
 	*cube = newCube

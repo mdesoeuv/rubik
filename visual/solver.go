@@ -255,9 +255,9 @@ func makeCornerManhattanDistanceMap() map[CornerMemoizationEntry]int {
 			for c := FirstCorner; c <= LastCorner; c++ {
 				cc := cornerCoords(c)
 				entry := CornerMemoizationEntry{
-					a:      *cube.Get(cc.a),
-					b:      *cube.Get(cc.b),
-					c:      *cube.Get(cc.c),
+					a:      cube.Get(cc.a),
+					b:      cube.Get(cc.b),
+					c:      cube.Get(cc.c),
 					corner: c,
 				}
 				_, configurationSeen := result[entry]
@@ -284,9 +284,9 @@ func makeCornerManhattanDistanceMap() map[CornerMemoizationEntry]int {
 
 func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	coords := cornerCoords(id)
-	sideA := *cube.Get(coords.a)
-	sideB := *cube.Get(coords.b)
-	sideC := *cube.Get(coords.c)
+	sideA := cube.Get(coords.a)
+	sideB := cube.Get(coords.b)
+	sideC := cube.Get(coords.c)
 
 	entry := CornerMemoizationEntry{sideA, sideB, sideC, id}
 	result, stored := cornerManhattanDistanceMap[entry]
@@ -302,9 +302,9 @@ func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
 		for _, c := range to_explore {
-			aIsValid := *c.Get(toValidateCoords.a) == toValidateCoords.a.Side
-			bIsValid := *c.Get(toValidateCoords.b) == toValidateCoords.b.Side
-			cIsValid := *c.Get(toValidateCoords.c) == toValidateCoords.c.Side
+			aIsValid := c.Get(toValidateCoords.a) == toValidateCoords.a.Side
+			bIsValid := c.Get(toValidateCoords.b) == toValidateCoords.b.Side
+			cIsValid := c.Get(toValidateCoords.c) == toValidateCoords.c.Side
 			if aIsValid && bIsValid && cIsValid {
 				cornerManhattanDistanceMap[entry] = move_count
 				return move_count
@@ -333,8 +333,8 @@ func makeEdgeManhattanDistanceMap() map[EdgeMemoizationEntry]int {
 			for e := FirstEdge; e <= LastEdge; e++ {
 				ec := edgeCoords(e)
 				entry := EdgeMemoizationEntry{
-					a:    *cube.Get(ec.a),
-					b:    *cube.Get(ec.b),
+					a:    cube.Get(ec.a),
+					b:    cube.Get(ec.b),
 					edge: e,
 				}
 				_, configurationSeen := result[entry]
@@ -361,8 +361,8 @@ func makeEdgeManhattanDistanceMap() map[EdgeMemoizationEntry]int {
 
 func (cube *Cube) edgeManhattanDistance(id Edge) int {
 	coords := edgeCoords(id)
-	sideA := *cube.Get(coords.a)
-	sideB := *cube.Get(coords.b)
+	sideA := cube.Get(coords.a)
+	sideB := cube.Get(coords.b)
 
 	entry := EdgeMemoizationEntry{sideA, sideB, id}
 	result, stored := edgeManhattanDistanceMap[entry]
@@ -378,8 +378,8 @@ func (cube *Cube) edgeManhattanDistance(id Edge) int {
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
 		for _, c := range to_explore {
-			aIsValid := *c.Get(toValidateCoords.a) == toValidateCoords.a.Side
-			bIsValid := *c.Get(toValidateCoords.b) == toValidateCoords.b.Side
+			aIsValid := c.Get(toValidateCoords.a) == toValidateCoords.a.Side
+			bIsValid := c.Get(toValidateCoords.b) == toValidateCoords.b.Side
 			if aIsValid && bIsValid {
 				edgeManhattanDistanceMap[entry] = move_count
 				return move_count
