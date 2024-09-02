@@ -46,7 +46,7 @@ func main() {
 
 	// cube := visual.NewCubeSolved()
 	newCepo := cepo.NewCubeSolved()
-	cube := PairCube{Cepo: &newCepo, Visual: visual.NewCubeSolved()}
+	cube := VisualCepo{Cepo: &newCepo, Visual: visual.NewCubeSolved()}
 
 	for _, move := range moveList {
 		cube.Apply(move)

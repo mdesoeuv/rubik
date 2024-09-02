@@ -8,12 +8,12 @@ import (
 	visual "github.com/mdesoeuv/rubik/visual"
 )
 
-type PairCube struct {
+type VisualCepo struct {
 	Visual *visual.Cube
 	Cepo   *cepo.Cube
 }
 
-func (pc *PairCube) IsSolved() bool {
+func (pc *VisualCepo) IsSolved() bool {
 	visualIsSolve := pc.Visual.IsSolved()
 	cepoIsSolved := pc.Cepo.IsSolved()
 
@@ -23,27 +23,27 @@ func (pc *PairCube) IsSolved() bool {
 	return cepoIsSolved
 }
 
-func (pc *PairCube) Get(coord cmn.CubeCoord) cmn.Side {
+func (pc *VisualCepo) Get(coord cmn.CubeCoord) cmn.Side {
 	return pc.Visual.Get(coord)
 }
 
-func (pc *PairCube) Apply(move cmn.Move) {
+func (pc *VisualCepo) Apply(move cmn.Move) {
 	pc.Visual.Apply(move)
 	pc.Cepo.Apply(move)
 }
 
 // TODO: implement real solver for CEPO
-func (pc *PairCube) Solve() []cmn.Move {
+func (pc *VisualCepo) Solve() []cmn.Move {
 	return pc.Cepo.ToG1()
 }
 
-func (pc *PairCube) Clone() cmn.Cube {
+func (pc *VisualCepo) Clone() cmn.Cube {
 	newCepo := *pc.Cepo
 	newVisual := *pc.Visual
 
-	return &PairCube{Cepo: &newCepo, Visual: &newVisual}
+	return &VisualCepo{Cepo: &newCepo, Visual: &newVisual}
 }
 
-func (pc *PairCube) Blueprint() string {
+func (pc *VisualCepo) Blueprint() string {
 	return pc.Visual.Blueprint()
 }
