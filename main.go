@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mdesoeuv/rubik/cepo"
 	cmn "github.com/mdesoeuv/rubik/common"
+	tui "github.com/mdesoeuv/rubik/tui"
 	visual "github.com/mdesoeuv/rubik/visual"
 )
 
@@ -52,7 +53,7 @@ func main() {
 		cube.Apply(move)
 	}
 	if *tuiFlag {
-		p := tea.NewProgram(initialModel(&cube))
+		p := tea.NewProgram(tui.InitialModel(&cube))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)

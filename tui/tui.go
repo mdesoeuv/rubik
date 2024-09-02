@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"time"
@@ -28,7 +28,7 @@ func CreateSpinner() spinner.Model {
 	return s
 }
 
-func initialModel(c cmn.Cube) model {
+func InitialModel(c cmn.Cube) model {
 
 	editMenu := EditMenu{
 		cube:      c,
