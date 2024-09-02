@@ -6,6 +6,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mdesoeuv/rubik/cepo"
 	cmn "github.com/mdesoeuv/rubik/common"
 	visual "github.com/mdesoeuv/rubik/visual"
 )
@@ -43,13 +44,15 @@ func main() {
 		}
 	}
 
-	cube := visual.NewCubeSolved()
+	// cube := visual.NewCubeSolved()
+	newCepo := cepo.NewCubeSolved()
+	cube := PairCube{Cepo: &newCepo, Visual: visual.NewCubeSolved()}
 
 	for _, move := range moveList {
 		cube.Apply(move)
 	}
 	if *tuiFlag {
-		p := tea.NewProgram(initialModel(cube))
+		p := tea.NewProgram(initialModel(&cube))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
