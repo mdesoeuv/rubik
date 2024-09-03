@@ -46,6 +46,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		e.isSolving = false
 		e.keymap.solve.SetEnabled(true)
 		e.keymap.reset.SetEnabled(true)
+		e.keymap.shuffle.SetEnabled(true)
 		e.keymap.explore.SetEnabled(true)
 		stopWatchCmd = e.stopwatch.Stop()
 		e.solution = msg
@@ -81,6 +82,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			e.isSolving = true
 			e.keymap.solve.SetEnabled(false)
 			e.keymap.reset.SetEnabled(false)
+			e.keymap.shuffle.SetEnabled(false)
 			myCmd = tea.Batch(
 				e.stopwatch.Reset(),
 				e.stopwatch.Start(),
