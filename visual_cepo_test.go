@@ -18,7 +18,7 @@ func TestCubeToG3(t *testing.T) {
 
 	for move_count := 0; move_count <= 100; move_count += 10 {
 		newCepo := cepo.NewCubeSolved()
-		cube := VisualCepo{Cepo: &newCepo, Visual: visual.NewCubeSolved()}
+		cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
 
 		common.Shuffle(&cube, r, move_count)
 

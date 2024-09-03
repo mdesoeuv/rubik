@@ -291,8 +291,8 @@ func searchG4(
 
 func MakeG3Cubes() map[Cube]struct{} {
 	solvedCube := NewCubeSolved()
-	toExplore := []Cube{solvedCube}
-	seen := map[Cube]struct{}{solvedCube: {}}
+	toExplore := []Cube{*solvedCube}
+	seen := map[Cube]struct{}{*solvedCube: {}}
 
 	for len(toExplore) != 0 {
 		// TODO: a better queue

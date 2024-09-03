@@ -14,7 +14,7 @@ func TestCubeToG1(t *testing.T) {
 	maxStepCount := 0
 	for move_count := 0; move_count <= 100; move_count++ {
 		cube := cepo.NewCubeSolved()
-		common.Shuffle(&cube, r, move_count)
+		common.Shuffle(cube, r, move_count)
 		steps := cube.ToG1()
 		if steps == nil {
 			t.Fatalf("There should be a solution")
@@ -44,7 +44,7 @@ func TestCubeToG3(t *testing.T) {
 
 	for move_count := 0; move_count <= 100; move_count += 10 {
 		cube := cepo.NewCubeSolved()
-		common.Shuffle(&cube, r, move_count)
+		common.Shuffle(cube, r, move_count)
 
 		fmt.Printf("Solving #%v\n", move_count)
 		steps := cube.ToG3()
@@ -72,7 +72,7 @@ func TestCubeToG2(t *testing.T) {
 	maxStepCount := 0
 	for move_count := 0; move_count <= 100; move_count += 10 {
 		cube := cepo.NewCubeSolved()
-		common.Shuffle(&cube, r, move_count)
+		common.Shuffle(cube, r, move_count)
 
 		fmt.Printf("Solving #%v\n", move_count)
 		steps := cube.ToG2()
@@ -100,7 +100,7 @@ func TestCubeToG4(t *testing.T) {
 	maxStepCount := 0
 	for move_count := 0; move_count <= 100; move_count += 10 {
 		cube := cepo.NewCubeSolved()
-		common.Shuffle(&cube, r, move_count)
+		common.Shuffle(cube, r, move_count)
 
 		fmt.Printf("Solving #%v\n", move_count)
 		steps := cube.ToG4()
