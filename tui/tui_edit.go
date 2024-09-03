@@ -115,7 +115,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		case key.Matches(msg, e.keymap.shuffle):
 			e.keymap.explore.SetEnabled(false)
 			e.stopwatch.Reset()
-			r := rand.New(rand.NewPCG(0, 0))
+			r := rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
 			n := rand.IntN(100)
 			cmn.Shuffle(e.cube, r, n)
 			e.solution = SolutionMsg{}
