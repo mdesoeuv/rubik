@@ -1,7 +1,6 @@
 package cepo
 
 import (
-	"fmt"
 	"math"
 	"slices"
 
@@ -15,7 +14,7 @@ func (c *Cube) ToG1() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		fmt.Printf("G1: Searching up to depth: %v\n", bound)
+		// fmt.Printf("G1: Searching up to depth: %v\n", bound)
 		t, solution := searchG1(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -93,7 +92,7 @@ func (c *Cube) ToG2AssumingG1() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		fmt.Printf("G2: Searching up to depth: %v\n", bound)
+		// fmt.Printf("G2: Searching up to depth: %v\n", bound)
 		t, solution := searchG2(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -171,7 +170,7 @@ func (c *Cube) ToG3AssumingG2() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		fmt.Printf("G3: Searching up to depth: %v\n", bound)
+		// fmt.Printf("G3: Searching up to depth: %v\n", bound)
 		t, solution := searchG3(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -240,7 +239,7 @@ func (c *Cube) ToG4AssumingG3() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		fmt.Printf("G4: Searching up to depth: %v\n", bound)
+		// fmt.Printf("G4: Searching up to depth: %v\n", bound)
 		t, solution := searchG4(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
