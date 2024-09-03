@@ -31,3 +31,19 @@ func (pc *PairCube) Apply(move cmn.Move) {
 	pc.Visual.Apply(move)
 	pc.Cepo.Apply(move)
 }
+
+// TODO: implement real solver for CEPO
+func (pc *PairCube) Solve() []cmn.Move {
+	return pc.Cepo.ToG1()
+}
+
+func (pc *PairCube) Clone() cmn.Cube {
+	newCepo := *pc.Cepo
+	newVisual := *pc.Visual
+
+	return &PairCube{Cepo: &newCepo, Visual: &newVisual}
+}
+
+func (pc *PairCube) Blueprint() string {
+	return pc.Visual.Blueprint()
+}
