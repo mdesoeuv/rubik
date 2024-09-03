@@ -116,6 +116,35 @@ func (cp CornerPermutation) AllInCorrectOrbit() bool {
 	return orbit_1 == 0b0000_1111_0 && orbit_2 == 0b1111_0000_0
 }
 
+func (cp CornerPermutation) AllInCorrectOrbitDistance() int {
+	count := 0
+	if cp.Get(cmn.ULB) > cmn.URF {
+		count += 1
+	}
+	if cp.Get(cmn.DLF) > cmn.URF {
+		count += 1
+	}
+	if cp.Get(cmn.DRB) > cmn.URF {
+		count += 1
+	}
+	if cp.Get(cmn.URF) > cmn.URF {
+		count += 1
+	}
+	if cp.Get(cmn.ULF) < cmn.ULF {
+		count += 1
+	}
+	if cp.Get(cmn.DLB) < cmn.ULF {
+		count += 1
+	}
+	if cp.Get(cmn.DRF) < cmn.ULF {
+		count += 1
+	}
+	if cp.Get(cmn.URB) < cmn.ULF {
+		count += 1
+	}
+	return (count + 3) / 4
+}
+
 func (cp CornerPermutation) Distance() int {
 	count := 0
 	for corner := cmn.FirstCornerIndex; corner <= cmn.LastCornerIndex; corner++ {

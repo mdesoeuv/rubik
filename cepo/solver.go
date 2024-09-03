@@ -1,6 +1,7 @@
 package cepo
 
 import (
+	"fmt"
 	"math"
 	"slices"
 
@@ -14,6 +15,7 @@ func (c *Cube) ToG1() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
+		fmt.Printf("G1: Searching up to depth: %v\n", bound)
 		t, solution := searchG1(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -84,13 +86,14 @@ func makeG1Moves() (result []cmn.Move) {
 
 var G1Moves = makeG1Moves()
 
-func (c *Cube) ToG2() []cmn.Move {
+func (c *Cube) ToG2AssumingG1() []cmn.Move {
 	bound := c.distanceToG2InG1()
 
 	seen := map[Cube]struct{}{}
 	seen[*c] = struct{}{}
 
 	for {
+		fmt.Printf("G2: Searching up to depth: %v\n", bound)
 		t, solution := searchG2(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -161,13 +164,14 @@ func makeG2Moves() (result []cmn.Move) {
 
 var G2Moves = makeG2Moves()
 
-func (c *Cube) ToG3() []cmn.Move {
+func (c *Cube) ToG3AssumingG2() []cmn.Move {
 	bound := c.distanceToG3InG2()
 
 	seen := map[Cube]struct{}{}
 	seen[*c] = struct{}{}
 
 	for {
+		fmt.Printf("G3: Searching up to depth: %v\n", bound)
 		t, solution := searchG3(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -229,13 +233,14 @@ func makeG3Moves() (result []cmn.Move) {
 
 var G3Moves = makeG3Moves()
 
-func (c *Cube) ToG4() []cmn.Move {
+func (c *Cube) ToG4AssumingG3() []cmn.Move {
 	bound := c.distanceToG4InG3()
 
 	seen := map[Cube]struct{}{}
 	seen[*c] = struct{}{}
 
 	for {
+		fmt.Printf("G4: Searching up to depth: %v\n", bound)
 		t, solution := searchG4(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -283,4 +288,29 @@ func searchG4(
 		}
 	}
 	return min, nil
+}
+
+func MakeG3Cubes() map[Cube]struct{} {
+	solvedCube := NewCubeSolved()
+	toExplore := []Cube{solvedCube}
+	seen := map[Cube]struct{}{solvedCube: {}}
+
+	for len(toExplore) != 0 {
+		// TODO: a better queue
+		cube := toExplore[0]
+		toExplore = toExplore[1:]
+
+		for _, move := range G3Moves {
+			newCube := cube
+			newCube.Apply(move)
+
+			if _, x := seen[newCube]; x {
+				continue
+			}
+			seen[newCube] = struct{}{}
+
+			toExplore = append(toExplore, newCube)
+		}
+	}
+	return seen
 }

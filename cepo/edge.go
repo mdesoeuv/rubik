@@ -129,12 +129,57 @@ func (ep EdgePermutation) FUBDInCorrectSlice() bool {
 	return found == 0b1111_0000_0000_0
 }
 
+func (ep EdgePermutation) URBLCorrectSliceDistance() int {
+	// TODO: check/explain computation
+	distance := 0
+	if ep.Get(cmn.UL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.UR) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DR) > cmn.DR {
+		distance += 1
+	}
+	return (distance + 1) >> 1
+}
+
+func (ep EdgePermutation) FRBLCorrectSliceDistance() int {
+	// TODO: check/explain computation
+	distance := 0
+	if x := ep.Get(cmn.LB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.LF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	return (distance + 1) >> 1
+}
+
 func (ep EdgePermutation) FUBDCorrectSliceDistance() int {
 	// TODO: check/explain computation
-	distance := (cmn.EdgeIndexCount - int(ep.Get(cmn.UF))) >> 2
-	distance += (cmn.EdgeIndexCount - int(ep.Get(cmn.DF))) >> 2
-	distance += (cmn.EdgeIndexCount - int(ep.Get(cmn.DB))) >> 2
-	distance += (cmn.EdgeIndexCount - int(ep.Get(cmn.UB))) >> 2
+	distance := 0
+	if ep.Get(cmn.UF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DB) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.UB) < cmn.UF {
+		distance += 1
+	}
 	return (distance + 1) >> 1
 }
 
@@ -142,6 +187,47 @@ func (ep EdgePermutation) AllInCorrectSlice() bool {
 	return (ep.URBLInCorrectSlice() &&
 		ep.FRBLInCorrectSlice() &&
 		ep.FUBDInCorrectSlice())
+}
+
+func (ep EdgePermutation) AllInCorrectSliceDistance() int {
+	distance := 0
+	if ep.Get(cmn.UL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.UR) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DR) > cmn.DR {
+		distance += 1
+	}
+	if x := ep.Get(cmn.LB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.LF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if ep.Get(cmn.UF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DB) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.UB) < cmn.UF {
+		distance += 1
+	}
+	return (distance + 3) >> 2
 }
 
 const (

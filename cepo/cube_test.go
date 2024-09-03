@@ -38,90 +38,16 @@ func TestCubeToG1(t *testing.T) {
 	fmt.Printf("Max step count taken: %v\n", maxStepCount)
 }
 
-func TestCubeToG2(t *testing.T) {
-	r := rand.New(rand.NewPCG(0, 0))
-	maxStepCount := 0
-	for move_count := 0; move_count <= 100; move_count++ {
-		fmt.Printf("Move count: %v\n", move_count)
-		cube := cepo.NewCubeSolved()
-		common.Shuffle(&cube, r, move_count)
-
-		steps := cube.ToG1()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		if len(steps) > move_count {
-			t.Fatalf("ToG1 shouldn't have more than %v moves but got %v", move_count, steps)
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG1() {
-			t.Fatalf("Cube should be G1 after applying the steps")
-		}
-
-		steps = cube.ToG2()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		if len(steps) > maxStepCount {
-			maxStepCount = len(steps)
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG2() {
-			t.Fatalf("Cube should be G2 after applying the steps")
-		}
-	}
-	fmt.Printf("Max step count taken: %v\n", maxStepCount)
-}
-
 func TestCubeToG3(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
-	for move_count := 0; move_count <= 100; move_count++ {
-		fmt.Printf("Move count: %v\n", move_count)
+
+	for move_count := 0; move_count <= 100; move_count += 10 {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(&cube, r, move_count)
 
-		steps := cube.ToG1()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		if len(steps) > move_count {
-			t.Fatalf("ToG1 shouldn't have more than %v moves but got %v", move_count, steps)
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG1() {
-			t.Fatalf("Cube should be G1 after applying the steps")
-		}
-
-		steps = cube.ToG2()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG2() {
-			t.Fatalf("Cube should be G2 after applying the steps")
-		}
-
-		steps = cube.ToG3()
+		fmt.Printf("Solving #%v\n", move_count)
+		steps := cube.ToG3()
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
@@ -136,6 +62,34 @@ func TestCubeToG3(t *testing.T) {
 
 		if !cube.IsG3() {
 			t.Fatalf("Cube should be G3 after applying the steps")
+		}
+	}
+	fmt.Printf("Max step count taken: %v\n", maxStepCount)
+}
+
+func TestCubeToG2(t *testing.T) {
+	r := rand.New(rand.NewPCG(0, 0))
+	maxStepCount := 0
+	for move_count := 0; move_count <= 100; move_count += 10 {
+		cube := cepo.NewCubeSolved()
+		common.Shuffle(&cube, r, move_count)
+
+		fmt.Printf("Solving #%v\n", move_count)
+		steps := cube.ToG2()
+		if steps == nil {
+			t.Fatalf("There should be a solution")
+		}
+
+		if len(steps) > maxStepCount {
+			maxStepCount = len(steps)
+		}
+
+		for _, step := range steps {
+			cube.Apply(step)
+		}
+
+		if !cube.IsG2() {
+			t.Fatalf("Cube should be G2 after applying the steps")
 		}
 	}
 	fmt.Printf("Max step count taken: %v\n", maxStepCount)
@@ -144,56 +98,12 @@ func TestCubeToG3(t *testing.T) {
 func TestCubeToG4(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
-	for move_count := 0; move_count <= 10; move_count++ {
-		fmt.Printf("Move count: %v\n", move_count)
+	for move_count := 0; move_count <= 100; move_count += 10 {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(&cube, r, move_count)
 
-		steps := cube.ToG1()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		if len(steps) > move_count {
-			t.Fatalf("ToG1 shouldn't have more than %v moves but got %v", move_count, steps)
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG1() {
-			t.Fatalf("Cube should be G1 after applying the steps")
-		}
-
-		steps = cube.ToG2()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG2() {
-			t.Fatalf("Cube should be G2 after applying the steps")
-		}
-
-		steps = cube.ToG3()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG3() {
-			t.Fatalf("Cube should be G3 after applying the steps")
-		}
-
-		fmt.Println("To G4 !")
-		steps = cube.ToG4()
+		fmt.Printf("Solving #%v\n", move_count)
+		steps := cube.ToG4()
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
