@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"math/rand/v2"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -109,6 +110,13 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			e.cube = e.solved.Clone()
 			e.solution = SolutionMsg{}
 
+		case key.Matches(msg, e.keymap.shuffle):
+			e.keymap.explore.SetEnabled(false)
+			e.stopwatch.Reset()
+			r := rand.New(rand.NewPCG(0, 0))
+			cmn.Shuffle(e.cube, r, 50)
+			e.solution = SolutionMsg{}
+
 		case key.Matches(msg, e.keymap.explore):
 			menu = ExploreMenu{
 				lastMove:  "Start",
@@ -160,6 +168,7 @@ func (e EditMenu) helpView() string {
 		e.keymap.solve,
 		e.keymap.explore,
 		e.keymap.reset,
+		e.keymap.shuffle,
 		e.keymap.quit,
 	})
 }
