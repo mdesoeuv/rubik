@@ -98,29 +98,136 @@ func NewEdgePermutationSolved() EdgePermutation {
 }
 
 func (ep EdgePermutation) IsSolved() bool {
-	for index := cmn.FirstEdgeIndex; index <= cmn.LastEdgeIndex; index++ {
-		if ep.Get(index) != index {
-			return false
-		}
-	}
-	return true
+	return ep.Equal(NewEdgePermutationSolved())
+}
+
+// TODO: rename slices
+func (ep EdgePermutation) URBLInCorrectSlice() bool {
+	found := 1 << ep.Get(cmn.UL)
+	found |= 1 << ep.Get(cmn.DL)
+	found |= 1 << ep.Get(cmn.UR)
+	found |= 1 << ep.Get(cmn.DR)
+	// Extra 0 as edge start at index 1
+	return found == 0b0000_0000_1111_0
+}
+
+func (ep EdgePermutation) FRBLInCorrectSlice() bool {
+	found := 1 << ep.Get(cmn.LB)
+	found |= 1 << ep.Get(cmn.LF)
+	found |= 1 << ep.Get(cmn.RF)
+	found |= 1 << ep.Get(cmn.RB)
+	// Extra 0 as edge start at index 1
+	return found == 0b0000_1111_0000_0
 }
 
 func (ep EdgePermutation) FUBDInCorrectSlice() bool {
 	found := 1 << ep.Get(cmn.UF)
-	found |= 1 << ep.Get(cmn.UB)
-	found |= 1 << ep.Get(cmn.DB)
 	found |= 1 << ep.Get(cmn.DF)
+	found |= 1 << ep.Get(cmn.DB)
+	found |= 1 << ep.Get(cmn.UB)
 	// Extra 0 as edge start at index 1
-	return found != 0b1111_0000_0000_0
+	return found == 0b1111_0000_0000_0
+}
+
+func (ep EdgePermutation) URBLCorrectSliceDistance() int {
+	// TODO: check/explain computation
+	distance := 0
+	if ep.Get(cmn.UL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.UR) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DR) > cmn.DR {
+		distance += 1
+	}
+	return (distance + 1) >> 1
+}
+
+func (ep EdgePermutation) FRBLCorrectSliceDistance() int {
+	// TODO: check/explain computation
+	distance := 0
+	if x := ep.Get(cmn.LB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.LF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	return (distance + 1) >> 1
 }
 
 func (ep EdgePermutation) FUBDCorrectSliceDistance() int {
-	distance := (cmn.EdgeIndexCount - int(ep.Get(cmn.UF))) >> 2
-	distance += (cmn.EdgeIndexCount - int(ep.Get(cmn.UB))) >> 2
-	distance += (cmn.EdgeIndexCount - int(ep.Get(cmn.DB))) >> 2
-	distance += (cmn.EdgeIndexCount - int(ep.Get(cmn.DF))) >> 2
+	// TODO: check/explain computation
+	distance := 0
+	if ep.Get(cmn.UF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DB) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.UB) < cmn.UF {
+		distance += 1
+	}
 	return (distance + 1) >> 1
+}
+
+func (ep EdgePermutation) AllInCorrectSlice() bool {
+	return (ep.URBLInCorrectSlice() &&
+		ep.FRBLInCorrectSlice() &&
+		ep.FUBDInCorrectSlice())
+}
+
+func (ep EdgePermutation) AllInCorrectSliceDistance() int {
+	distance := 0
+	if ep.Get(cmn.UL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DL) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.UR) > cmn.DR {
+		distance += 1
+	}
+	if ep.Get(cmn.DR) > cmn.DR {
+		distance += 1
+	}
+	if x := ep.Get(cmn.LB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.LF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RF); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if x := ep.Get(cmn.RB); x < cmn.LB || x > cmn.RB {
+		distance += 1
+	}
+	if ep.Get(cmn.UF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DF) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.DB) < cmn.UF {
+		distance += 1
+	}
+	if ep.Get(cmn.UB) < cmn.UF {
+		distance += 1
+	}
+	return (distance + 3) >> 2
 }
 
 const (
@@ -156,4 +263,14 @@ func (ep *EdgePermutation) Apply(move cmn.Move) {
 
 func (ep EdgePermutation) Equal(other EdgePermutation) bool {
 	return ep.bits == other.bits
+}
+
+func (ep EdgePermutation) Distance() int {
+	count := 0
+	for edge := cmn.FirstEdgeIndex; edge <= cmn.LastEdgeIndex; edge++ {
+		if ep.Get(edge) != edge {
+			count += 1
+		}
+	}
+	return (count + 3) / 4
 }

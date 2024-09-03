@@ -18,6 +18,7 @@ var (
 )
 
 func main() {
+
 	var err error
 	flag.Parse()
 
@@ -48,6 +49,7 @@ func main() {
 	newCepo := cepo.NewCubeSolved()
 	cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
 	solvedCube := cube.Clone()
+
 	for _, move := range moveList {
 		cube.Apply(move)
 	}

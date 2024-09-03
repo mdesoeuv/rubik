@@ -95,6 +95,22 @@ func TestEdgeOrientationDistance(t *testing.T) {
 	}
 }
 
+func TestEdgePermutationCorrectSlice(t *testing.T) {
+	ep := cepo.NewEdgePermutationSolved()
+
+	if !ep.URBLInCorrectSlice() {
+		t.Errorf("Solved edge permutation should have URBL in correct slice")
+	}
+
+	if !ep.FRBLInCorrectSlice() {
+		t.Errorf("Solved edge permutation should have FRBL in correct slice")
+	}
+
+	if !ep.FUBDInCorrectSlice() {
+		t.Errorf("Solved edge permutation should have FUBD in correct slice")
+	}
+}
+
 func BenchmarkEdgeOrientationsApply(b *testing.B) {
 	orientations := cepo.NewEdgeOrientationsSolved()
 

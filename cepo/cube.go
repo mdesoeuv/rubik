@@ -68,8 +68,81 @@ func (c *Cube) IsG2() bool {
 	return c.IsG1() && c.IsG2AssumingG1()
 }
 
+var G3Cubes = MakeG3Cubes()
+
 func (c *Cube) IsG3AssumingG2() bool {
-	return false
+	// return (c.edgePermutation.AllInCorrectSlice() &&
+	// 	c.cornerPermutation.AllInCorrectOrbit())
+	_, isG3 := G3Cubes[*c]
+	return isG3
+}
+
+func (c *Cube) IsG3() bool {
+	return c.IsG2() && c.IsG3AssumingG2()
+}
+
+func (c *Cube) IsG4AssumingG3() bool {
+	return (c.edgePermutation.IsSolved() &&
+		c.cornerPermutation.IsSolved())
+}
+
+func (c *Cube) IsG4() bool {
+	return c.IsSolved()
+}
+
+func (c *Cube) ToG2() []cmn.Move {
+	cube := *c
+	movesToG1 := cube.ToG1()
+	if movesToG1 == nil {
+		return nil
+	}
+	cmn.ApplySequence(&cube, movesToG1)
+	movesToG2 := cube.ToG2AssumingG1()
+	if movesToG2 == nil {
+		return nil
+	}
+	return append(movesToG1, movesToG2...)
+}
+
+func (c *Cube) ToG3() []cmn.Move {
+	cube := *c
+	movesToG2 := cube.ToG2()
+	if movesToG2 == nil {
+		return nil
+	}
+	cmn.ApplySequence(&cube, movesToG2)
+	movesToG3 := cube.ToG3AssumingG2()
+	if movesToG3 == nil {
+		return nil
+	}
+	return append(movesToG2, movesToG3...)
+}
+
+func (c *Cube) ToG4() []cmn.Move {
+	cube := *c
+	movesToG3 := cube.ToG3()
+	if movesToG3 == nil {
+		return nil
+	}
+	cmn.ApplySequence(&cube, movesToG3)
+	movesToG4 := cube.ToG4AssumingG3()
+	if movesToG4 == nil {
+		return nil
+	}
+	return append(movesToG3, movesToG4...)
+}
+
+func (c *Cube) Solve() []cmn.Move {
+	return c.ToG4()
+}
+
+func (c *Cube) Blueprint() string {
+	panic("unimplemented")
+}
+
+func (c *Cube) Clone() cmn.Cube {
+	newCube := *c
+	return &newCube
 }
 
 // TODO: Improve precision
@@ -80,6 +153,26 @@ func (c *Cube) distanceToG2InG1() int {
 		return coDistance
 	} else {
 		return edgeDistance
+	}
+}
+
+func (c *Cube) distanceToG3InG2() int {
+	epDistance := c.edgePermutation.AllInCorrectSliceDistance()
+	cpDistance := c.cornerPermutation.AllInCorrectOrbitDistance()
+	if epDistance > cpDistance {
+		return epDistance
+	} else {
+		return cpDistance
+	}
+}
+
+func (c *Cube) distanceToG4InG3() int {
+	epDistance := c.edgePermutation.Distance()
+	cpDistance := c.cornerPermutation.Distance()
+	if epDistance > cpDistance {
+		return epDistance
+	} else {
+		return cpDistance
 	}
 }
 

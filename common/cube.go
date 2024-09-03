@@ -35,3 +35,9 @@ func Shuffle(cube Cube, r *rand.Rand, move_count int) {
 		previouSide = &m.Side
 	}
 }
+
+func ApplySequence(cube Cube, moves []Move) {
+	for _, move := range moves {
+		cube.Apply(move)
+	}
+}

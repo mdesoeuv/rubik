@@ -29,7 +29,6 @@ func CreateSpinner() spinner.Model {
 }
 
 func InitialModel(c cmn.Cube, solved cmn.Cube) model {
-
 	editMenu := EditMenu{
 		cube:      c,
 		solved:    solved,

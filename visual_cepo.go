@@ -34,7 +34,7 @@ func (pc *VisualCepo) Apply(move cmn.Move) {
 
 // TODO: implement real solver for CEPO
 func (pc *VisualCepo) Solve() []cmn.Move {
-	return pc.Cepo.ToG1()
+	return pc.Cepo.ToG4()
 }
 
 func (pc *VisualCepo) Clone() cmn.Cube {
