@@ -31,21 +31,11 @@ func (c *Cube) Blueprint() string {
 	return s
 }
 
-//
-// var theme = map[cmn.Side]func(a ...interface{}) string{
-// 	cmn.Right: color.New(color.BgRed).SprintFunc(),
-// 	cmn.Front: color.New(color.BgBlue).SprintFunc(),
-// 	cmn.Back:  color.New(color.BgGreen).SprintFunc(),
-// 	cmn.Up:    color.New(color.BgWhite).SprintFunc(),
-// 	cmn.Down:  color.New(color.BgYellow).SprintFunc(),
-// 	cmn.Left:  color.New(color.BgMagenta).SprintFunc(),
-// }
-
 var theme = map[cmn.Side]func(a ...interface{}) string{
 	cmn.Right: color.New(color.BgRed).SprintFunc(),
 	cmn.Front: color.New(color.BgBlue).SprintFunc(),
 	cmn.Back:  color.New(color.BgGreen).SprintFunc(),
-	cmn.Up:    color.New(color.BgHiYellow).SprintFunc(),
-	cmn.Down:  color.New(color.BgWhite).SprintFunc(),
-	cmn.Left:  color.New(color.BgYellow).SprintFunc(),
+	cmn.Up:    color.New(color.BgWhite).SprintFunc(),
+	cmn.Down:  color.New(color.BgYellow).SprintFunc(),
+	cmn.Left:  color.New(color.BgMagenta).SprintFunc(),
 }
