@@ -40,8 +40,9 @@ func (pc *VisualCepo) Solve() []cmn.Move {
 func (pc *VisualCepo) Clone() cmn.Cube {
 	newCepo := *pc.Cepo
 	newVisual := *pc.Visual
+	newVisualCepo := VisualCepo{Cepo: &newCepo, Visual: &newVisual}
 
-	return &VisualCepo{Cepo: &newCepo, Visual: &newVisual}
+	return &newVisualCepo
 }
 
 func (pc *VisualCepo) Blueprint() string {

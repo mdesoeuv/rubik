@@ -11,11 +11,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	cmn "github.com/mdesoeuv/rubik/common"
-	visual "github.com/mdesoeuv/rubik/visual"
 )
 
 type EditMenu struct {
 	cube      cmn.Cube
+	solved    cmn.Cube
 	list      list.Model
 	solution  SolutionMsg
 	spinner   spinner.Model
@@ -46,9 +46,9 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		e.keymap.solve.SetEnabled(true)
 		e.keymap.reset.SetEnabled(true)
 		e.keymap.explore.SetEnabled(true)
-
 		stopWatchCmd = e.stopwatch.Stop()
 		e.solution = msg
+
 	case tea.KeyMsg:
 
 		switch {
@@ -77,7 +77,6 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			}
 
 		case key.Matches(msg, e.keymap.solve):
-			cube := e.cube
 			e.isSolving = true
 			e.keymap.solve.SetEnabled(false)
 			e.keymap.reset.SetEnabled(false)
@@ -87,7 +86,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				e.spinner.Tick,
 				func() tea.Msg {
 					return SolutionMsg{
-						moves: cube.Solve(),
+						moves: e.cube.Solve(),
 					}
 				},
 			)
@@ -98,8 +97,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				choice := string(i)
 				move, err := cmn.ParseMove(choice)
 				if err != nil {
-					// TODO: Better
-					fmt.Println(err)
+					panic("invalid move")
 				}
 				e.cube.Apply(move)
 				e.keymap.explore.SetEnabled(false)
@@ -108,7 +106,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		case key.Matches(msg, e.keymap.reset):
 			e.keymap.explore.SetEnabled(false)
 			e.stopwatch.Reset()
-			e.cube = visual.NewCubeSolved()
+			e.cube = e.solved.Clone()
 			e.solution = SolutionMsg{}
 
 		case key.Matches(msg, e.keymap.explore):
@@ -117,6 +115,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				lastIndex: 0,
 				cube:      e.cube,
 				backup:    e.cube.Clone(),
+				solved:    e.solved,
 				solution:  e.solution,
 				list:      CreateExploreMoveList(e.solution.moves),
 				keymap:    NewExploreKeyMap(),

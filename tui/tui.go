@@ -28,10 +28,11 @@ func CreateSpinner() spinner.Model {
 	return s
 }
 
-func InitialModel(c cmn.Cube) model {
+func InitialModel(c cmn.Cube, solved cmn.Cube) model {
 
 	editMenu := EditMenu{
 		cube:      c,
+		solved:    solved,
 		list:      CreateApplyMoveList(),
 		spinner:   CreateSpinner(),
 		stopwatch: stopwatch.NewWithInterval(time.Millisecond),

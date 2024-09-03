@@ -45,15 +45,14 @@ func main() {
 		}
 	}
 
-	// cube := visual.NewCubeSolved()
 	newCepo := cepo.NewCubeSolved()
-	cube := VisualCepo{Cepo: &newCepo, Visual: visual.NewCubeSolved()}
-
+	cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
+	solvedCube := cube.Clone()
 	for _, move := range moveList {
 		cube.Apply(move)
 	}
 	if *tuiFlag {
-		p := tea.NewProgram(tui.InitialModel(&cube))
+		p := tea.NewProgram(tui.InitialModel(&cube, solvedCube))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
