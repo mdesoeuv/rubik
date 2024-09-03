@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"time"
@@ -8,6 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 type Menu interface {
@@ -26,10 +28,11 @@ func CreateSpinner() spinner.Model {
 	return s
 }
 
-func initialModel(c *Cube) model {
+func InitialModel(c cmn.Cube, solved cmn.Cube) model {
 
 	editMenu := EditMenu{
-		cube:      *c,
+		cube:      c,
+		solved:    solved,
 		list:      CreateApplyMoveList(),
 		spinner:   CreateSpinner(),
 		stopwatch: stopwatch.NewWithInterval(time.Millisecond),
@@ -49,7 +52,7 @@ func (m model) Init() tea.Cmd {
 }
 
 type SolutionMsg struct {
-	moves []Move
+	moves []cmn.Move
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -61,6 +64,5 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-
 	return m.menu.View()
 }

@@ -12,8 +12,8 @@ type Cube struct {
 	cornerPermutation  CornerPermutation
 }
 
-func NewCubeSolved() Cube {
-	return Cube{
+func NewCubeSolved() *Cube {
+	return &Cube{
 		edgeOrientations:   NewEdgeOrientationsSolved(),
 		edgePermutation:    NewEdgePermutationSolved(),
 		cornerOrientations: NewCornerOrientationsSolved(),

@@ -6,6 +6,9 @@ type Cube interface {
 	IsSolved() bool
 	Apply(Move)
 	Get(CubeCoord) Side
+	Solve() []Move
+	Clone() Cube
+	Blueprint() string
 }
 
 type CubeCoord struct {

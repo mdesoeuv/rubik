@@ -6,6 +6,10 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mdesoeuv/rubik/cepo"
+	cmn "github.com/mdesoeuv/rubik/common"
+	tui "github.com/mdesoeuv/rubik/tui"
+	visual "github.com/mdesoeuv/rubik/visual"
 )
 
 var (
@@ -30,35 +34,36 @@ func main() {
 
 	var (
 		moveListStr = ""
-		moveList    = []Move{}
+		moveList    = []cmn.Move{}
 	)
 	if len(args) > 0 {
 		moveListStr = args[0]
-		moveList, err = ParseMoveList(moveListStr)
+		moveList, err = cmn.ParseMoveList(moveListStr)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 	}
 
-	cube := NewCubeSolved()
-
+	newCepo := cepo.NewCubeSolved()
+	cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
+	solvedCube := cube.Clone()
 	for _, move := range moveList {
-		cube.apply(move)
+		cube.Apply(move)
 	}
 	if *tuiFlag {
-		p := tea.NewProgram(initialModel(cube))
+		p := tea.NewProgram(tui.InitialModel(&cube, solvedCube))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
 		}
 	} else {
-		fmt.Println(cube.blueprint())
+		fmt.Println(cube.Blueprint())
 		fmt.Println("Solving...")
-		solution := cube.solve()
+		solution := cube.Solve()
 		s := fmt.Sprintf("Solution found in %v steps: ", len(solution))
 		for _, move := range solution {
-			s += move.CompactString() + " "
+			s += move.String() + " "
 		}
 		fmt.Println(s)
 	}

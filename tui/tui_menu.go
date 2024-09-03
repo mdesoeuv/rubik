@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"fmt"
@@ -8,6 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 type item string
@@ -57,12 +59,12 @@ func CreateApplyMoveList() list.Model {
 	return l
 }
 
-func CreateExploreMoveList(solution []Move) list.Model {
+func CreateExploreMoveList(solution []cmn.Move) list.Model {
 
 	items := []list.Item{item("Start")}
 
 	for _, move := range solution {
-		items = append(items, item(move.CompactString()))
+		items = append(items, item(move.String()))
 	}
 	l := list.New(items, itemDelegate{}, defaultWidth, listHeight)
 	l.Title = "Solution steps"

@@ -1,24 +1,13 @@
-package main
+package visual
 
 import (
 	"fmt"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 type Face struct {
-	f [3][3]Side
-}
-
-type FaceCoord struct {
-	line   int
-	column int
-}
-
-func (fc FaceCoord) isEdge() bool {
-	return fc.line == 1 || fc.column == 1
-}
-
-func (fc FaceCoord) isCorner() bool {
-	return !fc.isEdge()
+	f [3][3]cmn.Side
 }
 
 func (f Face) String() string {
@@ -41,7 +30,7 @@ func (f Face) FaceGetLineString(line int) string {
 	return result
 }
 
-func NewFaceUniform(side Side) (face Face) {
+func NewFaceUniform(side cmn.Side) (face Face) {
 	for i, line := range face.f {
 		for j := range line {
 			face.f[i][j] = side
@@ -61,7 +50,7 @@ func FaceEqual(a, b Face) bool {
 	return true
 }
 
-func FaceIsUniform(face Face, side Side) bool {
+func FaceIsUniform(face Face, side cmn.Side) bool {
 	for line := range face.f {
 		for column := range face.f[line] {
 			if face.f[line][column] != side {

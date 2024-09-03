@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"fmt"
@@ -9,10 +9,13 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 type EditMenu struct {
-	cube      Cube
+	cube      cmn.Cube
+	solved    cmn.Cube
 	list      list.Model
 	solution  SolutionMsg
 	spinner   spinner.Model
@@ -43,9 +46,9 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		e.keymap.solve.SetEnabled(true)
 		e.keymap.reset.SetEnabled(true)
 		e.keymap.explore.SetEnabled(true)
-
 		stopWatchCmd = e.stopwatch.Stop()
 		e.solution = msg
+
 	case tea.KeyMsg:
 
 		switch {
@@ -74,7 +77,6 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			}
 
 		case key.Matches(msg, e.keymap.solve):
-			cube := e.cube
 			e.isSolving = true
 			e.keymap.solve.SetEnabled(false)
 			e.keymap.reset.SetEnabled(false)
@@ -84,7 +86,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				e.spinner.Tick,
 				func() tea.Msg {
 					return SolutionMsg{
-						moves: cube.solve(),
+						moves: e.cube.Solve(),
 					}
 				},
 			)
@@ -93,19 +95,18 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			i, ok := e.list.SelectedItem().(item)
 			if ok {
 				choice := string(i)
-				move, err := ParseMove(choice)
+				move, err := cmn.ParseMove(choice)
 				if err != nil {
-					// TODO: Better
-					fmt.Println(err)
+					panic("invalid move")
 				}
-				e.cube.apply(move)
+				e.cube.Apply(move)
 				e.keymap.explore.SetEnabled(false)
 			}
 
 		case key.Matches(msg, e.keymap.reset):
 			e.keymap.explore.SetEnabled(false)
 			e.stopwatch.Reset()
-			e.cube = *NewCubeSolved()
+			e.cube = e.solved.Clone()
 			e.solution = SolutionMsg{}
 
 		case key.Matches(msg, e.keymap.explore):
@@ -113,7 +114,8 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				lastMove:  "Start",
 				lastIndex: 0,
 				cube:      e.cube,
-				backup:    e.cube,
+				backup:    e.cube.Clone(),
+				solved:    e.solved,
 				solution:  e.solution,
 				list:      CreateExploreMoveList(e.solution.moves),
 				keymap:    NewExploreKeyMap(),
@@ -134,7 +136,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 
 func (e EditMenu) View() string {
 
-	s := rectangleStyle.Render(e.cube.blueprint()) + "\n"
+	s := rectangleStyle.Render(e.cube.Blueprint()) + "\n"
 	s += e.list.View()
 
 	if e.isSolving {
@@ -142,7 +144,7 @@ func (e EditMenu) View() string {
 	} else if e.solution.moves != nil {
 		solutionString := "\nSolution found: "
 		for _, move := range e.solution.moves {
-			solutionString += move.CompactString() + " "
+			solutionString += move.String() + " "
 		}
 		solutionString += fmt.Sprintf("(%s)", e.stopwatch.View())
 		s += resultStyle.Render(solutionString)

@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"fmt"
@@ -9,11 +9,14 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/stopwatch"
 	tea "github.com/charmbracelet/bubbletea"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 type ExploreMenu struct {
-	cube      Cube
-	backup    Cube
+	cube      cmn.Cube
+	backup    cmn.Cube
+	solved    cmn.Cube
 	solution  SolutionMsg
 	list      list.Model
 	keymap    keymap
@@ -47,12 +50,12 @@ func (e ExploreMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			move := string(i)
 			if ok && i != "Start" && e.lastIndex != len(e.list.VisibleItems())-1 {
 				choice := move
-				move, err := ParseMove(choice)
+				move, err := cmn.ParseMove(choice)
 				if err != nil {
 					// TODO: Better
 					fmt.Println(err)
 				}
-				e.cube.apply(move)
+				e.cube.Apply(move)
 			}
 			e.lastMove = move
 			e.lastIndex = e.list.Index()
@@ -61,19 +64,20 @@ func (e ExploreMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			i, ok := e.list.SelectedItem().(item)
 			move := string(i)
 			if ok && e.lastMove != "Start" {
-				move, err := ParseMove(e.lastMove)
+				move, err := cmn.ParseMove(e.lastMove)
 				if err != nil {
 					fmt.Println(err)
 				}
 				move = move.Reverse()
-				e.cube.apply(move)
+				e.cube.Apply(move)
 			}
 			e.lastMove = move
 			e.lastIndex = e.list.Index()
 
 		case key.Matches(msg, e.keymap.edit):
 			menu = EditMenu{
-				cube:      e.backup,
+				cube:      e.backup.Clone(),
+				solved:    e.solved,
 				list:      CreateApplyMoveList(),
 				keymap:    NewEditKeyMap(),
 				help:      help.New(),
@@ -94,7 +98,7 @@ func (e ExploreMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 }
 
 func (e ExploreMenu) View() string {
-	s := rectangleStyle.Render(e.cube.blueprint()) + "\n"
+	s := rectangleStyle.Render(e.cube.Blueprint()) + "\n"
 	s += e.list.View()
 	s += e.helpView()
 

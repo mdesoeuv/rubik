@@ -1,9 +1,11 @@
-package main
+package visual
 
 import (
 	"fmt"
 	"math/rand/v2"
 	"testing"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 func TestManhattanDistanceSolved(t *testing.T) {
@@ -31,8 +33,8 @@ func TestManhattanDistanceBasic(t *testing.T) {
 func TestManhattanDistanceDoubleMove(t *testing.T) {
 	cube := NewCubeSolved()
 
-	cube.apply(Move{Front, -1})
-	cube.apply(Move{Down, 1})
+	cube.Apply(cmn.Move{Side: cmn.Front, Rotation: cmn.RotationAntiClockwise()})
+	cube.Apply(cmn.Move{Side: cmn.Down, Rotation: cmn.RotationClockwise()})
 
 	distance := cube.cornerManhattanDistance(CornerDownRightFront)
 	if distance != 2 {
@@ -46,7 +48,7 @@ func TestManhattanDistanceDoubleMove(t *testing.T) {
 func TestSolveSolved(t *testing.T) {
 	cube := NewCubeSolved()
 
-	steps := cube.solve()
+	steps := cube.Solve()
 	if steps == nil || len(steps) != 0 {
 		t.Fatalf("Solved cube should require 0 steps")
 	}
@@ -55,9 +57,9 @@ func TestSolveSolved(t *testing.T) {
 func TestSolveSingleMove(t *testing.T) {
 	cube := NewCubeSolved()
 
-	cube.apply(Move{Front, 1})
+	cube.Apply(cmn.Move{Side: cmn.Front, Rotation: cmn.RotationClockwise()})
 
-	steps := cube.solve()
+	steps := cube.Solve()
 	if steps == nil {
 		t.Fatalf("Should find solution")
 	}
@@ -71,7 +73,7 @@ func TestShuffledCube(t *testing.T) {
 	for move_count := 0; move_count <= 11; move_count++ {
 		cube := NewCubeSolved()
 		cube.Shuffle(r, move_count)
-		steps := cube.solve()
+		steps := cube.Solve()
 		fmt.Printf("Cube %v solved!\n", move_count)
 		if steps == nil {
 			t.Fatalf("There should be a solution")

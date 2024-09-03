@@ -1,12 +1,14 @@
-package main
+package visual
 
 import (
 	"testing"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 func TestFaceString(t *testing.T) {
 	cube := NewCubeSolved()
-	result := cube.faces[Front].String()
+	result := cube.faces[cmn.Front].String()
 	expected := "[F][F][F]\n" +
 		"[F][F][F]\n" +
 		"[F][F][F]\n"

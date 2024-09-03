@@ -1,9 +1,11 @@
-package main
+package visual
 
 import (
 	"fmt"
 	"math"
 	"slices"
+
+	cmn "github.com/mdesoeuv/rubik/common"
 )
 
 type Corner = int
@@ -23,7 +25,7 @@ const (
 )
 
 type CornerCoords struct {
-	a, b, c CubeCoord
+	a, b, c cmn.CubeCoord
 }
 
 type Edge = int
@@ -47,127 +49,127 @@ const (
 )
 
 type EdgeCoords struct {
-	a, b CubeCoord
+	a, b cmn.CubeCoord
 }
 
 func cornerCoords(corner Corner) CornerCoords {
-	var a, b, c CubeCoord
+	var a, b, c cmn.CubeCoord
 	switch corner {
 	case CornerUpLeftFront:
-		a = CubeCoord{Up, FaceCoord{2, 0}}
-		b = CubeCoord{Left, FaceCoord{0, 2}}
-		c = CubeCoord{Front, FaceCoord{0, 0}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord20}
+		b = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord02}
+		c = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord00}
 	case CornerUpRightFront:
-		a = CubeCoord{Up, FaceCoord{2, 2}}
-		b = CubeCoord{Right, FaceCoord{0, 0}}
-		c = CubeCoord{Front, FaceCoord{0, 2}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord22}
+		b = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord00}
+		c = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord02}
 	case CornerUpLeftBack:
-		a = CubeCoord{Up, FaceCoord{0, 0}}
-		b = CubeCoord{Left, FaceCoord{0, 0}}
-		c = CubeCoord{Back, FaceCoord{0, 2}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord00}
+		b = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord00}
+		c = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord02}
 	case CornerUpRightBack:
-		a = CubeCoord{Up, FaceCoord{0, 2}}
-		b = CubeCoord{Right, FaceCoord{0, 2}}
-		c = CubeCoord{Back, FaceCoord{0, 0}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord02}
+		b = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord02}
+		c = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord00}
 	case CornerDownLeftFront:
-		a = CubeCoord{Down, FaceCoord{0, 0}}
-		b = CubeCoord{Left, FaceCoord{2, 2}}
-		c = CubeCoord{Front, FaceCoord{2, 0}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord00}
+		b = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord22}
+		c = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord20}
 	case CornerDownRightFront:
-		a = CubeCoord{Down, FaceCoord{0, 2}}
-		b = CubeCoord{Right, FaceCoord{2, 0}}
-		c = CubeCoord{Front, FaceCoord{2, 2}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord02}
+		b = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord20}
+		c = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord22}
 	case CornerDownLeftBack:
-		a = CubeCoord{Down, FaceCoord{2, 0}}
-		b = CubeCoord{Left, FaceCoord{2, 0}}
-		c = CubeCoord{Back, FaceCoord{2, 2}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord20}
+		b = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord20}
+		c = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord22}
 	case CornerDownRightBack:
-		a = CubeCoord{Down, FaceCoord{2, 2}}
-		b = CubeCoord{Right, FaceCoord{2, 2}}
-		c = CubeCoord{Back, FaceCoord{2, 0}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord22}
+		b = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord22}
+		c = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord20}
 	}
 	return CornerCoords{a, b, c}
 }
 
 func edgeCoords(e Edge) EdgeCoords {
-	var a, b CubeCoord
+	var a, b cmn.CubeCoord
 	switch e {
 	case EdgeUpLeft:
-		a = CubeCoord{Up, FaceCoord{1, 0}}
-		b = CubeCoord{Left, FaceCoord{0, 1}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord10}
+		b = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord01}
 	case EdgeUpRight:
-		a = CubeCoord{Up, FaceCoord{1, 2}}
-		b = CubeCoord{Right, FaceCoord{0, 1}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord12}
+		b = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord01}
 	case EdgeUpFront:
-		a = CubeCoord{Up, FaceCoord{2, 1}}
-		b = CubeCoord{Front, FaceCoord{0, 1}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord21}
+		b = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord01}
 	case EdgeUpBack:
-		a = CubeCoord{Up, FaceCoord{0, 1}}
-		b = CubeCoord{Back, FaceCoord{0, 1}}
+		a = cmn.CubeCoord{Side: cmn.Up, FaceCoord: cmn.FaceCoord01}
+		b = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord01}
 	case EdgeDownLeft:
-		a = CubeCoord{Down, FaceCoord{1, 0}}
-		b = CubeCoord{Left, FaceCoord{2, 1}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord10}
+		b = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord21}
 	case EdgeDownRight:
-		a = CubeCoord{Down, FaceCoord{1, 2}}
-		b = CubeCoord{Right, FaceCoord{2, 1}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord12}
+		b = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord21}
 	case EdgeDownFront:
-		a = CubeCoord{Down, FaceCoord{0, 1}}
-		b = CubeCoord{Front, FaceCoord{2, 1}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord01}
+		b = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord21}
 	case EdgeDownBack:
-		a = CubeCoord{Down, FaceCoord{2, 1}}
-		b = CubeCoord{Back, FaceCoord{2, 1}}
+		a = cmn.CubeCoord{Side: cmn.Down, FaceCoord: cmn.FaceCoord21}
+		b = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord21}
 	case EdgeLeftFront:
-		a = CubeCoord{Left, FaceCoord{1, 2}}
-		b = CubeCoord{Front, FaceCoord{1, 0}}
+		a = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord12}
+		b = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord10}
 	case EdgeLeftBack:
-		a = CubeCoord{Left, FaceCoord{1, 0}}
-		b = CubeCoord{Back, FaceCoord{1, 2}}
+		a = cmn.CubeCoord{Side: cmn.Left, FaceCoord: cmn.FaceCoord10}
+		b = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord12}
 	case EdgeRightFront:
-		a = CubeCoord{Right, FaceCoord{1, 0}}
-		b = CubeCoord{Front, FaceCoord{1, 2}}
+		a = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord10}
+		b = cmn.CubeCoord{Side: cmn.Front, FaceCoord: cmn.FaceCoord12}
 	case EdgeRightBack:
-		a = CubeCoord{Right, FaceCoord{1, 2}}
-		b = CubeCoord{Back, FaceCoord{1, 0}}
+		a = cmn.CubeCoord{Side: cmn.Right, FaceCoord: cmn.FaceCoord12}
+		b = cmn.CubeCoord{Side: cmn.Back, FaceCoord: cmn.FaceCoord10}
 	}
 	return EdgeCoords{a, b}
 }
 
 // TODO: Create CornerPiece type
-func cornerFor(a, b, c Side) (Corner, error) {
-	sides := []Side{a, b, c}
+func cornerFor(a, b, c cmn.Side) (Corner, error) {
+	sides := []cmn.Side{a, b, c}
 	slices.Sort(sides)
 	switch sides[0] {
-	case Up:
+	case cmn.Up:
 		switch sides[1] {
-		case Left:
+		case cmn.Left:
 			switch sides[2] {
-			case Back:
+			case cmn.Back:
 				return CornerUpLeftBack, nil
-			case Front:
+			case cmn.Front:
 				return CornerUpLeftFront, nil
 			}
-		case Right:
+		case cmn.Right:
 			switch sides[2] {
-			case Back:
+			case cmn.Back:
 				return CornerUpRightBack, nil
-			case Front:
+			case cmn.Front:
 				return CornerUpRightFront, nil
 			}
 		}
-	case Down:
+	case cmn.Down:
 		switch sides[1] {
-		case Left:
+		case cmn.Left:
 			switch sides[2] {
-			case Back:
+			case cmn.Back:
 				return CornerDownLeftBack, nil
-			case Front:
+			case cmn.Front:
 				return CornerDownLeftFront, nil
 			}
-		case Right:
+		case cmn.Right:
 			switch sides[2] {
-			case Back:
+			case cmn.Back:
 				return CornerDownRightBack, nil
-			case Front:
+			case cmn.Front:
 				return CornerDownRightFront, nil
 			}
 		}
@@ -176,45 +178,45 @@ func cornerFor(a, b, c Side) (Corner, error) {
 }
 
 // TODO: Create EdgePiece type
-func edgeFor(a, b Side) (Edge, error) {
+func edgeFor(a, b cmn.Side) (Edge, error) {
 	if b < a {
 		a, b = b, a
 	}
 	switch a {
-	case Up:
+	case cmn.Up:
 		switch b {
-		case Left:
+		case cmn.Left:
 			return EdgeUpLeft, nil
-		case Right:
+		case cmn.Right:
 			return EdgeUpRight, nil
-		case Front:
+		case cmn.Front:
 			return EdgeUpFront, nil
-		case Back:
+		case cmn.Back:
 			return EdgeUpBack, nil
 		}
-	case Down:
+	case cmn.Down:
 		switch b {
-		case Left:
+		case cmn.Left:
 			return EdgeDownLeft, nil
-		case Right:
+		case cmn.Right:
 			return EdgeDownRight, nil
-		case Front:
+		case cmn.Front:
 			return EdgeDownFront, nil
-		case Back:
+		case cmn.Back:
 			return EdgeDownBack, nil
 		}
-	case Left:
+	case cmn.Left:
 		switch b {
-		case Front:
+		case cmn.Front:
 			return EdgeLeftFront, nil
-		case Back:
+		case cmn.Back:
 			return EdgeLeftBack, nil
 		}
-	case Right:
+	case cmn.Right:
 		switch b {
-		case Front:
+		case cmn.Front:
 			return EdgeRightFront, nil
-		case Back:
+		case cmn.Back:
 			return EdgeRightBack, nil
 		}
 	}
@@ -222,12 +224,12 @@ func edgeFor(a, b Side) (Edge, error) {
 }
 
 type CornerMemoizationEntry struct {
-	a, b, c Side
+	a, b, c cmn.Side
 	corner  Corner
 }
 
 type EdgeMemoizationEntry struct {
-	a, b Side
+	a, b cmn.Side
 	edge Edge
 }
 
@@ -253,9 +255,9 @@ func makeCornerManhattanDistanceMap() map[CornerMemoizationEntry]int {
 			for c := FirstCorner; c <= LastCorner; c++ {
 				cc := cornerCoords(c)
 				entry := CornerMemoizationEntry{
-					a:      *cube.get(cc.a),
-					b:      *cube.get(cc.b),
-					c:      *cube.get(cc.c),
+					a:      cube.Get(cc.a),
+					b:      cube.Get(cc.b),
+					c:      cube.Get(cc.c),
 					corner: c,
 				}
 				_, configurationSeen := result[entry]
@@ -282,9 +284,9 @@ func makeCornerManhattanDistanceMap() map[CornerMemoizationEntry]int {
 
 func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	coords := cornerCoords(id)
-	sideA := *cube.get(coords.a)
-	sideB := *cube.get(coords.b)
-	sideC := *cube.get(coords.c)
+	sideA := cube.Get(coords.a)
+	sideB := cube.Get(coords.b)
+	sideC := cube.Get(coords.c)
 
 	entry := CornerMemoizationEntry{sideA, sideB, sideC, id}
 	result, stored := cornerManhattanDistanceMap[entry]
@@ -300,9 +302,9 @@ func (cube *Cube) cornerManhattanDistance(id Corner) int {
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
 		for _, c := range to_explore {
-			aIsValid := *c.get(toValidateCoords.a) == toValidateCoords.a.side
-			bIsValid := *c.get(toValidateCoords.b) == toValidateCoords.b.side
-			cIsValid := *c.get(toValidateCoords.c) == toValidateCoords.c.side
+			aIsValid := c.Get(toValidateCoords.a) == toValidateCoords.a.Side
+			bIsValid := c.Get(toValidateCoords.b) == toValidateCoords.b.Side
+			cIsValid := c.Get(toValidateCoords.c) == toValidateCoords.c.Side
 			if aIsValid && bIsValid && cIsValid {
 				cornerManhattanDistanceMap[entry] = move_count
 				return move_count
@@ -331,8 +333,8 @@ func makeEdgeManhattanDistanceMap() map[EdgeMemoizationEntry]int {
 			for e := FirstEdge; e <= LastEdge; e++ {
 				ec := edgeCoords(e)
 				entry := EdgeMemoizationEntry{
-					a:    *cube.get(ec.a),
-					b:    *cube.get(ec.b),
+					a:    cube.Get(ec.a),
+					b:    cube.Get(ec.b),
 					edge: e,
 				}
 				_, configurationSeen := result[entry]
@@ -359,8 +361,8 @@ func makeEdgeManhattanDistanceMap() map[EdgeMemoizationEntry]int {
 
 func (cube *Cube) edgeManhattanDistance(id Edge) int {
 	coords := edgeCoords(id)
-	sideA := *cube.get(coords.a)
-	sideB := *cube.get(coords.b)
+	sideA := cube.Get(coords.a)
+	sideB := cube.Get(coords.b)
 
 	entry := EdgeMemoizationEntry{sideA, sideB, id}
 	result, stored := edgeManhattanDistanceMap[entry]
@@ -376,8 +378,8 @@ func (cube *Cube) edgeManhattanDistance(id Edge) int {
 	for move_count := 0; move_count < 10; move_count++ {
 		to_explore_next := []Cube{}
 		for _, c := range to_explore {
-			aIsValid := *c.get(toValidateCoords.a) == toValidateCoords.a.side
-			bIsValid := *c.get(toValidateCoords.b) == toValidateCoords.b.side
+			aIsValid := c.Get(toValidateCoords.a) == toValidateCoords.a.Side
+			bIsValid := c.Get(toValidateCoords.b) == toValidateCoords.b.Side
 			if aIsValid && bIsValid {
 				edgeManhattanDistanceMap[entry] = move_count
 				return move_count
@@ -390,10 +392,10 @@ func (cube *Cube) edgeManhattanDistance(id Edge) int {
 }
 
 func (c *Cube) Successors() []Cube {
-	result := make([]Cube, 0, len(AllMoves))
-	for _, move := range AllMoves {
+	result := make([]Cube, 0, len(cmn.AllMoves))
+	for _, move := range cmn.AllMoves {
 		newCube := *c
-		newCube.apply(move)
+		newCube.Apply(move)
 		result = append(result, newCube)
 	}
 	return result
@@ -425,7 +427,7 @@ func heuristic(cube *Cube) int {
 	}
 }
 
-func (cube *Cube) solve() []Move {
+func (cube *Cube) Solve() []cmn.Move {
 	bound := heuristic(cube)
 
 	seen := map[Cube]struct{}{}
@@ -445,7 +447,7 @@ func (cube *Cube) solve() []Move {
 }
 
 func (c *Cube) goodCorners() bool {
-	for side := FirstSide; side <= LastSide; side++ {
+	for side := cmn.FirstSide; side <= cmn.LastSide; side++ {
 		f := c.faces[side]
 		good := f.f[0][0] == side && f.f[0][2] == side && f.f[2][0] == side && f.f[2][2] == side
 		if !good {
@@ -456,7 +458,7 @@ func (c *Cube) goodCorners() bool {
 }
 
 func (c *Cube) goodEdges() bool {
-	for side := FirstSide; side <= LastSide; side++ {
+	for side := cmn.FirstSide; side <= cmn.LastSide; side++ {
 		f := c.faces[side]
 		good := f.f[0][1] == side && f.f[1][0] == side && f.f[1][2] == side && f.f[2][1] == side
 		if !good {
@@ -466,33 +468,33 @@ func (c *Cube) goodEdges() bool {
 	return true
 }
 
-func search(seen map[Cube]struct{}, cube Cube, previousMove *Move, g int, bound int) (int, []Move) {
+func search(seen map[Cube]struct{}, cube Cube, previousMove *cmn.Move, g int, bound int) (int, []cmn.Move) {
 	f := g + heuristic(&cube)
 	if f > bound {
 		return f, nil
 	}
-	if cube.isSolved() {
-		return 0, []Move{}
+	if cube.IsSolved() {
+		return 0, []cmn.Move{}
 	}
 	min := math.MaxInt
-	for _, move := range AllMoves {
+	for _, move := range cmn.AllMoves {
 		if previousMove != nil {
 			if previousMove.Side == move.Side {
 				continue
 			}
 			// Enforce opperation order for independant operations
-			if previousMove.Side == Right && move.Side == Left {
+			if previousMove.Side == cmn.Right && move.Side == cmn.Left {
 				continue
 			}
-			if previousMove.Side == Up && move.Side == Down {
+			if previousMove.Side == cmn.Up && move.Side == cmn.Down {
 				continue
 			}
-			if previousMove.Side == Front && move.Side == Back {
+			if previousMove.Side == cmn.Front && move.Side == cmn.Back {
 				continue
 			}
 		}
 		newCube := cube
-		newCube.apply(move)
+		newCube.Apply(move)
 		_, wasSeen := seen[newCube]
 		if !wasSeen {
 			seen[newCube] = struct{}{}
