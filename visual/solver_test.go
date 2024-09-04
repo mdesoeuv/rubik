@@ -8,11 +8,13 @@ import (
 	cmn "github.com/mdesoeuv/rubik/common"
 )
 
+var solver = NewSolver()
+
 func TestManhattanDistanceSolved(t *testing.T) {
 	cube := NewCubeSolved()
 
 	for corner := FirstCorner; corner <= LastCorner; corner++ {
-		distance := cube.cornerManhattanDistance(CornerDownLeftFront)
+		distance := solver.cornerManhattanDistance(CornerDownLeftFront, cube)
 		if distance != 0 {
 			t.Fatalf(
 				"All corners in solved cube should be at distance 0, "+
@@ -25,7 +27,7 @@ func TestManhattanDistanceSolved(t *testing.T) {
 func TestManhattanDistanceBasic(t *testing.T) {
 	cube := NewCubeTopSpinned()
 
-	if cube.cornerManhattanDistance(CornerUpLeftFront) != 1 {
+	if solver.cornerManhattanDistance(CornerUpLeftFront, cube) != 1 {
 		t.Fatalf("Top spinned cube should have up left front corner at distance 1")
 	}
 }
@@ -36,7 +38,7 @@ func TestManhattanDistanceDoubleMove(t *testing.T) {
 	cube.Apply(cmn.Move{Side: cmn.Front, Rotation: cmn.RotationAntiClockwise()})
 	cube.Apply(cmn.Move{Side: cmn.Down, Rotation: cmn.RotationClockwise()})
 
-	distance := cube.cornerManhattanDistance(CornerDownRightFront)
+	distance := solver.cornerManhattanDistance(CornerDownRightFront, cube)
 	if distance != 2 {
 		t.Fatalf(
 			"Cube with 2 moves have distance of r, "+
@@ -48,7 +50,7 @@ func TestManhattanDistanceDoubleMove(t *testing.T) {
 func TestSolveSolved(t *testing.T) {
 	cube := NewCubeSolved()
 
-	steps := cube.Solve()
+	steps := solver.Solve(cube)
 	if steps == nil || len(steps) != 0 {
 		t.Fatalf("Solved cube should require 0 steps")
 	}
@@ -59,7 +61,7 @@ func TestSolveSingleMove(t *testing.T) {
 
 	cube.Apply(cmn.Move{Side: cmn.Front, Rotation: cmn.RotationClockwise()})
 
-	steps := cube.Solve()
+	steps := solver.Solve(cube)
 	if steps == nil {
 		t.Fatalf("Should find solution")
 	}
@@ -73,7 +75,7 @@ func TestShuffledCube(t *testing.T) {
 	for move_count := 0; move_count <= 11; move_count++ {
 		cube := NewCubeSolved()
 		cube.Shuffle(r, move_count)
-		steps := cube.Solve()
+		steps := solver.Solve(cube)
 		fmt.Printf("Cube %v solved!\n", move_count)
 		if steps == nil {
 			t.Fatalf("There should be a solution")

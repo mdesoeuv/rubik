@@ -8,6 +8,46 @@ import (
 	cmn "github.com/mdesoeuv/rubik/common"
 )
 
+type Solver struct {
+	cornerManhattanDistanceMap map[CornerMemoizationEntry]int
+	edgeManhattanDistanceMap   map[EdgeMemoizationEntry]int
+}
+
+func (solver *Solver) Solve(cube cmn.Cube) []cmn.Move {
+	switch cube := cube.(type) {
+	case *Cube:
+		bound := solver.heuristic(cube)
+
+		seen := map[Cube]struct{}{}
+		seen[*cube] = struct{}{}
+
+		for {
+			t, solution := solver.search(seen, *cube, nil, 0, bound)
+			if solution != nil {
+				slices.Reverse(solution)
+				return solution
+			}
+			if t == math.MaxInt {
+				return nil
+			}
+			bound = t
+		}
+	default:
+		panic("invalid cube")
+	}
+}
+
+func (c *Cube) NewSolver() cmn.Solver {
+	return NewSolver()
+}
+
+func NewSolver() *Solver {
+	return &Solver{
+		cornerManhattanDistanceMap: makeCornerManhattanDistanceMap(),
+		edgeManhattanDistanceMap:   makeEdgeManhattanDistanceMap(),
+	}
+}
+
 type Corner = int
 
 const (
@@ -174,7 +214,7 @@ func cornerFor(a, b, c cmn.Side) (Corner, error) {
 			}
 		}
 	}
-	return 0, fmt.Errorf("Impossible side combination")
+	return 0, fmt.Errorf("impossible side combination")
 }
 
 // TODO: Create EdgePiece type
@@ -220,7 +260,7 @@ func edgeFor(a, b cmn.Side) (Edge, error) {
 			return EdgeRightBack, nil
 		}
 	}
-	return -1, fmt.Errorf("Impossible side combination")
+	return -1, fmt.Errorf("impossible side combination")
 }
 
 type CornerMemoizationEntry struct {
@@ -232,11 +272,6 @@ type EdgeMemoizationEntry struct {
 	a, b cmn.Side
 	edge Edge
 }
-
-// var cornerManhattanDistanceMap = map[CornerMemoizationEntry]int{}
-// var edgeManhattanDistanceMap = map[EdgeMemoizationEntry]int{}
-var cornerManhattanDistanceMap = makeCornerManhattanDistanceMap()
-var edgeManhattanDistanceMap = makeEdgeManhattanDistanceMap()
 
 func makeCornerManhattanDistanceMap() map[CornerMemoizationEntry]int {
 	result := map[CornerMemoizationEntry]int{}
@@ -282,38 +317,18 @@ func makeCornerManhattanDistanceMap() map[CornerMemoizationEntry]int {
 	return result
 }
 
-func (cube *Cube) cornerManhattanDistance(id Corner) int {
+func (solver *Solver) cornerManhattanDistance(id Corner, cube *Cube) int {
 	coords := cornerCoords(id)
 	sideA := cube.Get(coords.a)
 	sideB := cube.Get(coords.b)
 	sideC := cube.Get(coords.c)
 
 	entry := CornerMemoizationEntry{sideA, sideB, sideC, id}
-	result, stored := cornerManhattanDistanceMap[entry]
+	result, stored := solver.cornerManhattanDistanceMap[entry]
 	if stored {
 		return result
 	}
-
-	panic("Unreachable")
-
-	to_explore := []Cube{*cube}
-	expectedCorner, _ := cornerFor(sideA, sideB, sideC)
-	toValidateCoords := cornerCoords(expectedCorner)
-	for move_count := 0; move_count < 10; move_count++ {
-		to_explore_next := []Cube{}
-		for _, c := range to_explore {
-			aIsValid := c.Get(toValidateCoords.a) == toValidateCoords.a.Side
-			bIsValid := c.Get(toValidateCoords.b) == toValidateCoords.b.Side
-			cIsValid := c.Get(toValidateCoords.c) == toValidateCoords.c.Side
-			if aIsValid && bIsValid && cIsValid {
-				cornerManhattanDistanceMap[entry] = move_count
-				return move_count
-			}
-			to_explore_next = append(to_explore_next, c.Successors()...)
-		}
-		to_explore = to_explore_next
-	}
-	panic("Could not find distance")
+	panic("could not find corner Manhattan distance")
 }
 
 func makeEdgeManhattanDistanceMap() map[EdgeMemoizationEntry]int {
@@ -359,36 +374,17 @@ func makeEdgeManhattanDistanceMap() map[EdgeMemoizationEntry]int {
 	return result
 }
 
-func (cube *Cube) edgeManhattanDistance(id Edge) int {
+func (solver *Solver) edgeManhattanDistance(id Edge, cube *Cube) int {
 	coords := edgeCoords(id)
 	sideA := cube.Get(coords.a)
 	sideB := cube.Get(coords.b)
 
 	entry := EdgeMemoizationEntry{sideA, sideB, id}
-	result, stored := edgeManhattanDistanceMap[entry]
+	result, stored := solver.edgeManhattanDistanceMap[entry]
 	if stored {
 		return result
 	}
-
-	panic("Unreachable")
-
-	to_explore := []Cube{*cube}
-	expectedEdge, _ := edgeFor(sideA, sideB)
-	toValidateCoords := edgeCoords(expectedEdge)
-	for move_count := 0; move_count < 10; move_count++ {
-		to_explore_next := []Cube{}
-		for _, c := range to_explore {
-			aIsValid := c.Get(toValidateCoords.a) == toValidateCoords.a.Side
-			bIsValid := c.Get(toValidateCoords.b) == toValidateCoords.b.Side
-			if aIsValid && bIsValid {
-				edgeManhattanDistanceMap[entry] = move_count
-				return move_count
-			}
-			to_explore_next = append(to_explore_next, c.Successors()...)
-		}
-		to_explore = to_explore_next
-	}
-	panic("Could not find distance")
+	panic("could not find edge Manhattan distance")
 }
 
 func (c *Cube) Successors() []Cube {
@@ -401,48 +397,29 @@ func (c *Cube) Successors() []Cube {
 	return result
 }
 
-func (cube *Cube) edgeDistanceSum() int {
+func (solver *Solver) edgeDistanceSum(cube *Cube) int {
 	sum := 0
 	for edge := FirstEdge; edge <= LastEdge; edge++ {
-		sum += cube.edgeManhattanDistance(edge)
+		sum += solver.edgeManhattanDistance(edge, cube)
 	}
 	return sum
 }
 
-func (cube *Cube) cornerDistanceSum() int {
+func (solver *Solver) cornerDistanceSum(cube *Cube) int {
 	sum := 0
 	for corner := FirstCorner; corner <= LastCorner; corner++ {
-		sum += cube.cornerManhattanDistance(corner)
+		sum += solver.cornerManhattanDistance(corner, cube)
 	}
 	return sum
 }
 
-func heuristic(cube *Cube) int {
-	edgeDistanceSum := cube.edgeDistanceSum()
-	cornerDistanceSum := cube.cornerDistanceSum()
+func (solver *Solver) heuristic(cube *Cube) int {
+	edgeDistanceSum := solver.edgeDistanceSum(cube)
+	cornerDistanceSum := solver.cornerDistanceSum(cube)
 	if edgeDistanceSum > cornerDistanceSum {
 		return (edgeDistanceSum + 3) / 4
 	} else {
 		return (cornerDistanceSum + 3) / 4
-	}
-}
-
-func (cube *Cube) Solve() []cmn.Move {
-	bound := heuristic(cube)
-
-	seen := map[Cube]struct{}{}
-	seen[*cube] = struct{}{}
-
-	for {
-		t, solution := search(seen, *cube, nil, 0, bound)
-		if solution != nil {
-			slices.Reverse(solution)
-			return solution
-		}
-		if t == math.MaxInt {
-			return nil
-		}
-		bound = t
 	}
 }
 
@@ -468,8 +445,8 @@ func (c *Cube) goodEdges() bool {
 	return true
 }
 
-func search(seen map[Cube]struct{}, cube Cube, previousMove *cmn.Move, g int, bound int) (int, []cmn.Move) {
-	f := g + heuristic(&cube)
+func (solver *Solver) search(seen map[Cube]struct{}, cube Cube, previousMove *cmn.Move, g int, bound int) (int, []cmn.Move) {
+	f := g + solver.heuristic(&cube)
 	if f > bound {
 		return f, nil
 	}
@@ -498,7 +475,7 @@ func search(seen map[Cube]struct{}, cube Cube, previousMove *cmn.Move, g int, bo
 		_, wasSeen := seen[newCube]
 		if !wasSeen {
 			seen[newCube] = struct{}{}
-			t, steps := search(seen, newCube, &move, g+1, bound)
+			t, steps := solver.search(seen, newCube, &move, g+1, bound)
 			if steps != nil {
 				return t, append(steps, move)
 			}
