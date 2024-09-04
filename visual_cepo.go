@@ -13,6 +13,26 @@ type VisualCepo struct {
 	Cepo   *cepo.Cube
 }
 
+type Solver struct {
+}
+
+func (solver *Solver) Solve(cube cmn.Cube) []cmn.Move {
+	switch cube := cube.(type) {
+	case *VisualCepo:
+		return cube.Cepo.ToG4()
+	default:
+		panic("invalid cube")
+	}
+}
+
+func (pc *VisualCepo) NewSolver() cmn.Solver {
+	return NewSolver()
+}
+
+func NewSolver() *Solver {
+	return &Solver{}
+}
+
 func (pc *VisualCepo) IsSolved() bool {
 	visualIsSolve := pc.Visual.IsSolved()
 	cepoIsSolved := pc.Cepo.IsSolved()
@@ -30,11 +50,6 @@ func (pc *VisualCepo) Get(coord cmn.CubeCoord) cmn.Side {
 func (pc *VisualCepo) Apply(move cmn.Move) {
 	pc.Visual.Apply(move)
 	pc.Cepo.Apply(move)
-}
-
-// TODO: implement real solver for CEPO
-func (pc *VisualCepo) Solve() []cmn.Move {
-	return pc.Cepo.ToG4()
 }
 
 func (pc *VisualCepo) Clone() cmn.Cube {

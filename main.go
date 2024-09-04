@@ -52,8 +52,9 @@ func main() {
 	for _, move := range moveList {
 		cube.Apply(move)
 	}
+	solver := cube.NewSolver()
 	if *tuiFlag {
-		p := tea.NewProgram(tui.InitialModel(&cube, solvedCube))
+		p := tea.NewProgram(tui.InitialModel(&cube, solvedCube, solver))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
@@ -61,7 +62,7 @@ func main() {
 	} else {
 		fmt.Println(cube.Blueprint())
 		fmt.Println("Solving...")
-		solution := cube.Solve()
+		solution := solver.Solve(&cube)
 		s := fmt.Sprintf("Solution found in %v steps: ", len(solution))
 		for _, move := range solution {
 			s += move.String() + " "

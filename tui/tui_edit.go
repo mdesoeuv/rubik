@@ -17,6 +17,7 @@ import (
 type EditMenu struct {
 	cube      cmn.Cube
 	solved    cmn.Cube
+	solver    cmn.Solver
 	list      list.Model
 	solution  SolutionMsg
 	spinner   spinner.Model
@@ -89,7 +90,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				e.spinner.Tick,
 				func() tea.Msg {
 					return SolutionMsg{
-						moves: e.cube.Solve(),
+						moves: e.solver.Solve(e.cube),
 					}
 				},
 			)
@@ -127,6 +128,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				cube:      e.cube,
 				backup:    e.cube.Clone(),
 				solved:    e.solved,
+				solver:    e.solver,
 				solution:  e.solution,
 				list:      CreateExploreMoveList(e.solution.moves),
 				keymap:    NewExploreKeyMap(),
