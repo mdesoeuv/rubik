@@ -173,3 +173,63 @@ func BenchmarkCubeApply(b *testing.B) {
 	}
 	b.StopTimer()
 }
+
+func BenchmarkCubeToG1(b *testing.B) {
+	shuffle := common.ArticleExampleShuffleMoveList()
+	cube := cepo.NewCubeSolved()
+
+	for _, move := range shuffle {
+		cube.Apply(move)
+	}
+
+	b.StartTimer()
+	for i := 0; i <= b.N; i += 1 {
+		cube.ToG1()
+	}
+	b.StopTimer()
+}
+
+func BenchmarkCubeToG2(b *testing.B) {
+	shuffle := common.ArticleExampleShuffleMoveList()
+	cube := cepo.NewCubeSolved()
+
+	for _, move := range shuffle {
+		cube.Apply(move)
+	}
+
+	b.StartTimer()
+	for i := 0; i <= b.N; i += 1 {
+		cube.ToG2()
+	}
+	b.StopTimer()
+}
+
+func BenchmarkCubeToG3(b *testing.B) {
+	shuffle := common.ArticleExampleShuffleMoveList()
+	cube := cepo.NewCubeSolved()
+
+	for _, move := range shuffle {
+		cube.Apply(move)
+	}
+
+	b.StartTimer()
+	for i := 0; i <= b.N; i += 1 {
+		cube.ToG3()
+	}
+	b.StopTimer()
+}
+
+func BenchmarkCubeToG4(b *testing.B) {
+	shuffle := common.ArticleExampleShuffleMoveList()
+	cube := cepo.NewCubeSolved()
+
+	for _, move := range shuffle {
+		cube.Apply(move)
+	}
+
+	b.StartTimer()
+	for i := 0; i <= b.N; i += 1 {
+		cube.ToG4()
+	}
+	b.StopTimer()
+}

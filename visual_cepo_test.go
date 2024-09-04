@@ -44,3 +44,33 @@ func TestCubeToG3(t *testing.T) {
 	}
 	fmt.Printf("Max step count taken: %v\n", maxStepCount)
 }
+
+func BenchmarkSolveCube(b *testing.B) {
+	r := rand.New(rand.NewPCG(0, 0))
+	maxStepCount := 0
+	for n := 0; n < b.N; n++ {
+		for move_count := 0; move_count <= 100; move_count += 10 {
+			newCepo := cepo.NewCubeSolved()
+			cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
+
+			common.Shuffle(&cube, r, move_count)
+
+			b.Logf("Solving #%v\n", move_count)
+			steps := cube.Solve()
+			if steps == nil {
+				b.Fatalf("There should be a solution")
+			}
+
+			if len(steps) > maxStepCount {
+				maxStepCount = len(steps)
+			}
+
+			common.ApplySequence(&cube, steps)
+
+			if !cube.IsSolved() {
+				b.Fatalf("Cube should be solved after applying the steps")
+			}
+		}
+		b.Logf("Max step count taken: %v\n", maxStepCount)
+	}
+}
