@@ -81,9 +81,11 @@ func (c *Cube) IsG2() bool {
 }
 
 func (s *Solver) IsG3AssumingG2(c *Cube) bool {
-	_, isG3CornerPermutation := s.G3CornerHeuristicTable[c.cornerPermutation]
-	_, isG3EdgePermutation := s.G3EdgeHeuristicTable[c.edgePermutation]
-	return isG3CornerPermutation && isG3EdgePermutation
+	_, isG3 := s.G3HeuristicTable[*c]
+	return isG3
+	// _, isG3CornerPermutation := s.G3CornerHeuristicTable[c.cornerPermutation]
+	// _, isG3EdgePermutation := s.G3EdgeHeuristicTable[c.edgePermutation]
+	// return isG3CornerPermutation && isG3EdgePermutation
 }
 
 func (s *Solver) IsG3(c *Cube) bool {

@@ -13,6 +13,7 @@ type Solver struct {
 	G2CornerHeuristicTable map[CornerPermutation]uint8
 	G3EdgeHeuristicTable   map[EdgePermutation]uint8
 	G3CornerHeuristicTable map[CornerPermutation]uint8
+	G3HeuristicTable       map[Cube]uint8
 }
 
 func NewSolver() *Solver {
@@ -23,6 +24,7 @@ func NewSolver() *Solver {
 		G2CornerHeuristicTable: MakeG2CornerPermutationTable(G3CornerHeuristicTable),
 		G3EdgeHeuristicTable:   MakeG3EdgePermutationTable(),
 		G3CornerHeuristicTable: G3CornerHeuristicTable,
+		G3HeuristicTable:       MakeG3HeuristicTable(),
 	}
 }
 
@@ -384,31 +386,6 @@ func (s *Solver) searchG4(
 		}
 	}
 	return min, nil
-}
-
-func MakeG3Cubes() map[Cube]struct{} {
-	solvedCube := NewCubeSolved()
-	toExplore := []Cube{*solvedCube}
-	seen := map[Cube]struct{}{*solvedCube: {}}
-
-	for len(toExplore) != 0 {
-		// TODO: a better queue
-		cube := toExplore[0]
-		toExplore = toExplore[1:]
-
-		for _, move := range G3Moves {
-			newCube := cube
-			newCube.Apply(move)
-
-			if _, x := seen[newCube]; x {
-				continue
-			}
-			seen[newCube] = struct{}{}
-
-			toExplore = append(toExplore, newCube)
-		}
-	}
-	return seen
 }
 
 func MakeG3HeuristicTable() map[Cube]uint8 {
