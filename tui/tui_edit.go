@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"math/rand/v2"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -45,6 +46,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		e.isSolving = false
 		e.keymap.solve.SetEnabled(true)
 		e.keymap.reset.SetEnabled(true)
+		e.keymap.shuffle.SetEnabled(true)
 		e.keymap.explore.SetEnabled(true)
 		stopWatchCmd = e.stopwatch.Stop()
 		e.solution = msg
@@ -80,6 +82,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			e.isSolving = true
 			e.keymap.solve.SetEnabled(false)
 			e.keymap.reset.SetEnabled(false)
+			e.keymap.shuffle.SetEnabled(false)
 			myCmd = tea.Batch(
 				e.stopwatch.Reset(),
 				e.stopwatch.Start(),
@@ -107,6 +110,14 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			e.keymap.explore.SetEnabled(false)
 			e.stopwatch.Reset()
 			e.cube = e.solved.Clone()
+			e.solution = SolutionMsg{}
+
+		case key.Matches(msg, e.keymap.shuffle):
+			e.keymap.explore.SetEnabled(false)
+			e.stopwatch.Reset()
+			r := rand.New(rand.NewPCG(rand.Uint64(), rand.Uint64()))
+			n := rand.IntN(100)
+			cmn.Shuffle(e.cube, r, n)
 			e.solution = SolutionMsg{}
 
 		case key.Matches(msg, e.keymap.explore):
@@ -143,10 +154,10 @@ func (e EditMenu) View() string {
 		s += resultStyle.Render("\n" + e.spinner.View() + "Solving..." + fmt.Sprintf(" (%s)", e.stopwatch.View()))
 	} else if e.solution.moves != nil {
 		solutionString := "\nSolution found: "
+		solutionString += fmt.Sprintf("(%v moves in %s) ", len(e.solution.moves), e.stopwatch.View())
 		for _, move := range e.solution.moves {
 			solutionString += move.String() + " "
 		}
-		solutionString += fmt.Sprintf("(%s)", e.stopwatch.View())
 		s += resultStyle.Render(solutionString)
 	}
 
@@ -160,6 +171,7 @@ func (e EditMenu) helpView() string {
 		e.keymap.solve,
 		e.keymap.explore,
 		e.keymap.reset,
+		e.keymap.shuffle,
 		e.keymap.quit,
 	})
 }

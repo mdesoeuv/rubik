@@ -7,6 +7,7 @@ import (
 type keymap struct {
 	solve   key.Binding
 	reset   key.Binding
+	shuffle key.Binding
 	quit    key.Binding
 	up      key.Binding
 	down    key.Binding
@@ -25,7 +26,11 @@ func NewEditKeyMap() keymap {
 		),
 		reset: key.NewBinding(
 			key.WithKeys("r"),
-			key.WithHelp("r", "reset the cube"),
+			key.WithHelp("r", "reset"),
+		),
+		shuffle: key.NewBinding(
+			key.WithKeys("f"),
+			key.WithHelp("f", "shuffle"),
 		),
 		quit: key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
