@@ -6,10 +6,9 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mdesoeuv/rubik/cepo"
 	cmn "github.com/mdesoeuv/rubik/common"
 	tui "github.com/mdesoeuv/rubik/tui"
-	visual "github.com/mdesoeuv/rubik/visual"
+	vc "github.com/mdesoeuv/rubik/visual_cepo"
 )
 
 var (
@@ -45,8 +44,7 @@ func main() {
 		}
 	}
 
-	newCepo := cepo.NewCubeSolved()
-	cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
+	cube := vc.NewCubeSolved()
 	solvedCube := cube.Clone()
 
 	for _, move := range moveList {
@@ -54,7 +52,7 @@ func main() {
 	}
 	solver := cube.NewSolver()
 	if *tuiFlag {
-		p := tea.NewProgram(tui.InitialModel(&cube, solvedCube, solver))
+		p := tea.NewProgram(tui.InitialModel(cube, solvedCube, solver))
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
 			os.Exit(1)
@@ -62,7 +60,7 @@ func main() {
 	} else {
 		fmt.Println(cube.Blueprint())
 		fmt.Println("Solving...")
-		solution := solver.Solve(&cube)
+		solution := solver.Solve(cube)
 		s := fmt.Sprintf("Solution found in %v steps: ", len(solution))
 		for _, move := range solution {
 			s += move.String() + " "

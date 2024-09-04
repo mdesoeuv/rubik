@@ -1,4 +1,4 @@
-package main
+package visual_cepo
 
 import (
 	"math/rand/v2"
@@ -17,7 +17,7 @@ func TestCubeToG3(t *testing.T) {
 
 	for move_count := 0; move_count <= 100; move_count++ {
 		newCepo := cepo.NewCubeSolved()
-		cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
+		cube := Cube{Cepo: newCepo, Visual: visual.NewCubeSolved()}
 
 		common.Shuffle(&cube, r, move_count)
 
