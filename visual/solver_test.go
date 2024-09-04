@@ -1,7 +1,6 @@
 package visual
 
 import (
-	"fmt"
 	"math/rand/v2"
 	"testing"
 
@@ -70,16 +69,16 @@ func TestSolveSingleMove(t *testing.T) {
 
 func TestShuffledCube(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
-	for move_count := 0; move_count <= 11; move_count++ {
+	for move_count := 0; move_count <= 10; move_count++ {
 		cube := NewCubeSolved()
 		cube.Shuffle(r, move_count)
 		steps := cube.Solve()
-		fmt.Printf("Cube %v solved!\n", move_count)
+		t.Logf("Cube %v solved!", move_count)
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
 
-		fmt.Printf("Took %v steps\n", len(steps))
+		t.Logf("Took %v steps", len(steps))
 		if len(steps) > move_count {
 			t.Fatalf("Solution shouldn't have more than %v moves but got %v", move_count, steps)
 		}

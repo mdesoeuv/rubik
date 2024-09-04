@@ -1,7 +1,6 @@
 package cepo_test
 
 import (
-	"fmt"
 	"math/rand/v2"
 	"testing"
 
@@ -35,46 +34,17 @@ func TestCubeToG1(t *testing.T) {
 			t.Fatalf("Cube should be G1 after applying the steps")
 		}
 	}
-	fmt.Printf("Max step count taken: %v\n", maxStepCount)
-}
-
-func TestCubeToG3(t *testing.T) {
-	r := rand.New(rand.NewPCG(0, 0))
-	maxStepCount := 0
-
-	for move_count := 0; move_count <= 100; move_count += 10 {
-		cube := cepo.NewCubeSolved()
-		common.Shuffle(cube, r, move_count)
-
-		fmt.Printf("Solving #%v\n", move_count)
-		steps := cube.ToG3()
-		if steps == nil {
-			t.Fatalf("There should be a solution")
-		}
-
-		if len(steps) > maxStepCount {
-			maxStepCount = len(steps)
-		}
-
-		for _, step := range steps {
-			cube.Apply(step)
-		}
-
-		if !cube.IsG3() {
-			t.Fatalf("Cube should be G3 after applying the steps")
-		}
-	}
-	fmt.Printf("Max step count taken: %v\n", maxStepCount)
+	t.Logf("Max step count taken: %v", maxStepCount)
 }
 
 func TestCubeToG2(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
-	for move_count := 0; move_count <= 100; move_count += 10 {
+	for move_count := 0; move_count <= 100; move_count++ {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(cube, r, move_count)
 
-		fmt.Printf("Solving #%v\n", move_count)
+		t.Logf("Solving #%v", move_count)
 		steps := cube.ToG2()
 		if steps == nil {
 			t.Fatalf("There should be a solution")
@@ -92,17 +62,45 @@ func TestCubeToG2(t *testing.T) {
 			t.Fatalf("Cube should be G2 after applying the steps")
 		}
 	}
-	fmt.Printf("Max step count taken: %v\n", maxStepCount)
+	t.Logf("Max step count taken: %v", maxStepCount)
+}
+func TestCubeToG3(t *testing.T) {
+	r := rand.New(rand.NewPCG(0, 0))
+	maxStepCount := 0
+
+	for move_count := 0; move_count <= 100; move_count++ {
+		cube := cepo.NewCubeSolved()
+		common.Shuffle(cube, r, move_count)
+
+		t.Logf("Solving #%v", move_count)
+		steps := cube.ToG3()
+		if steps == nil {
+			t.Fatalf("There should be a solution")
+		}
+
+		if len(steps) > maxStepCount {
+			maxStepCount = len(steps)
+		}
+
+		for _, step := range steps {
+			cube.Apply(step)
+		}
+
+		if !cube.IsG3() {
+			t.Fatalf("Cube should be G3 after applying the steps")
+		}
+	}
+	t.Logf("Max step count taken: %v", maxStepCount)
 }
 
 func TestCubeToG4(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
-	for move_count := 0; move_count <= 100; move_count += 10 {
+	for move_count := 0; move_count <= 100; move_count++ {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(cube, r, move_count)
 
-		fmt.Printf("Solving #%v\n", move_count)
+		t.Logf("Solving #%v", move_count)
 		steps := cube.ToG4()
 		if steps == nil {
 			t.Fatalf("There should be a solution")
@@ -120,7 +118,7 @@ func TestCubeToG4(t *testing.T) {
 			t.Fatalf("Cube should be G4 after applying the steps")
 		}
 	}
-	fmt.Printf("Max step count taken: %v\n", maxStepCount)
+	t.Logf("Max step count taken: %v", maxStepCount)
 }
 
 func TestCubeToG1FromArticleShuffle(t *testing.T) {
@@ -141,7 +139,7 @@ func TestCubeToG1FromArticleShuffle(t *testing.T) {
 		t.Fatalf("Could should be G1")
 	}
 
-	fmt.Printf("Solution: %v\n", solution)
+	t.Logf("Solution: %v", solution)
 }
 
 func TestSolvedCubeIsInAllGroups(t *testing.T) {
@@ -168,7 +166,7 @@ func BenchmarkCubeApply(b *testing.B) {
 	cube := cepo.NewCubeSolved()
 
 	b.StartTimer()
-	for i := 0; i <= b.N; i += 1 {
+	for i := 0; i <= b.N; i++ {
 		cube.Apply(common.AllMoves[i%len(common.AllMoves)])
 	}
 	b.StopTimer()
