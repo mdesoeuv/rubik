@@ -17,6 +17,7 @@ type ExploreMenu struct {
 	cube      cmn.Cube
 	backup    cmn.Cube
 	solved    cmn.Cube
+	solver    cmn.Solver
 	solution  SolutionMsg
 	list      list.Model
 	keymap    keymap
@@ -78,6 +79,7 @@ func (e ExploreMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 			menu = EditMenu{
 				cube:      e.backup.Clone(),
 				solved:    e.solved,
+				solver:    e.solver,
 				list:      CreateApplyMoveList(),
 				keymap:    NewEditKeyMap(),
 				help:      help.New(),

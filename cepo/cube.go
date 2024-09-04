@@ -4,6 +4,26 @@ import (
 	cmn "github.com/mdesoeuv/rubik/common"
 )
 
+type Solver struct {
+}
+
+func (solver *Solver) Solve(cube cmn.Cube) []cmn.Move {
+	switch cube := cube.(type) {
+	case *Cube:
+		return cube.ToG4()
+	default:
+		panic("invalid cube")
+	}
+}
+
+func (c *Cube) NewSolver() cmn.Solver {
+	return NewSolver()
+}
+
+func NewSolver() *Solver {
+	return &Solver{}
+}
+
 type Cube struct {
 	// TODO: Conbine edge description in a single uint64
 	edgeOrientations   EdgeOrientations
@@ -130,10 +150,6 @@ func (c *Cube) ToG4() []cmn.Move {
 		return nil
 	}
 	return append(movesToG3, movesToG4...)
-}
-
-func (c *Cube) Solve() []cmn.Move {
-	return c.ToG4()
 }
 
 func (c *Cube) Blueprint() string {
