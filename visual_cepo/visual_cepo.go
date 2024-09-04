@@ -14,7 +14,7 @@ type Cube struct {
 }
 
 type Solver struct {
-	CepoSolver cepo.Solver
+	CepoSolver *cepo.Solver
 }
 
 func (solver *Solver) Solve(cube cmn.Cube) []cmn.Move {
@@ -31,7 +31,9 @@ func (c *Cube) NewSolver() cmn.Solver {
 }
 
 func NewSolver() *Solver {
-	return &Solver{}
+	return &Solver{
+		CepoSolver: cepo.NewSolver(),
+	}
 }
 
 func NewCubeSolved() *Cube {

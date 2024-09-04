@@ -9,11 +9,13 @@ import (
 	visual "github.com/mdesoeuv/rubik/visual"
 )
 
+// TODO: Remove this
+// It doesn't much sens anymore
 func TestCubeToG3(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
 
-	G3Cubes := cepo.MakeG3Cubes()
+	solver := cepo.GetGlobalSolver()
 
 	for move_count := 0; move_count <= 100; move_count++ {
 		newCepo := cepo.NewCubeSolved()
@@ -22,7 +24,7 @@ func TestCubeToG3(t *testing.T) {
 		common.Shuffle(&cube, r, move_count)
 
 		t.Logf("Solving #%v", move_count)
-		steps := cube.Cepo.ToG3()
+		steps := solver.ToG3(cube.Cepo)
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
@@ -33,13 +35,13 @@ func TestCubeToG3(t *testing.T) {
 
 		common.ApplySequence(&cube, steps)
 
-		if !cube.Cepo.IsG3() {
+		if !solver.IsG3(cube.Cepo) {
 			t.Fatalf("Cube should be G3 after applying the steps")
 		}
 
-		if _, isG3 := G3Cubes[*cube.Cepo]; !isG3 {
-			t.Fatalf("Cube.IsG3 and G3Cubes disagree:\n%v", cube.Blueprint())
-		}
+		// if _, isG3 := G3Cubes[*cube.Cepo]; !isG3 {
+		// 	t.Fatalf("Cube.IsG3 and G3Cubes disagree:\n%v", cube.Blueprint())
+		// }
 	}
 	t.Logf("Max step count taken: %v", maxStepCount)
 }

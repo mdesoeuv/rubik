@@ -11,10 +11,12 @@ import (
 func TestCubeToG1(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
+
+	solver := cepo.GetGlobalSolver()
 	for move_count := 0; move_count <= 100; move_count++ {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(cube, r, move_count)
-		steps := cube.ToG1()
+		steps := solver.ToG1(cube)
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
@@ -40,12 +42,13 @@ func TestCubeToG1(t *testing.T) {
 func TestCubeToG2(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
+	solver := cepo.GetGlobalSolver()
 	for move_count := 0; move_count <= 100; move_count++ {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(cube, r, move_count)
 
 		t.Logf("Solving #%v", move_count)
-		steps := cube.ToG2()
+		steps := solver.ToG2(cube)
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
@@ -68,12 +71,13 @@ func TestCubeToG3(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
 
+	solver := cepo.GetGlobalSolver()
 	for move_count := 0; move_count <= 100; move_count++ {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(cube, r, move_count)
 
 		t.Logf("Solving #%v", move_count)
-		steps := cube.ToG3()
+		steps := solver.ToG3(cube)
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
@@ -86,7 +90,7 @@ func TestCubeToG3(t *testing.T) {
 			cube.Apply(step)
 		}
 
-		if !cube.IsG3() {
+		if !solver.IsG3(cube) {
 			t.Fatalf("Cube should be G3 after applying the steps")
 		}
 	}
@@ -96,12 +100,14 @@ func TestCubeToG3(t *testing.T) {
 func TestCubeToG4(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
+
+	solver := cepo.GetGlobalSolver()
 	for move_count := 0; move_count <= 100; move_count++ {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(cube, r, move_count)
 
 		t.Logf("Solving #%v", move_count)
-		steps := cube.ToG4()
+		steps := solver.ToG4(cube)
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
@@ -124,12 +130,13 @@ func TestCubeToG4(t *testing.T) {
 func TestCubeToG1FromArticleShuffle(t *testing.T) {
 	shuffle := common.ArticleExampleShuffleMoveList()
 	cube := cepo.NewCubeSolved()
+	solver := cepo.GetGlobalSolver()
 
 	for _, move := range shuffle {
 		cube.Apply(move)
 	}
 
-	solution := cube.ToG1()
+	solution := solver.ToG1(cube)
 
 	for _, move := range solution {
 		cube.Apply(move)
@@ -145,6 +152,8 @@ func TestCubeToG1FromArticleShuffle(t *testing.T) {
 func TestSolvedCubeIsInAllGroups(t *testing.T) {
 	cube := cepo.NewCubeSolved()
 
+	solver := cepo.GetGlobalSolver()
+
 	if !cube.IsG1() {
 		t.Errorf("Solved cube should be in G1")
 	}
@@ -153,7 +162,7 @@ func TestSolvedCubeIsInAllGroups(t *testing.T) {
 		t.Errorf("Solved cube should be in G2")
 	}
 
-	if !cube.IsG3AssumingG2() {
+	if !solver.IsG3AssumingG2(cube) {
 		t.Errorf("Solved cube should be in G3")
 	}
 
