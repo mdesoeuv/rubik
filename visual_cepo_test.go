@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand/v2"
 	"testing"
 
@@ -16,13 +15,13 @@ func TestCubeToG3(t *testing.T) {
 
 	G3Cubes := cepo.MakeG3Cubes()
 
-	for move_count := 0; move_count <= 100; move_count += 10 {
+	for move_count := 0; move_count <= 100; move_count++ {
 		newCepo := cepo.NewCubeSolved()
 		cube := VisualCepo{Cepo: newCepo, Visual: visual.NewCubeSolved()}
 
 		common.Shuffle(&cube, r, move_count)
 
-		fmt.Printf("Solving #%v\n", move_count)
+		t.Logf("Solving #%v", move_count)
 		steps := cube.Cepo.ToG3()
 		if steps == nil {
 			t.Fatalf("There should be a solution")
@@ -42,5 +41,5 @@ func TestCubeToG3(t *testing.T) {
 			t.Fatalf("Cube.IsG3 and G3Cubes disagree:\n%v", cube.Blueprint())
 		}
 	}
-	fmt.Printf("Max step count taken: %v\n", maxStepCount)
+	t.Logf("Max step count taken: %v", maxStepCount)
 }

@@ -14,7 +14,6 @@ func (c *Cube) ToG1() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		// fmt.Printf("G1: Searching up to depth: %v\n", bound)
 		t, solution := searchG1(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -92,7 +91,6 @@ func (c *Cube) ToG2AssumingG1() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		// fmt.Printf("G2: Searching up to depth: %v\n", bound)
 		t, solution := searchG2(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -170,7 +168,6 @@ func (c *Cube) ToG3AssumingG2() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		// fmt.Printf("G3: Searching up to depth: %v\n", bound)
 		t, solution := searchG3(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -231,6 +228,7 @@ func makeG3Moves() (result []cmn.Move) {
 }
 
 var G3Moves = makeG3Moves()
+var G3Heuristic = MakeG3HeuristicTable()
 
 func (c *Cube) ToG4AssumingG3() []cmn.Move {
 	bound := c.distanceToG4InG3()
@@ -239,7 +237,6 @@ func (c *Cube) ToG4AssumingG3() []cmn.Move {
 	seen[*c] = struct{}{}
 
 	for {
-		// fmt.Printf("G4: Searching up to depth: %v\n", bound)
 		t, solution := searchG4(seen, c, nil, 0, bound)
 		if solution != nil {
 			slices.Reverse(solution)
@@ -313,3 +310,236 @@ func MakeG3Cubes() map[Cube]struct{} {
 	}
 	return seen
 }
+
+func MakeG3HeuristicTable() map[Cube]uint8 {
+	solvedCube := *NewCubeSolved()
+	toExplore := []Cube{solvedCube}
+	toExploreNext := []Cube{}
+	result := map[Cube]uint8{solvedCube: 0}
+
+	distance := uint8(1)
+	for len(toExplore) != 0 {
+		for _, cube := range toExplore {
+			for _, move := range G3Moves {
+				newCube := cube
+				newCube.Apply(move)
+
+				if _, x := result[newCube]; x {
+					continue
+				}
+				result[newCube] = distance
+				toExploreNext = append(toExploreNext, newCube)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+		distance += 1
+
+	}
+	return result
+}
+
+type G3Cube struct {
+	edge   EdgePermutation
+	corner CornerPermutation
+}
+
+func ToG3Cube(c Cube) G3Cube {
+	return G3Cube{
+		edge:   c.edgePermutation,
+		corner: c.cornerPermutation,
+	}
+}
+
+func (c *G3Cube) Apply(move cmn.Move) {
+	c.edge.Apply(move)
+	c.corner.Apply(move)
+}
+
+func MakeG3BetterHeuristicTable() map[G3Cube]uint8 {
+	solvedCube := ToG3Cube(*NewCubeSolved())
+	toExplore := []G3Cube{solvedCube}
+	toExploreNext := []G3Cube{}
+	result := map[G3Cube]uint8{solvedCube: 0}
+
+	distance := uint8(1)
+	for len(toExplore) != 0 {
+		for _, cube := range toExplore {
+			for _, move := range G3Moves {
+				newCube := cube
+				newCube.Apply(move)
+
+				if _, x := result[newCube]; x {
+					continue
+				}
+				result[newCube] = distance
+				toExploreNext = append(toExploreNext, newCube)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+		distance += 1
+	}
+	return result
+}
+
+func MakeG3CornerPermutationTable() map[CornerPermutation]uint8 {
+	solvedCube := NewCubeSolved().cornerPermutation
+	toExplore := []CornerPermutation{solvedCube}
+	toExploreNext := []CornerPermutation{}
+	result := map[CornerPermutation]uint8{solvedCube: 0}
+
+	distance := uint8(1)
+	for len(toExplore) != 0 {
+		for _, cube := range toExplore {
+			for _, move := range G3Moves {
+				newCube := cube
+				newCube.Apply(move)
+
+				if _, x := result[newCube]; x {
+					continue
+				}
+				result[newCube] = distance
+				toExploreNext = append(toExploreNext, newCube)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+		distance += 1
+	}
+	return result
+}
+
+func MakeG3EdgePermutationTable() map[EdgePermutation]uint8 {
+	solvedCube := NewCubeSolved().edgePermutation
+	toExplore := []EdgePermutation{solvedCube}
+	toExploreNext := []EdgePermutation{}
+	result := map[EdgePermutation]uint8{solvedCube: 0}
+
+	distance := uint8(1)
+	for len(toExplore) != 0 {
+		for _, cube := range toExplore {
+			for _, move := range G3Moves {
+				newCube := cube
+				newCube.Apply(move)
+
+				if _, x := result[newCube]; x {
+					continue
+				}
+				result[newCube] = distance
+				toExploreNext = append(toExploreNext, newCube)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+		distance += 1
+	}
+	return result
+}
+
+func MakeG2CornerPermutationTable(g3 map[CornerPermutation]uint8) map[CornerPermutation]uint8 {
+	toExplore := []CornerPermutation{}
+	toExploreNext := []CornerPermutation{}
+	result := map[CornerPermutation]uint8{}
+
+	for corner := range g3 {
+		toExplore = append(toExplore, corner)
+		result[corner] = 0
+	}
+
+	distance := uint8(1)
+	for len(toExplore) != 0 {
+		for _, cube := range toExplore {
+			for _, move := range G2Moves {
+				newCube := cube
+				newCube.Apply(move)
+
+				if _, x := result[newCube]; x {
+					continue
+				}
+				result[newCube] = distance
+				toExploreNext = append(toExploreNext, newCube)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+		distance += 1
+	}
+	return result
+}
+
+func MakeG2EdgePermutationTable() map[EdgePermutation]uint8 {
+	solvedCube := NewCubeSolved().edgePermutation
+	toExplore := []EdgePermutation{solvedCube}
+	toExploreNext := []EdgePermutation{}
+	result := map[EdgePermutation]uint8{solvedCube: 0}
+
+	distance := uint8(1)
+	for len(toExplore) != 0 {
+		for _, cube := range toExplore {
+			for _, move := range G2Moves {
+				newCube := cube
+				newCube.Apply(move)
+
+				if _, x := result[newCube]; x {
+					continue
+				}
+				result[newCube] = distance
+				toExploreNext = append(toExploreNext, newCube)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+		distance += 1
+	}
+	return result
+}
+
+func MakeG1CornerOrientationsTable() map[CornerOrientations]uint8 {
+	solvedCube := NewCubeSolved().cornerOrientations
+	toExplore := []CornerOrientations{solvedCube}
+	toExploreNext := []CornerOrientations{}
+	result := map[CornerOrientations]uint8{solvedCube: 0}
+
+	distance := uint8(1)
+	for len(toExplore) != 0 {
+		for _, cube := range toExplore {
+			for _, move := range G1Moves {
+				newCube := cube
+				newCube.Apply(move)
+
+				if _, x := result[newCube]; x {
+					continue
+				}
+				result[newCube] = distance
+				toExploreNext = append(toExploreNext, newCube)
+			}
+		}
+		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+		distance += 1
+	}
+	return result
+}
+
+// TODO: Only store the interresting values
+// Not every orientation is valuable
+
+// func MakeG1EdgePermutationTable() map[EdgePermutation]uint8 {
+// 	solvedCube := NewCubeSolved().edgePermutation
+// 	toExplore := []EdgePermutation{solvedCube}
+// 	toExploreNext := []EdgePermutation{}
+// 	result := map[EdgePermutation]uint8{solvedCube: 0}
+//
+// 	distance := uint8(1)
+// 	for len(toExplore) != 0 {
+// 		for _, cube := range toExplore {
+// 			for _, move := range G1Moves {
+// 				newCube := cube
+// 				newCube.Apply(move)
+//
+// 				if _, x := result[newCube]; x {
+// 					continue
+// 				}
+// 				result[newCube] = distance
+// 				toExploreNext = append(toExploreNext, newCube)
+// 			}
+// 		}
+// 		toExplore, toExploreNext = toExploreNext, toExplore[:0]
+// 		distance += 1
+// 	}
+// 	return result
+// }

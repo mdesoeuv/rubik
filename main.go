@@ -18,7 +18,6 @@ var (
 )
 
 func main() {
-
 	var err error
 	flag.Parse()
 

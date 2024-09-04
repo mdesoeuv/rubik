@@ -111,7 +111,7 @@ func TestFrontFaceRotation(t *testing.T) {
 	if !FaceEqual(cube.faces[cmn.Front], expectedFace) {
 		t.Errorf("Wrong front face after rotation")
 		t.Errorf("Expected:\n%vFound:\n%v", expectedFace, cube.faces[cmn.Front])
-		fmt.Println(cube.Blueprint())
+		t.Logf(cube.Blueprint())
 	}
 }
 

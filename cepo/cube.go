@@ -145,9 +145,12 @@ func (c *Cube) Clone() cmn.Cube {
 	return &newCube
 }
 
+var G1CornerHeuristicTable = MakeG1CornerOrientationsTable()
+
 // TODO: Improve precision
 func (c *Cube) distanceToG2InG1() int {
-	coDistance := c.cornerOrientations.Distance()
+	coDistance := int(G1CornerHeuristicTable[c.cornerOrientations])
+	// coDistance := c.cornerOrientations.Distance()
 	edgeDistance := c.edgePermutation.FUBDCorrectSliceDistance()
 	if coDistance > edgeDistance {
 		return coDistance
@@ -156,24 +159,33 @@ func (c *Cube) distanceToG2InG1() int {
 	}
 }
 
+var G2EdgeHeuristicTable = MakeG2EdgePermutationTable()
+var G2CornerHeuristicTable = MakeG2CornerPermutationTable(G3CornerHeuristicTable)
+
 func (c *Cube) distanceToG3InG2() int {
-	epDistance := c.edgePermutation.AllInCorrectSliceDistance()
-	cpDistance := c.cornerPermutation.AllInCorrectOrbitDistance()
+	// epDistance := c.edgePermutation.AllInCorrectSliceDistance()
+	// cpDistance := c.cornerPermutation.AllInCorrectOrbitDistance()
+	epDistance := G2EdgeHeuristicTable[c.edgePermutation]
+	cpDistance := G2CornerHeuristicTable[c.cornerPermutation]
 	if epDistance > cpDistance {
-		return epDistance
+		return int(epDistance)
 	} else {
-		return cpDistance
+		return int(cpDistance)
 	}
 }
 
+var G3CornerHeuristicTable = MakeG3CornerPermutationTable()
+var G3HeuristicTable = MakeG3HeuristicTable()
+
 func (c *Cube) distanceToG4InG3() int {
-	epDistance := c.edgePermutation.Distance()
-	cpDistance := c.cornerPermutation.Distance()
-	if epDistance > cpDistance {
-		return epDistance
-	} else {
-		return cpDistance
-	}
+	// epDistance := c.edgePermutation.Distance()
+	// cpDistance := c.cornerPermutation.Distance()
+	// if epDistance > cpDistance {
+	// 	return epDistance
+	// } else {
+	// 	return cpDistance
+	// }
+	return int(G3HeuristicTable[*c])
 }
 
 func (c Cube) Equal(o Cube) bool {
