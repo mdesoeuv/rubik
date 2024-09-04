@@ -52,6 +52,7 @@ func (m model) Init() tea.Cmd {
 
 type SolutionMsg struct {
 	moves []cmn.Move
+	time  string
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

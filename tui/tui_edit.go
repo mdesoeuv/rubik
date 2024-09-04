@@ -49,6 +49,7 @@ func (e EditMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 		e.keymap.shuffle.SetEnabled(true)
 		e.keymap.explore.SetEnabled(true)
 		stopWatchCmd = e.stopwatch.Stop()
+		msg.time = e.stopwatch.View()
 		e.solution = msg
 
 	case tea.KeyMsg:
@@ -154,7 +155,7 @@ func (e EditMenu) View() string {
 		s += resultStyle.Render("\n" + e.spinner.View() + "Solving..." + fmt.Sprintf(" (%s)", e.stopwatch.View()))
 	} else if e.solution.moves != nil {
 		solutionString := "\nSolution found: "
-		solutionString += fmt.Sprintf("(%v moves in %s) ", len(e.solution.moves), e.stopwatch.View())
+		solutionString += fmt.Sprintf("(%v moves in %s) ", len(e.solution.moves), e.solution.time)
 		for _, move := range e.solution.moves {
 			solutionString += move.String() + " "
 		}
