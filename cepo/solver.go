@@ -15,8 +15,6 @@ type Solver struct {
 	G1CornerHeuristicTable map[CornerOrientations]uint8
 	G2EdgeHeuristicTable   map[EdgePermutation]uint8
 	G2CornerHeuristicTable map[CornerPermutation]uint8
-	G3EdgeHeuristicTable   map[EdgePermutation]uint8
-	G3CornerHeuristicTable map[CornerPermutation]uint8
 	G3HeuristicTable       map[Cube]uint8
 }
 
@@ -53,8 +51,6 @@ func (s *Solver) PrintStats() {
 	fmt.Printf("G1CornerHeuristicTable: %v\n", len(s.G1CornerHeuristicTable))
 	fmt.Printf("G2EdgeHeuristicTable:   %v\n", len(s.G2EdgeHeuristicTable))
 	fmt.Printf("G2CornerHeuristicTable: %v\n", len(s.G2CornerHeuristicTable))
-	fmt.Printf("G3EdgeHeuristicTable:   %v\n", len(s.G3EdgeHeuristicTable))
-	fmt.Printf("G3CornerHeuristicTable: %v\n", len(s.G3CornerHeuristicTable))
 	fmt.Printf("G3HeuristicTable:       %v\n", len(s.G3HeuristicTable))
 }
 
@@ -68,8 +64,6 @@ func NewSolver() *Solver {
 		G1CornerHeuristicTable: MakeG1CornerOrientationsTable(),
 		G2EdgeHeuristicTable:   MakeG2EdgePermutationTable(),
 		G2CornerHeuristicTable: MakeG2CornerPermutationTable(G3CornerHeuristicTable),
-		G3EdgeHeuristicTable:   MakeG3EdgePermutationTable(),
-		G3CornerHeuristicTable: G3CornerHeuristicTable,
 		G3HeuristicTable:       MakeG3HeuristicTable(),
 	}
 	solver.save(DefaultCacheName)
@@ -106,13 +100,7 @@ func (s *Solver) distanceToG3InG2(c *Cube) int {
 }
 
 func (s *Solver) distanceToG4InG3(c *Cube) int {
-	epDistance := s.G3EdgeHeuristicTable[c.EdgePermutation]
-	cpDistance := s.G3CornerHeuristicTable[c.CornerPermutation]
-	if epDistance > cpDistance {
-		return int(epDistance)
-	} else {
-		return int(cpDistance)
-	}
+	return int(s.G3HeuristicTable[*c])
 }
 
 func (s *Solver) ToG1(c *Cube) []cmn.Move {
