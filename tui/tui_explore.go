@@ -53,7 +53,6 @@ func (e ExploreMenu) Update(msg tea.Msg) (Menu, tea.Cmd) {
 				choice := move
 				move, err := cmn.ParseMove(choice)
 				if err != nil {
-					// TODO: Better
 					fmt.Println(err)
 				}
 				e.cube.Apply(move)

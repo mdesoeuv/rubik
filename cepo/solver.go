@@ -20,8 +20,10 @@ type Solver struct {
 	G3HeuristicTable       map[Cube]uint8
 }
 
-func (s *Solver) save() error {
-	file, createError := os.Create("rubik.cache")
+const DefaultCacheName = "rubik.cache"
+
+func (s *Solver) save(cacheName string) error {
+	file, createError := os.Create(cacheName)
 	if createError != nil {
 		return fmt.Errorf("could not create cache file: %v", createError)
 	}
@@ -31,7 +33,7 @@ func (s *Solver) save() error {
 	return error
 }
 
-func LoadSolver(cacheName string) (*Solver, error) {
+func loadSolver(cacheName string) (*Solver, error) {
 	solver := &Solver{}
 	file, openError := os.Open(cacheName)
 	if openError != nil {
@@ -57,7 +59,7 @@ func (s *Solver) PrintStats() {
 }
 
 func NewSolver() *Solver {
-	loadedSolver, loadError := LoadSolver("rubik.cache")
+	loadedSolver, loadError := loadSolver(DefaultCacheName)
 	if loadError == nil {
 		return loadedSolver
 	}
@@ -70,7 +72,7 @@ func NewSolver() *Solver {
 		G3CornerHeuristicTable: G3CornerHeuristicTable,
 		G3HeuristicTable:       MakeG3HeuristicTable(),
 	}
-	solver.save()
+	solver.save(DefaultCacheName)
 	return solver
 }
 
@@ -83,7 +85,6 @@ func GetGlobalSolver() *Solver {
 	return maybeNilSolver
 }
 
-// TODO: Improve precision
 func (s *Solver) distanceToG2InG1(c *Cube) int {
 	coDistance := int(s.G1CornerHeuristicTable[c.CornerOrientations])
 	edgeDistance := c.EdgePermutation.FUBDCorrectSliceDistance()

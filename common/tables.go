@@ -5,7 +5,6 @@ type EdgeFace struct {
 	FaceNmb uint8
 }
 
-// TODO: Find formula
 var EdgeFaceMap = map[CubeCoord]EdgeFace{
 	{Side: Up, FaceCoord: FaceCoord10}:    {UpLeft, 0},
 	{Side: Left, FaceCoord: FaceCoord01}:  {UpLeft, 1},
@@ -33,7 +32,6 @@ var EdgeFaceMap = map[CubeCoord]EdgeFace{
 	{Side: Back, FaceCoord: FaceCoord01}:  {UpBack, 1},
 }
 
-// TODO: Find formula
 var CornerCoordMap = map[CubeCoord]CornerIndex{
 	{Side: Up, FaceCoord: FaceCoord00}:    UpLeftBack,
 	{Side: Left, FaceCoord: FaceCoord00}:  UpLeftBack,

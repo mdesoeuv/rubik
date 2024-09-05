@@ -57,7 +57,6 @@ func (co *CornerOrientations) Apply(move cmn.Move) {
 	for i := range crown {
 		from, to := crown[i], crown[(i+move.Rotation.PositiveInt())%len(crown)]
 		orientation := co.Get(from)
-		// TODO: Remove condition
 		if move.Rotation.IsQuaterTurn() {
 			orientation = ((orientation << 1) + uint8(rotation<<1)) % CornerOrientationCount
 		}
