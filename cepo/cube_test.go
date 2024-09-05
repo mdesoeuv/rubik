@@ -3,6 +3,7 @@ package cepo_test
 import (
 	"math/rand/v2"
 	"testing"
+	"time"
 
 	"github.com/mdesoeuv/rubik/cepo"
 	"github.com/mdesoeuv/rubik/common"
@@ -67,6 +68,7 @@ func TestCubeToG2(t *testing.T) {
 	}
 	t.Logf("Max step count taken: %v", maxStepCount)
 }
+
 func TestCubeToG3(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
@@ -100,6 +102,7 @@ func TestCubeToG3(t *testing.T) {
 func TestCubeToG4(t *testing.T) {
 	r := rand.New(rand.NewPCG(0, 0))
 	maxStepCount := 0
+	maxTimeTaken := time.Second * 0
 
 	solver := cepo.GetGlobalSolver()
 	for move_count := 0; move_count <= 100; move_count++ {
@@ -107,7 +110,16 @@ func TestCubeToG4(t *testing.T) {
 		common.Shuffle(cube, r, move_count)
 
 		t.Logf("Solving #%v", move_count)
+		start := time.Now()
 		steps := solver.ToG4(cube)
+		elapsed := time.Since(start)
+		if elapsed > maxTimeTaken {
+			maxTimeTaken = elapsed
+		}
+		if elapsed > 3*time.Second {
+			t.Fatalf("Took too much to time to solve")
+		}
+
 		if steps == nil {
 			t.Fatalf("There should be a solution")
 		}
@@ -125,6 +137,7 @@ func TestCubeToG4(t *testing.T) {
 		}
 	}
 	t.Logf("Max step count taken: %v", maxStepCount)
+	t.Logf("Max time taken: %v", maxTimeTaken)
 }
 
 func TestCubeToG1FromArticleShuffle(t *testing.T) {
