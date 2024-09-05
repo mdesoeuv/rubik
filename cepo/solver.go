@@ -1,7 +1,11 @@
 package cepo
 
 import (
+	"bufio"
+	"encoding/gob"
+	"fmt"
 	"math"
+	"os"
 	"slices"
 
 	cmn "github.com/mdesoeuv/rubik/common"
@@ -16,9 +20,49 @@ type Solver struct {
 	G3HeuristicTable       map[Cube]uint8
 }
 
+func (s *Solver) save() error {
+	file, createError := os.Create("rubik.cache")
+	if createError != nil {
+		return fmt.Errorf("could not create cache file: %v", createError)
+	}
+	defer file.Close()
+	encoder := gob.NewEncoder(file)
+	error := encoder.Encode(*s)
+	return error
+}
+
+func LoadSolver(cacheName string) (*Solver, error) {
+	solver := &Solver{}
+	file, openError := os.Open(cacheName)
+	if openError != nil {
+		return solver, openError
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	decoder := gob.NewDecoder(reader)
+	decodeError := decoder.Decode(solver)
+	if decodeError != nil {
+		os.Remove(cacheName)
+	}
+	return solver, decodeError
+}
+
+func (s *Solver) PrintStats() {
+	fmt.Printf("G1CornerHeuristicTable: %v\n", len(s.G1CornerHeuristicTable))
+	fmt.Printf("G2EdgeHeuristicTable:   %v\n", len(s.G2EdgeHeuristicTable))
+	fmt.Printf("G2CornerHeuristicTable: %v\n", len(s.G2CornerHeuristicTable))
+	fmt.Printf("G3EdgeHeuristicTable:   %v\n", len(s.G3EdgeHeuristicTable))
+	fmt.Printf("G3CornerHeuristicTable: %v\n", len(s.G3CornerHeuristicTable))
+	fmt.Printf("G3HeuristicTable:       %v\n", len(s.G3HeuristicTable))
+}
+
 func NewSolver() *Solver {
+	loadedSolver, loadError := LoadSolver("rubik.cache")
+	if loadError == nil {
+		return loadedSolver
+	}
 	G3CornerHeuristicTable := MakeG3CornerPermutationTable()
-	return &Solver{
+	solver := &Solver{
 		G1CornerHeuristicTable: MakeG1CornerOrientationsTable(),
 		G2EdgeHeuristicTable:   MakeG2EdgePermutationTable(),
 		G2CornerHeuristicTable: MakeG2CornerPermutationTable(G3CornerHeuristicTable),
@@ -26,6 +70,8 @@ func NewSolver() *Solver {
 		G3CornerHeuristicTable: G3CornerHeuristicTable,
 		G3HeuristicTable:       MakeG3HeuristicTable(),
 	}
+	solver.save()
+	return solver
 }
 
 var maybeNilSolver *Solver
@@ -39,8 +85,8 @@ func GetGlobalSolver() *Solver {
 
 // TODO: Improve precision
 func (s *Solver) distanceToG2InG1(c *Cube) int {
-	coDistance := int(s.G1CornerHeuristicTable[c.cornerOrientations])
-	edgeDistance := c.edgePermutation.FUBDCorrectSliceDistance()
+	coDistance := int(s.G1CornerHeuristicTable[c.CornerOrientations])
+	edgeDistance := c.EdgePermutation.FUBDCorrectSliceDistance()
 	if coDistance > edgeDistance {
 		return coDistance
 	} else {
@@ -49,8 +95,8 @@ func (s *Solver) distanceToG2InG1(c *Cube) int {
 }
 
 func (s *Solver) distanceToG3InG2(c *Cube) int {
-	epDistance := s.G2EdgeHeuristicTable[c.edgePermutation]
-	cpDistance := s.G2CornerHeuristicTable[c.cornerPermutation]
+	epDistance := s.G2EdgeHeuristicTable[c.EdgePermutation]
+	cpDistance := s.G2CornerHeuristicTable[c.CornerPermutation]
 	if epDistance > cpDistance {
 		return int(epDistance)
 	} else {
@@ -59,8 +105,8 @@ func (s *Solver) distanceToG3InG2(c *Cube) int {
 }
 
 func (s *Solver) distanceToG4InG3(c *Cube) int {
-	epDistance := s.G3EdgeHeuristicTable[c.edgePermutation]
-	cpDistance := s.G3CornerHeuristicTable[c.cornerPermutation]
+	epDistance := s.G3EdgeHeuristicTable[c.EdgePermutation]
+	cpDistance := s.G3CornerHeuristicTable[c.CornerPermutation]
 	if epDistance > cpDistance {
 		return int(epDistance)
 	} else {
@@ -69,7 +115,7 @@ func (s *Solver) distanceToG4InG3(c *Cube) int {
 }
 
 func (s *Solver) ToG1(c *Cube) []cmn.Move {
-	bound := c.edgeOrientations.Distance()
+	bound := c.EdgeOrientations.Distance()
 
 	seen := map[Cube]struct{}{}
 	seen[*c] = struct{}{}
@@ -94,7 +140,7 @@ func (s *Solver) searchG1(
 	g int,
 	bound int,
 ) (int, []cmn.Move) {
-	f := g + cube.edgeOrientations.Distance()
+	f := g + cube.EdgeOrientations.Distance()
 	if f > bound {
 		return f, nil
 	}
@@ -422,8 +468,8 @@ type G3Cube struct {
 
 func ToG3Cube(c Cube) G3Cube {
 	return G3Cube{
-		edge:   c.edgePermutation,
-		corner: c.cornerPermutation,
+		edge:   c.EdgePermutation,
+		corner: c.CornerPermutation,
 	}
 }
 
@@ -459,7 +505,7 @@ func MakeG3BetterHeuristicTable() map[G3Cube]uint8 {
 }
 
 func MakeG3CornerPermutationTable() map[CornerPermutation]uint8 {
-	solvedCube := NewCubeSolved().cornerPermutation
+	solvedCube := NewCubeSolved().CornerPermutation
 	toExplore := []CornerPermutation{solvedCube}
 	toExploreNext := []CornerPermutation{}
 	result := map[CornerPermutation]uint8{solvedCube: 0}
@@ -485,7 +531,7 @@ func MakeG3CornerPermutationTable() map[CornerPermutation]uint8 {
 }
 
 func MakeG3EdgePermutationTable() map[EdgePermutation]uint8 {
-	solvedCube := NewCubeSolved().edgePermutation
+	solvedCube := NewCubeSolved().EdgePermutation
 	toExplore := []EdgePermutation{solvedCube}
 	toExploreNext := []EdgePermutation{}
 	result := map[EdgePermutation]uint8{solvedCube: 0}
@@ -541,7 +587,7 @@ func MakeG2CornerPermutationTable(g3 map[CornerPermutation]uint8) map[CornerPerm
 }
 
 func MakeG2EdgePermutationTable() map[EdgePermutation]uint8 {
-	solvedCube := NewCubeSolved().edgePermutation
+	solvedCube := NewCubeSolved().EdgePermutation
 	toExplore := []EdgePermutation{solvedCube}
 	toExploreNext := []EdgePermutation{}
 	result := map[EdgePermutation]uint8{solvedCube: 0}
@@ -567,7 +613,7 @@ func MakeG2EdgePermutationTable() map[EdgePermutation]uint8 {
 }
 
 func MakeG1CornerOrientationsTable() map[CornerOrientations]uint8 {
-	solvedCube := NewCubeSolved().cornerOrientations
+	solvedCube := NewCubeSolved().CornerOrientations
 	toExplore := []CornerOrientations{solvedCube}
 	toExploreNext := []CornerOrientations{}
 	result := map[CornerOrientations]uint8{solvedCube: 0}

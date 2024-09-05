@@ -24,30 +24,30 @@ const (
 )
 
 type CornerOrientations struct {
-	bits uint32
+	Bits uint32
 }
 type CornerPermutationBits = uint32
 type CornerPermutation struct {
-	bits CornerPermutationBits
+	Bits CornerPermutationBits
 }
 
 func NewCornerOrientationsSolved() CornerOrientations {
-	return CornerOrientations{bits: 0}
+	return CornerOrientations{Bits: 0}
 }
 
 func (co CornerOrientations) IsSolved() bool {
-	return co.bits == 0
+	return co.Bits == 0
 }
 
 func (co CornerOrientations) Get(index cmn.CornerIndex) CornerOrientation {
 	var i = index - 1
-	return CornerOrientation((co.bits >> (i * 2)) & 3)
+	return CornerOrientation((co.Bits >> (i * 2)) & 3)
 }
 
 func (co *CornerOrientations) Set(index cmn.CornerIndex, orientation CornerOrientation) {
 	var i = index - 1
-	co.bits &= ^(3 << (i * 2))                  // Clear bits
-	co.bits |= (uint32(orientation) << (i * 2)) // Set value
+	co.Bits &= ^(3 << (i * 2))                  // Clear bits
+	co.Bits |= (uint32(orientation) << (i * 2)) // Set value
 }
 
 func (co *CornerOrientations) Apply(move cmn.Move) {
@@ -68,11 +68,11 @@ func (co *CornerOrientations) Apply(move cmn.Move) {
 
 func (co CornerOrientations) Distance() int {
 	// There is only 1 one for each mis oriented corner
-	return (bits.OnesCount32(co.bits) + 3) / 4
+	return (bits.OnesCount32(co.Bits) + 3) / 4
 }
 
 func NewCornerPermutationSolved() CornerPermutation {
-	cp := CornerPermutation{bits: 0}
+	cp := CornerPermutation{Bits: 0}
 	for index := cmn.FirstCornerIndex; index <= cmn.LastCornerIndex; index++ {
 		cp.Set(index, index)
 	}
@@ -81,13 +81,13 @@ func NewCornerPermutationSolved() CornerPermutation {
 
 func (cp CornerPermutation) Get(index cmn.CornerIndex) cmn.CornerIndex {
 	var i = index - 1
-	return cmn.CornerIndex((cp.bits>>(i*3))&0x7 + 1)
+	return cmn.CornerIndex((cp.Bits>>(i*3))&0x7 + 1)
 }
 
 func (cp *CornerPermutation) Set(index, value cmn.CornerIndex) {
 	var i = index - 1
-	cp.bits &= ^CornerPermutationBits(0x7 << (i * 3))    // Clear edge
-	cp.bits |= CornerPermutationBits(value-1) << (i * 3) // Set value
+	cp.Bits &= ^CornerPermutationBits(0x7 << (i * 3))    // Clear edge
+	cp.Bits |= CornerPermutationBits(value-1) << (i * 3) // Set value
 }
 
 func (cp *CornerPermutation) Apply(move cmn.Move) {

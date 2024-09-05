@@ -18,34 +18,34 @@ func (c *Cube) NewSolver() cmn.Solver {
 }
 
 type Cube struct {
-	edgeOrientations   EdgeOrientations
-	edgePermutation    EdgePermutation
-	cornerOrientations CornerOrientations
-	cornerPermutation  CornerPermutation
+	EdgeOrientations   EdgeOrientations
+	EdgePermutation    EdgePermutation
+	CornerOrientations CornerOrientations
+	CornerPermutation  CornerPermutation
 }
 
 func NewCubeSolved() *Cube {
 	return &Cube{
-		edgeOrientations:   NewEdgeOrientationsSolved(),
-		edgePermutation:    NewEdgePermutationSolved(),
-		cornerOrientations: NewCornerOrientationsSolved(),
-		cornerPermutation:  NewCornerPermutationSolved(),
+		EdgeOrientations:   NewEdgeOrientationsSolved(),
+		EdgePermutation:    NewEdgePermutationSolved(),
+		CornerOrientations: NewCornerOrientationsSolved(),
+		CornerPermutation:  NewCornerPermutationSolved(),
 	}
 }
 
 func (c *Cube) Apply(m cmn.Move) {
-	c.edgeOrientations.Apply(m)
-	c.edgePermutation.Apply(m)
-	c.cornerOrientations.Apply(m)
-	c.cornerPermutation.Apply(m)
+	c.EdgeOrientations.Apply(m)
+	c.EdgePermutation.Apply(m)
+	c.CornerOrientations.Apply(m)
+	c.CornerPermutation.Apply(m)
 }
 
 func (c *Cube) Get(coord cmn.CubeCoord) cmn.Side {
 	if coord.FaceCoord.IsEdge() {
 		edgeFace := cmn.EdgeFaceMap[coord]
-		originalIndex := c.edgePermutation.Get(edgeFace.Index)
+		originalIndex := c.EdgePermutation.Get(edgeFace.Index)
 		originalCoords := cmn.EdgeIndexMap[originalIndex]
-		turned := c.edgeOrientations.Get(originalIndex)
+		turned := c.EdgeOrientations.Get(originalIndex)
 		if (edgeFace.FaceNmb == 0) != turned {
 			return originalCoords.A.Side
 		} else {
@@ -61,19 +61,19 @@ func (c *Cube) Get(coord cmn.CubeCoord) cmn.Side {
 }
 
 func (c *Cube) IsSolved() bool {
-	return (c.edgeOrientations.IsSolved() &&
-		c.edgePermutation.IsSolved() &&
-		c.cornerOrientations.IsSolved() &&
-		c.cornerPermutation.IsSolved())
+	return (c.EdgeOrientations.IsSolved() &&
+		c.EdgePermutation.IsSolved() &&
+		c.CornerOrientations.IsSolved() &&
+		c.CornerPermutation.IsSolved())
 }
 
 func (c *Cube) IsG1() bool {
-	return c.edgeOrientations.IsSolved()
+	return c.EdgeOrientations.IsSolved()
 }
 
 func (c *Cube) IsG2AssumingG1() bool {
-	return (c.cornerOrientations.IsSolved() &&
-		c.edgePermutation.FUBDInCorrectSlice())
+	return (c.CornerOrientations.IsSolved() &&
+		c.EdgePermutation.FUBDInCorrectSlice())
 }
 
 func (c *Cube) IsG2() bool {
@@ -93,8 +93,8 @@ func (s *Solver) IsG3(c *Cube) bool {
 }
 
 func (c *Cube) IsG4AssumingG3() bool {
-	return (c.edgePermutation.IsSolved() &&
-		c.cornerPermutation.IsSolved())
+	return (c.EdgePermutation.IsSolved() &&
+		c.CornerPermutation.IsSolved())
 }
 
 func (c *Cube) IsG4() bool {
@@ -111,8 +111,8 @@ func (c *Cube) Clone() cmn.Cube {
 }
 
 func (c Cube) Equal(o Cube) bool {
-	return (c.edgeOrientations == o.edgeOrientations &&
-		c.edgePermutation == o.edgePermutation &&
-		c.cornerOrientations == o.cornerOrientations &&
-		c.cornerPermutation == o.cornerPermutation)
+	return (c.EdgeOrientations == o.EdgeOrientations &&
+		c.EdgePermutation == o.EdgePermutation &&
+		c.CornerOrientations == o.CornerOrientations &&
+		c.CornerPermutation == o.CornerPermutation)
 }
