@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand/v2"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	cmn "github.com/mdesoeuv/rubik/common"
 	tui "github.com/mdesoeuv/rubik/tui"
 	vc "github.com/mdesoeuv/rubik/visual_cepo"
-	"math/rand/v2"
 )
 
 var (
