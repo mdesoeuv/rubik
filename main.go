@@ -59,16 +59,14 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		s := fmt.Sprintln(cube.Blueprint())
-		s += fmt.Sprintln("Solving...")
 		solution := solver.Solve(cube)
-		s += fmt.Sprintf("Solution found in %v steps: ", len(solution))
+		if *verboseFlag {
+			fmt.Println(cube.Blueprint())
+			fmt.Printf("Solution found in %v steps: ", len(solution))
+		}
 		output := ""
 		for _, move := range solution {
 			output += move.String() + " "
-		}
-		if *verboseFlag {
-			fmt.Println(s)
 		}
 		fmt.Println(output)
 	}
