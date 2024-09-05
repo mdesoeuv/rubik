@@ -1,7 +1,6 @@
 package visual
 
 import (
-	"fmt"
 	"testing"
 
 	cmn "github.com/mdesoeuv/rubik/common"

@@ -6,9 +6,13 @@ type Cube interface {
 	IsSolved() bool
 	Apply(Move)
 	Get(CubeCoord) Side
-	Solve() []Move
+	NewSolver() Solver
 	Clone() Cube
 	Blueprint() string
+}
+
+type Solver interface {
+	Solve(c Cube) []Move
 }
 
 type CubeCoord struct {

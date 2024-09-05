@@ -27,30 +27,30 @@ var EdgeOrientationMaskList = [6]EdgeOrientationBits{
 }
 
 type EdgeOrientations struct {
-	bits EdgeOrientationBits
+	Bits EdgeOrientationBits
 }
 
 func NewEdgeOrientationsSolved() EdgeOrientations {
-	return EdgeOrientations{bits: 0}
+	return EdgeOrientations{Bits: 0}
 }
 
 func (eo EdgeOrientations) IsSolved() bool {
-	return eo.bits == 0
+	return eo.Bits == 0
 }
 
 func (eo EdgeOrientations) Get(index cmn.EdgeIndex) cmn.EdgeOrientation {
 	var i = index - 1
-	return (eo.bits>>i)&1 == 1
+	return (eo.Bits>>i)&1 == 1
 }
 
 func (eo *EdgeOrientations) Set(index cmn.EdgeIndex, orientation cmn.EdgeOrientation) {
 	var i = index - 1
-	eo.bits &= ^(1 << i) // Clear bitb
+	eo.Bits &= ^(1 << i) // Clear bitb
 	n := EdgeOrientationBits(0)
 	if orientation {
 		n = EdgeOrientationBits(1)
 	}
-	eo.bits |= (n << i) // Set value
+	eo.Bits |= (n << i) // Set value
 }
 
 func (eo *EdgeOrientations) Apply(move cmn.Move) {
@@ -67,30 +67,30 @@ func (eo *EdgeOrientations) Apply(move cmn.Move) {
 		return
 	}
 	if move.Side == cmn.Up {
-		eo.bits ^= EdgeOrientationMaskUp
+		eo.Bits ^= EdgeOrientationMaskUp
 	} else if move.Side == cmn.Down {
-		eo.bits ^= EdgeOrientationMaskDown
+		eo.Bits ^= EdgeOrientationMaskDown
 	}
 }
 
 func (eo EdgeOrientations) Distance() int {
 	const UpDownMask = EdgeOrientationMaskUp | EdgeOrientationMaskDown
-	upDownDistance := bits.OnesCount16(eo.bits & UpDownMask)
-	middleDistance := 2 * bits.OnesCount16(eo.bits & ^UpDownMask)
+	upDownDistance := bits.OnesCount16(eo.Bits & UpDownMask)
+	middleDistance := 2 * bits.OnesCount16(eo.Bits & ^UpDownMask)
 	return (upDownDistance + middleDistance + 3) / 4
 }
 
 func (eo EdgeOrientations) Equal(other EdgeOrientations) bool {
-	return eo.bits == other.bits
+	return eo.Bits == other.Bits
 }
 
 type EdgePermutationBits = uint64
 type EdgePermutation struct {
-	bits EdgePermutationBits
+	Bits EdgePermutationBits
 }
 
 func NewEdgePermutationSolved() EdgePermutation {
-	ep := EdgePermutation{bits: 0}
+	ep := EdgePermutation{Bits: 0}
 	for index := cmn.FirstEdgeIndex; index <= cmn.LastEdgeIndex; index++ {
 		ep.Set(index, index)
 	}
@@ -241,13 +241,13 @@ const (
 
 func (ep EdgePermutation) Get(index cmn.EdgeIndex) cmn.EdgeIndex {
 	var i = index - 1
-	return cmn.EdgeIndex(((ep.bits >> (i * 4)) & 0xf) + 1)
+	return cmn.EdgeIndex(((ep.Bits >> (i * 4)) & 0xf) + 1)
 }
 
 func (ep *EdgePermutation) Set(index, value cmn.EdgeIndex) {
 	var i = index - 1
-	ep.bits &= ^(0xf << (i * 4))                       // Clear edge
-	ep.bits |= EdgePermutationBits(value-1) << (i * 4) // Set value
+	ep.Bits &= ^(0xf << (i * 4))                       // Clear edge
+	ep.Bits |= EdgePermutationBits(value-1) << (i * 4) // Set value
 }
 
 func (ep *EdgePermutation) Apply(move cmn.Move) {
@@ -262,7 +262,7 @@ func (ep *EdgePermutation) Apply(move cmn.Move) {
 }
 
 func (ep EdgePermutation) Equal(other EdgePermutation) bool {
-	return ep.bits == other.bits
+	return ep.Bits == other.Bits
 }
 
 func (ep EdgePermutation) Distance() int {
