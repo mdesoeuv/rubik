@@ -105,7 +105,7 @@ func TestCubeToG4(t *testing.T) {
 	maxTimeTaken := time.Second * 0
 
 	solver := cepo.GetGlobalSolver()
-	for move_count := 0; move_count <= 100; move_count++ {
+	for move_count := 0; move_count <= 1000; move_count++ {
 		cube := cepo.NewCubeSolved()
 		common.Shuffle(cube, r, move_count)
 
