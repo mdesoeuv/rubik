@@ -174,7 +174,6 @@ func edgeCoords(e Edge) EdgeCoords {
 	return EdgeCoords{a, b}
 }
 
-// TODO: Create CornerPiece type
 func cornerFor(a, b, c cmn.Side) (Corner, error) {
 	sides := []cmn.Side{a, b, c}
 	slices.Sort(sides)
@@ -217,7 +216,6 @@ func cornerFor(a, b, c cmn.Side) (Corner, error) {
 	return 0, fmt.Errorf("impossible side combination")
 }
 
-// TODO: Create EdgePiece type
 func edgeFor(a, b cmn.Side) (Edge, error) {
 	if b < a {
 		a, b = b, a

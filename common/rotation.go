@@ -1,7 +1,6 @@
 package common
 
 type Rotation struct {
-	// TODO: Make it a positive number
 	amount int8
 }
 
@@ -42,7 +41,6 @@ func (r Rotation) String() string {
 	}
 }
 
-// TODO: Use math instead
 func (r Rotation) Reverse() Rotation {
 	switch r.amount {
 	case -1:

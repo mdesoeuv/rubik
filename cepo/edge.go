@@ -101,7 +101,6 @@ func (ep EdgePermutation) IsSolved() bool {
 	return ep.Equal(NewEdgePermutationSolved())
 }
 
-// TODO: rename slices
 func (ep EdgePermutation) URBLInCorrectSlice() bool {
 	found := 1 << ep.Get(cmn.UL)
 	found |= 1 << ep.Get(cmn.DL)
@@ -130,7 +129,6 @@ func (ep EdgePermutation) FUBDInCorrectSlice() bool {
 }
 
 func (ep EdgePermutation) URBLCorrectSliceDistance() int {
-	// TODO: check/explain computation
 	distance := 0
 	if ep.Get(cmn.UL) > cmn.DR {
 		distance += 1
@@ -148,7 +146,6 @@ func (ep EdgePermutation) URBLCorrectSliceDistance() int {
 }
 
 func (ep EdgePermutation) FRBLCorrectSliceDistance() int {
-	// TODO: check/explain computation
 	distance := 0
 	if x := ep.Get(cmn.LB); x < cmn.LB || x > cmn.RB {
 		distance += 1
@@ -166,7 +163,6 @@ func (ep EdgePermutation) FRBLCorrectSliceDistance() int {
 }
 
 func (ep EdgePermutation) FUBDCorrectSliceDistance() int {
-	// TODO: check/explain computation
 	distance := 0
 	if ep.Get(cmn.UF) < cmn.UF {
 		distance += 1

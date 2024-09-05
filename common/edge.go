@@ -3,7 +3,6 @@ package common
 type EdgeIndex uint8
 type EdgeOrientation bool
 
-// TODO: Make start at 0
 const (
 	UpLeft     EdgeIndex = 1
 	DownLeft   EdgeIndex = 2

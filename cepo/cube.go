@@ -41,23 +41,7 @@ func (c *Cube) Apply(m cmn.Move) {
 }
 
 func (c *Cube) Get(coord cmn.CubeCoord) cmn.Side {
-	if coord.FaceCoord.IsEdge() {
-		edgeFace := cmn.EdgeFaceMap[coord]
-		originalIndex := c.EdgePermutation.Get(edgeFace.Index)
-		originalCoords := cmn.EdgeIndexMap[originalIndex]
-		turned := c.EdgeOrientations.Get(originalIndex)
-		if (edgeFace.FaceNmb == 0) != turned {
-			return originalCoords.A.Side
-		} else {
-			return originalCoords.B.Side
-		}
-	} else {
-		// cornerIndex := CornerCoordMap[coord]
-		// originalIndex := c.cornerPermutation.get(cornerIndex)
-		// originalCoords := CornerIndexMap[originalIndex]
-		// TODO: Implement
-		panic("TODO")
-	}
+	panic("cepo.Cube does not support Cube.Get")
 }
 
 func (c *Cube) IsSolved() bool {
@@ -83,9 +67,6 @@ func (c *Cube) IsG2() bool {
 func (s *Solver) IsG3AssumingG2(c *Cube) bool {
 	_, isG3 := s.G3HeuristicTable[*c]
 	return isG3
-	// _, isG3CornerPermutation := s.G3CornerHeuristicTable[c.cornerPermutation]
-	// _, isG3EdgePermutation := s.G3EdgeHeuristicTable[c.edgePermutation]
-	// return isG3CornerPermutation && isG3EdgePermutation
 }
 
 func (s *Solver) IsG3(c *Cube) bool {

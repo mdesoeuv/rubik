@@ -2,7 +2,6 @@ package common
 
 type CornerIndex uint8
 
-// TODO: Make start at 0
 const (
 	UpLeftBack     CornerIndex = 1
 	DownLeftFront  CornerIndex = 2
