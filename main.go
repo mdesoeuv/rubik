@@ -14,6 +14,7 @@ import (
 var (
 	tuiFlag     = flag.Bool("tui", false, "Enable Terminal User Interface")
 	profileFlag = flag.Bool("profile", false, "Enable CPU profiling")
+	verboseFlag = flag.Bool("verbose", false, "Enable verbose output")
 )
 
 func main() {
@@ -58,13 +59,15 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		fmt.Println(cube.Blueprint())
-		fmt.Println("Solving...")
 		solution := solver.Solve(cube)
-		s := fmt.Sprintf("Solution found in %v steps: ", len(solution))
-		for _, move := range solution {
-			s += move.String() + " "
+		if *verboseFlag {
+			fmt.Println(cube.Blueprint())
+			fmt.Printf("Solution found in %v steps: ", len(solution))
 		}
-		fmt.Println(s)
+		output := ""
+		for _, move := range solution {
+			output += move.String() + " "
+		}
+		fmt.Println(output)
 	}
 }

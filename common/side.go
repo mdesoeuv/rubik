@@ -64,7 +64,7 @@ func SideFromLetter(letter rune) (face Side, err error) {
 	case 'B':
 		face = Back
 	default:
-		err = errors.New("invalid face")
+		err = errors.New("invalid face letter")
 	}
 	return
 }
