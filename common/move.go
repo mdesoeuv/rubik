@@ -70,6 +70,9 @@ func ParseMove(str string) (move Move, err error) {
 func ParseMoveList(str string) (moveList []Move, err error) {
 	strArray := strings.Split(str, " ")
 	for _, moveStr := range strArray {
+		if len(moveStr) == 0 {
+			continue
+		}
 		move, e := ParseMove(moveStr)
 		if e != nil {
 			return nil, e
