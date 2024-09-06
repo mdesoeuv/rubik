@@ -38,9 +38,15 @@ func main() {
 		moveListStr = args[0]
 		moveList, err = cmn.ParseMoveList(moveListStr)
 		if err != nil {
+			fmt.Print("invalid move sequence: ")
 			fmt.Println(err)
 			return
 		}
+	}
+
+	if len(args) > 1 {
+		fmt.Println("invalid move sequence: expected only one argument.")
+		return
 	}
 
 	cube := vc.NewCubeSolved()
